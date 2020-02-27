@@ -11,56 +11,57 @@ namespace Nez
 		TextField _textFieldX, _textFieldY;
 
 
-		public override void Initialize(Table table, Skin skin, float leftCellWidth)
+		public override void initialize( Table table, Skin skin, float leftCellWidth )
 		{
-			var value = GetValue<Vector2>();
-			var label = CreateNameLabel(table, skin, leftCellWidth);
+			var value = getValue<Vector2>();
+			var label = createNameLabel( table, skin, leftCellWidth );
 
-			var labelX = new Label("x", skin);
-			_textFieldX = new TextField(value.X.ToString(CultureInfo.InvariantCulture), skin);
-			_textFieldX.SetTextFieldFilter(new FloatFilter()).SetPreferredWidth(50);
-			_textFieldX.OnTextChanged += (field, str) =>
+			var labelX = new Label( "x", skin );
+			_textFieldX = new TextField( value.X.ToString( CultureInfo.InvariantCulture ), skin );
+			_textFieldX.setTextFieldFilter( new FloatFilter() ).setPreferredWidth( 50 );
+			_textFieldX.onTextChanged += ( field, str ) =>
 			{
 				float newX;
-				if (float.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out newX))
+				if( float.TryParse( str, NumberStyles.Float, CultureInfo.InvariantCulture, out newX ) )
 				{
-					var newValue = GetValue<Vector2>();
+					var newValue = getValue<Vector2>();
 					newValue.X = newX;
-					SetValue(newValue);
+					setValue( newValue );
 				}
 			};
 
-			var labelY = new Label("y", skin);
-			_textFieldY = new TextField(value.Y.ToString(CultureInfo.InvariantCulture), skin);
-			_textFieldY.SetTextFieldFilter(new FloatFilter()).SetPreferredWidth(50);
-			_textFieldY.OnTextChanged += (field, str) =>
+			var labelY = new Label( "y", skin );
+			_textFieldY = new TextField( value.Y.ToString( CultureInfo.InvariantCulture ), skin );
+			_textFieldY.setTextFieldFilter( new FloatFilter() ).setPreferredWidth( 50 );
+			_textFieldY.onTextChanged += ( field, str ) =>
 			{
 				float newY;
-				if (float.TryParse(str, NumberStyles.Float, CultureInfo.InvariantCulture, out newY))
+				if( float.TryParse( str, NumberStyles.Float, CultureInfo.InvariantCulture, out newY ) )
 				{
-					var newValue = GetValue<Vector2>();
+					var newValue = getValue<Vector2>();
 					newValue.Y = newY;
-					SetValue(newValue);
+					setValue( newValue );
 				}
 			};
 
-			var hBox = new HorizontalGroup(5);
-			hBox.AddElement(labelX);
-			hBox.AddElement(_textFieldX);
-			hBox.AddElement(labelY);
-			hBox.AddElement(_textFieldY);
+			var hBox = new HorizontalGroup( 5 );
+			hBox.addElement( labelX );
+			hBox.addElement( _textFieldX );
+			hBox.addElement( labelY );
+			hBox.addElement( _textFieldY );
 
-			table.Add(label);
-			table.Add(hBox);
+			table.add( label );
+			table.add( hBox );
 		}
 
 
-		public override void Update()
+		public override void update()
 		{
-			var value = GetValue<Vector2>();
-			_textFieldX.SetText(value.X.ToString(CultureInfo.InvariantCulture));
-			_textFieldY.SetText(value.Y.ToString(CultureInfo.InvariantCulture));
+			var value = getValue<Vector2>();
+			_textFieldX.setText( value.X.ToString( CultureInfo.InvariantCulture ) );
+			_textFieldY.setText( value.Y.ToString( CultureInfo.InvariantCulture ) );
 		}
+
 	}
 }
 #endif

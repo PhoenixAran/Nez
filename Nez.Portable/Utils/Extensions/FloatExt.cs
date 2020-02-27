@@ -2,9 +2,10 @@
 {
 	public static class FloatExt
 	{
-		public static bool Approximately(this float self, float other)
+		public static bool approximately( this float self, float other )
 		{
-			return Mathf.Approximately(self, other);
+			return Mathf.approximately( self, other );
 		}
 	}
 }
+

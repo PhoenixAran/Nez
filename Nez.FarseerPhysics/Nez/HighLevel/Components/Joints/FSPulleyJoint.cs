@@ -10,55 +10,57 @@ namespace Nez.Farseer
 
 		#region Configuration
 
-		public FSPulleyJoint SetOwnerBodyAnchor(Vector2 ownerBodyAnchor)
+		public FSPulleyJoint setOwnerBodyAnchor( Vector2 ownerBodyAnchor )
 		{
-			_jointDef.OwnerBodyAnchor = ownerBodyAnchor;
-			RecreateJoint();
+			_jointDef.ownerBodyAnchor = ownerBodyAnchor;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPulleyJoint SetOtherBodyAnchor(Vector2 otherBodyAnchor)
+		public FSPulleyJoint setOtherBodyAnchor( Vector2 otherBodyAnchor )
 		{
-			_jointDef.OtherBodyAnchor = otherBodyAnchor;
-			RecreateJoint();
+			_jointDef.otherBodyAnchor = otherBodyAnchor;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPulleyJoint SetOwnerBodyGroundAnchor(Vector2 ownerBodyGroundAnchor)
+		public FSPulleyJoint setOwnerBodyGroundAnchor( Vector2 ownerBodyGroundAnchor )
 		{
-			_jointDef.OwnerBodyGroundAnchor = ownerBodyGroundAnchor;
-			RecreateJoint();
+			_jointDef.ownerBodyGroundAnchor = ownerBodyGroundAnchor;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPulleyJoint SetOtherBodyGroundAnchor(Vector2 otherBodyGroundAnchor)
+		public FSPulleyJoint setOtherBodyGroundAnchor( Vector2 otherBodyGroundAnchor )
 		{
-			_jointDef.OtherBodyGroundAnchor = otherBodyGroundAnchor;
-			RecreateJoint();
+			_jointDef.otherBodyGroundAnchor = otherBodyGroundAnchor;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPulleyJoint SetRatio(float ratio)
+		public FSPulleyJoint setRatio( float ratio )
 		{
-			_jointDef.Ratio = ratio;
-			RecreateJoint();
+			_jointDef.ratio = ratio;
+			recreateJoint();
 			return this;
 		}
 
 		#endregion
 
 
-		internal override FSJointDef GetJointDef()
+		internal override FSJointDef getJointDef()
 		{
-			InitializeJointDef(_jointDef);
-			if (_jointDef.BodyA == null || _jointDef.BodyB == null)
+			initializeJointDef( _jointDef );
+			if( _jointDef.bodyA == null || _jointDef.bodyB == null )
 				return null;
 
 			return _jointDef;
 		}
+
+
 	}
 }

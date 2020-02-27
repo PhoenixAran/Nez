@@ -12,24 +12,24 @@ namespace Nez.Verlet
 		/// <summary>
 		/// friction applied to all Particle movement to dampen it. Value should be very close to 1.
 		/// </summary>
-		public Vector2 Friction = new Vector2(0.98f, 1);
+		public Vector2 friction = new Vector2( 0.98f, 1 );
 
 		/// <summary>
 		/// should Particles be rendered when doing a debugRender?
 		/// </summary>
-		public bool DrawParticles = true;
+		public bool drawParticles = true;
 
 		/// <summary>
 		/// should Constraints be rendered when doing a debugRender?
 		/// </summary>
-		public bool DrawConstraints = true;
+		public bool drawConstraints = true;
 
 		/// <summary>
 		/// layer mask of all the layers this Collider should collide with when Entity.move methods are used. defaults to all layers.
 		/// </summary>
-		public int CollidesWithLayers = Physics.AllLayers;
+		public int collidesWithLayers = Physics.allLayers;
 
-		public FastList<Particle> Particles = new FastList<Particle>();
+		public FastList<Particle> particles = new FastList<Particle>();
 		FastList<Constraint> _constraints = new FastList<Constraint>();
 
 
@@ -40,9 +40,9 @@ namespace Nez.Verlet
 		/// </summary>
 		/// <returns>The particle.</returns>
 		/// <param name="particle">Particle.</param>
-		public Particle AddParticle(Particle particle)
+		public Particle addParticle( Particle particle )
 		{
-			Particles.Add(particle);
+			particles.add( particle );
 			return particle;
 		}
 
@@ -51,19 +51,19 @@ namespace Nez.Verlet
 		/// removes the Particle from the Composite
 		/// </summary>
 		/// <param name="particle">Particle.</param>
-		public void RemoveParticle(Particle particle)
+		public void removeParticle( Particle particle )
 		{
-			Particles.Remove(particle);
+			particles.remove( particle );
 		}
 
 
 		/// <summary>
 		/// removes all Particles and Constraints from the Composite
 		/// </summary>
-		public void RemoveAll()
+		public void removeAll()
 		{
-			Particles.Clear();
-			_constraints.Clear();
+			particles.clear();
+			_constraints.clear();
 		}
 
 
@@ -73,9 +73,9 @@ namespace Nez.Verlet
 		/// <returns>The constraint.</returns>
 		/// <param name="constraint">Constraint.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T AddConstraint<T>(T constraint) where T : Constraint
+		public T addConstraint<T>( T constraint ) where T : Constraint
 		{
-			_constraints.Add(constraint);
+			_constraints.add( constraint );
 			constraint.composite = this;
 			return constraint;
 		}
@@ -85,9 +85,9 @@ namespace Nez.Verlet
 		/// removes a Constraint from the Composite
 		/// </summary>
 		/// <param name="constraint">Constraint.</param>
-		public void RemoveConstraint(Constraint constraint)
+		public void removeConstraint( Constraint constraint )
 		{
-			_constraints.Remove(constraint);
+			_constraints.remove( constraint );
 		}
 
 		#endregion
@@ -97,22 +97,22 @@ namespace Nez.Verlet
 		/// applies a force to all Particles in this Composite
 		/// </summary>
 		/// <param name="force">Force.</param>
-		public void ApplyForce(Vector2 force)
+		public void applyForce( Vector2 force )
 		{
-			for (var j = 0; j < Particles.Length; j++)
-				Particles.Buffer[j].ApplyForce(force);
+			for( var j = 0; j < particles.length; j++ )
+				particles.buffer[j].applyForce( force );
 		}
 
 
 		/// <summary>
 		/// handles solving all Constraints
 		/// </summary>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void SolveConstraints()
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void solveConstraints()
 		{
 			// loop backwards in case any Constraints break and are removed
-			for (var i = _constraints.Length - 1; i >= 0; i--)
-				_constraints.Buffer[i].Solve();
+			for( var i = _constraints.length - 1; i >= 0; i-- )
+				_constraints.buffer[i].solve();
 		}
 
 
@@ -121,65 +121,65 @@ namespace Nez.Verlet
 		/// </summary>
 		/// <param name="deltaTimeSquared">Delta time.</param>
 		/// <param name="gravity">Gravity.</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void UpdateParticles(float deltaTimeSquared, Vector2 gravity)
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void updateParticles( float deltaTimeSquared, Vector2 gravity )
 		{
-			for (var j = 0; j < Particles.Length; j++)
+			for( var j = 0; j < particles.length; j++ )
 			{
-				var p = Particles.Buffer[j];
-				if (p.isPinned)
+				var p = particles.buffer[j];
+				if( p.isPinned )
 				{
-					p.Position = p.pinnedPosition;
+					p.position = p.pinnedPosition;
 					continue;
 				}
 
-				p.ApplyForce(p.Mass * gravity);
+				p.applyForce( p.mass * gravity );
 
 				// calculate velocity and dampen it with friction
-				var vel = (p.Position - p.LastPosition) * Friction;
+				var vel = ( p.position - p.lastPosition ) * friction;
 
 				// calculate the next position using Verlet Integration
-				var nextPos = p.Position + vel + 0.5f * p.acceleration * deltaTimeSquared;
+				var nextPos = p.position + vel + 0.5f * p.acceleration * deltaTimeSquared;
 
 				// reset variables
-				p.LastPosition = p.Position;
-				p.Position = nextPos;
+				p.lastPosition = p.position;
+				p.position = nextPos;
 				p.acceleration.X = p.acceleration.Y = 0;
 			}
 		}
 
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public void HandleConstraintCollisions()
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public void handleConstraintCollisions()
 		{
 			// loop backwards in case any Constraints break and are removed
-			for (var i = _constraints.Length - 1; i >= 0; i--)
+			for( var i = _constraints.length - 1; i >= 0; i-- )
 			{
-				if (_constraints.Buffer[i].CollidesWithColliders)
-					_constraints.Buffer[i].HandleCollisions(CollidesWithLayers);
+				if( _constraints.buffer[i].collidesWithColliders )
+					_constraints.buffer[i].handleCollisions( collidesWithLayers );
 			}
 		}
 
 
-		public void DebugRender(Batcher batcher)
+		public void debugRender( Batcher batcher )
 		{
-			if (DrawConstraints)
+			if( drawConstraints )
 			{
-				for (var i = 0; i < _constraints.Length; i++)
-					_constraints.Buffer[i].DebugRender(batcher);
+				for( var i = 0; i < _constraints.length; i++ )
+					_constraints.buffer[i].debugRender( batcher );
 			}
 
-			if (DrawParticles)
+			if( drawParticles )
 			{
-				for (var i = 0; i < Particles.Length; i++)
+				for( var i = 0; i < particles.length; i++ )
 				{
-					if (Particles.Buffer[i].Radius == 0)
-						batcher.DrawPixel(Particles.Buffer[i].Position, Debug.Colors.VerletParticle, 4);
+					if( particles.buffer[i].radius == 0 )
+						batcher.drawPixel( particles.buffer[i].position, Debug.Colors.verletParticle, 4 );
 					else
-						batcher.DrawCircle(Particles.Buffer[i].Position, (int) Particles.Buffer[i].Radius,
-							Debug.Colors.VerletParticle, 1, 4);
+						batcher.drawCircle( particles.buffer[i].position, (int)particles.buffer[i].radius, Debug.Colors.verletParticle, 1, 4 );
 				}
 			}
 		}
+
 	}
 }

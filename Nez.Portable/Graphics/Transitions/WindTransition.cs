@@ -16,71 +16,71 @@ namespace Nez
 		/// how many wind segments should be used. Defaults to 100. (1 - 1000)
 		/// </summary>
 		/// <value>The wind segments.</value>
-		public float WindSegments
+		public float windSegments
 		{
-			set => _windEffect.Parameters["_windSegments"].SetValue(value);
+			set { _windEffect.Parameters["_windSegments"].SetValue( value ); }
 		}
 
 		/// <summary>
 		/// size of the wind streaks. defaults to 0.3. (0.1 - 1)
 		/// </summary>
 		/// <value>The size.</value>
-		public float Size
+		public float size
 		{
-			set => _windEffect.Parameters["_size"].SetValue(value);
+			set { _windEffect.Parameters["_size"].SetValue( value ); }
 		}
 
 		/// <summary>
 		/// duration for the wind transition
 		/// </summary>
-		public float Duration = 1f;
+		public float duration = 1f;
 
 		/// <summary>
 		/// ease equation to use for the animation
 		/// </summary>
-		public EaseType EaseType = EaseType.QuartOut;
+		public EaseType easeType = EaseType.QuartOut;
 
 		Effect _windEffect;
 		Rectangle _destinationRect;
 
 
-		public WindTransition(Func<Scene> sceneLoadAction) : base(sceneLoadAction, true)
+		public WindTransition( Func<Scene> sceneLoadAction ) : base( sceneLoadAction, true )
 		{
-			_destinationRect = PreviousSceneRender.Bounds;
+			_destinationRect = previousSceneRender.Bounds;
 
 			// load Effect and set defaults
-			_windEffect = Core.Content.LoadEffect("Content/nez/effects/transitions/Wind.mgfxo");
-			Size = 0.3f;
-			WindSegments = 100;
+			_windEffect = Core.content.loadEffect( "Content/nez/effects/transitions/Wind.mgfxo" );
+			size = 0.3f;
+			windSegments = 100;
 		}
 
 
-		public WindTransition() : this(null)
-		{
-		}
+		public WindTransition() : this( null )
+		{}
 
 
-		public override IEnumerator OnBeginTransition()
+		public override IEnumerator onBeginTransition()
 		{
 			// load up the new Scene
-			yield return Core.StartCoroutine(LoadNextScene());
+			yield return Core.startCoroutine( loadNextScene() );
 
 			// wind to the new Scene
-			yield return Core.StartCoroutine(TickEffectProgressProperty(_windEffect, Duration, EaseType));
+			yield return Core.startCoroutine( tickEffectProgressProperty( _windEffect, duration, easeType ) );
 
-			TransitionComplete();
+			transitionComplete();
 
 			// cleanup
-			Core.Content.UnloadEffect(_windEffect.Name);
+			Core.content.unloadEffect( _windEffect.Name );
 		}
 
 
-		public override void Render(Batcher batcher)
+		public override void render( Graphics graphics )
 		{
-			Core.GraphicsDevice.SetRenderTarget(null);
-			batcher.Begin(BlendState.NonPremultiplied, Core.DefaultSamplerState, DepthStencilState.None, null, _windEffect);
-			batcher.Draw(PreviousSceneRender, _destinationRect, Color.White);
-			batcher.End();
+			Core.graphicsDevice.setRenderTarget( null );
+			graphics.batcher.begin( BlendState.NonPremultiplied, Core.defaultSamplerState, DepthStencilState.None, null, _windEffect );
+			graphics.batcher.draw( previousSceneRender, _destinationRect, Color.White );
+			graphics.batcher.end();
 		}
 	}
 }
+

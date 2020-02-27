@@ -9,16 +9,16 @@ namespace Nez
 	/// </summary>
 	public class VirtualAxis : VirtualInput
 	{
-		public List<Node> Nodes = new List<Node>();
+		public List<Node> nodes = new List<Node>();
 
-		public float Value
+		public float value
 		{
 			get
 			{
-				for (var i = 0; i < Nodes.Count; i++)
+				for( var i = 0; i < nodes.Count; i++ )
 				{
-					var val = Nodes[i].Value;
-					if (val != 0)
+					var val = nodes[i].value;
+					if( val != 0 )
 						return val;
 				}
 
@@ -27,27 +27,25 @@ namespace Nez
 		}
 
 
-		public VirtualAxis()
+		public VirtualAxis() { }
+
+
+		public VirtualAxis( params Node[] nodes )
 		{
+			this.nodes.AddRange( nodes );
 		}
 
 
-		public VirtualAxis(params Node[] nodes)
+		public override void update()
 		{
-			Nodes.AddRange(nodes);
+			for( var i = 0; i < nodes.Count; i++ )
+				nodes[i].update();
 		}
 
 
-		public override void Update()
+		static public implicit operator float( VirtualAxis axis )
 		{
-			for (var i = 0; i < Nodes.Count; i++)
-				Nodes[i].Update();
-		}
-
-
-		public static implicit operator float(VirtualAxis axis)
-		{
-			return axis.Value;
+			return axis.value;
 		}
 
 
@@ -55,23 +53,29 @@ namespace Nez
 
 		public abstract class Node : VirtualInputNode
 		{
-			public abstract float Value { get; }
+			public abstract float value { get; }
 		}
 
 
 		public class GamePadLeftStickX : Node
 		{
-			public int GamepadIndex;
-			public float Deadzone;
+			public int gamepadIndex;
+			public float deadzone;
 
 
-			public GamePadLeftStickX(int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE)
+			public GamePadLeftStickX( int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE )
 			{
-				GamepadIndex = gamepadIndex;
-				Deadzone = deadzone;
+				this.gamepadIndex = gamepadIndex;
+				this.deadzone = deadzone;
 			}
 
-			public override float Value => Mathf.SignThreshold(Input.GamePads[GamepadIndex].GetLeftStick(Deadzone).X, Deadzone);
+			public override float value
+			{
+				get
+				{
+					return Mathf.signThreshold( Input.gamePads[gamepadIndex].getLeftStick( deadzone ).X, deadzone );
+				}
+			}
 		}
 
 
@@ -80,25 +84,23 @@ namespace Nez
 			/// <summary>
 			/// if true, pressing up will return -1 and down will return 1 matching GamePadDpadUpDown
 			/// </summary>
-			public bool InvertResult = true;
+			public bool invertResult = true;
+			public int gamepadIndex;
+			public float deadzone;
 
-			public int GamepadIndex;
-			public float Deadzone;
 
-
-			public GamePadLeftStickY(int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE)
+			public GamePadLeftStickY( int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE )
 			{
-				GamepadIndex = gamepadIndex;
-				Deadzone = deadzone;
+				this.gamepadIndex = gamepadIndex;
+				this.deadzone = deadzone;
 			}
 
-			public override float Value
+			public override float value
 			{
 				get
 				{
-					var multiplier = InvertResult ? -1 : 1;
-					return multiplier *
-					       Mathf.SignThreshold(Input.GamePads[GamepadIndex].GetLeftStick(Deadzone).Y, Deadzone);
+					var multiplier = invertResult ? -1 : 1;
+					return multiplier * Mathf.signThreshold( Input.gamePads[gamepadIndex].getLeftStick( deadzone ).Y, deadzone );
 				}
 			}
 		}
@@ -106,54 +108,66 @@ namespace Nez
 
 		public class GamePadRightStickX : Node
 		{
-			public int GamepadIndex;
-			public float Deadzone;
+			public int gamepadIndex;
+			public float deadzone;
 
 
-			public GamePadRightStickX(int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE)
+			public GamePadRightStickX( int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE )
 			{
-				GamepadIndex = gamepadIndex;
-				Deadzone = deadzone;
+				this.gamepadIndex = gamepadIndex;
+				this.deadzone = deadzone;
 			}
 
-			public override float Value => Mathf.SignThreshold(Input.GamePads[GamepadIndex].GetRightStick(Deadzone).X, Deadzone);
+			public override float value
+			{
+				get
+				{
+					return Mathf.signThreshold( Input.gamePads[gamepadIndex].getRightStick( deadzone ).X, deadzone );
+				}
+			}
 		}
 
 
 		public class GamePadRightStickY : Node
 		{
-			public int GamepadIndex;
-			public float Deadzone;
+			public int gamepadIndex;
+			public float deadzone;
 
 
-			public GamePadRightStickY(int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE)
+			public GamePadRightStickY( int gamepadIndex = 0, float deadzone = Input.DEFAULT_DEADZONE )
 			{
-				GamepadIndex = gamepadIndex;
-				Deadzone = deadzone;
+				this.gamepadIndex = gamepadIndex;
+				this.deadzone = deadzone;
 			}
 
-			public override float Value => Mathf.SignThreshold(Input.GamePads[GamepadIndex].GetRightStick(Deadzone).Y, Deadzone);
+			public override float value
+			{
+				get
+				{
+					return Mathf.signThreshold( Input.gamePads[gamepadIndex].getRightStick( deadzone ).Y, deadzone );
+				}
+			}
 		}
 
 
 		public class GamePadDpadLeftRight : Node
 		{
-			public int GamepadIndex;
+			public int gamepadIndex;
 
 
-			public GamePadDpadLeftRight(int gamepadIndex = 0)
+			public GamePadDpadLeftRight( int gamepadIndex = 0 )
 			{
-				GamepadIndex = gamepadIndex;
+				this.gamepadIndex = gamepadIndex;
 			}
 
 
-			public override float Value
+			public override float value
 			{
 				get
 				{
-					if (Input.GamePads[GamepadIndex].DpadRightDown)
+					if( Input.gamePads[gamepadIndex].DpadRightDown )
 						return 1f;
-					else if (Input.GamePads[GamepadIndex].DpadLeftDown)
+					else if( Input.gamePads[gamepadIndex].DpadLeftDown )
 						return -1f;
 					else
 						return 0f;
@@ -164,22 +178,22 @@ namespace Nez
 
 		public class GamePadDpadUpDown : Node
 		{
-			public int GamepadIndex;
+			public int gamepadIndex;
 
 
-			public GamePadDpadUpDown(int gamepadIndex = 0)
+			public GamePadDpadUpDown( int gamepadIndex = 0 )
 			{
-				GamepadIndex = gamepadIndex;
+				this.gamepadIndex = gamepadIndex;
 			}
 
 
-			public override float Value
+			public override float value
 			{
 				get
 				{
-					if (Input.GamePads[GamepadIndex].DpadDownDown)
+					if( Input.gamePads[gamepadIndex].DpadDownDown )
 						return 1f;
-					else if (Input.GamePads[GamepadIndex].DpadUpDown)
+					else if( Input.gamePads[gamepadIndex].DpadUpDown )
 						return -1f;
 					else
 						return 0f;
@@ -190,29 +204,29 @@ namespace Nez
 
 		public class KeyboardKeys : Node
 		{
-			public OverlapBehavior OverlapBehavior;
-			public Keys Positive;
-			public Keys Negative;
+			public OverlapBehavior overlapBehavior;
+			public Keys positive;
+			public Keys negative;
 
 			float _value;
 			bool _turned;
 
 
-			public KeyboardKeys(OverlapBehavior overlapBehavior, Keys negative, Keys positive)
+			public KeyboardKeys( OverlapBehavior overlapBehavior, Keys negative, Keys positive )
 			{
-				OverlapBehavior = overlapBehavior;
-				Negative = negative;
-				Positive = positive;
+				this.overlapBehavior = overlapBehavior;
+				this.negative = negative;
+				this.positive = positive;
 			}
 
 
-			public override void Update()
+			public override void update()
 			{
-				if (Input.IsKeyDown(Positive))
+				if( Input.isKeyDown( positive ) )
 				{
-					if (Input.IsKeyDown(Negative))
+					if( Input.isKeyDown( negative ) )
 					{
-						switch (OverlapBehavior)
+						switch( overlapBehavior )
 						{
 							default:
 							case OverlapBehavior.CancelOut:
@@ -220,12 +234,11 @@ namespace Nez
 								break;
 
 							case OverlapBehavior.TakeNewer:
-								if (!_turned)
+								if( !_turned )
 								{
 									_value *= -1;
 									_turned = true;
 								}
-
 								break;
 							case OverlapBehavior.TakeOlder:
 								//value stays the same
@@ -238,7 +251,7 @@ namespace Nez
 						_value = 1;
 					}
 				}
-				else if (Input.IsKeyDown(Negative))
+				else if( Input.isKeyDown( negative ) )
 				{
 					_turned = false;
 					_value = -1;
@@ -251,9 +264,14 @@ namespace Nez
 			}
 
 
-			public override float Value => _value;
+			public override float value
+			{
+				get { return _value; }
+			}
 		}
 
 		#endregion
+
 	}
 }
+

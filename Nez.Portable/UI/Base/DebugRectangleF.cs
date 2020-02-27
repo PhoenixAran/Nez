@@ -1,28 +1,30 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 
 namespace Nez.UI
 {
 	public struct DebugRectangleF
 	{
-		public RectangleF Rect;
-		public Color Color;
+		public RectangleF rect;
+		public Color color;
 
 
-		public DebugRectangleF(float x, float y, float width, float height, Color color)
+		public DebugRectangleF( float x, float y, float width, float height, Color color )
 		{
-			Rect = new RectangleF(x, y, width, height);
-			Color = color;
+			rect = new RectangleF( x, y, width, height );
+			this.color = color;
 		}
 
 
-		public void Set(float x, float y, float width, float height, Color color)
+		public void set( float x, float y, float width, float height, Color color )
 		{
-			Rect.X = x;
-			Rect.Y = y;
-			Rect.Width = width;
-			Rect.Height = height;
-			Color = color;
+			rect.x = x;
+			rect.y = y;
+			rect.width = width;
+			rect.height = height;
+			this.color = color;
 		}
 	}
 }
+

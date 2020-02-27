@@ -11,21 +11,21 @@ namespace Nez.Farseer
 
 		#region Configuration
 
-		public FSCollisionShape SetFriction(float friction)
+		public FSCollisionShape setFriction( float friction )
 		{
-			_fixtureDef.Friction = friction;
-			if (_fixture != null)
+			_fixtureDef.friction = friction;
+			if( _fixture != null )
 			{
-				_fixture.Friction = friction;
+				_fixture.friction = friction;
 
-				var body = this.GetComponent<FSRigidBody>().Body;
-				var contactEdge = body.ContactList;
-				while (contactEdge != null)
+				var body = this.getComponent<FSRigidBody>().body;
+				var contactEdge = body.contactList;
+				while( contactEdge != null )
 				{
-					var contact = contactEdge.Contact;
-					if (contact.FixtureA == _fixture || contact.FixtureB == _fixture)
-						contact.ResetFriction();
-					contactEdge = contactEdge.Next;
+					var contact = contactEdge.contact;
+					if( contact.fixtureA == _fixture || contact.fixtureB == _fixture )
+						contact.resetFriction();
+					contactEdge = contactEdge.next;
 				}
 			}
 
@@ -33,78 +33,77 @@ namespace Nez.Farseer
 		}
 
 
-		public FSCollisionShape SetRestitution(float restitution)
+		public FSCollisionShape setRestitution( float restitution )
 		{
-			_fixtureDef.Restitution = restitution;
-			if (_fixture != null)
+			_fixtureDef.restitution = restitution;
+			if( _fixture != null )
 			{
-				_fixture.Restitution = restitution;
+				_fixture.restitution = restitution;
 
-				var body = this.GetComponent<FSRigidBody>().Body;
-				var contactEdge = body.ContactList;
-				while (contactEdge != null)
+				var body = this.getComponent<FSRigidBody>().body;
+				var contactEdge = body.contactList;
+				while( contactEdge != null )
 				{
-					var contact = contactEdge.Contact;
-					if (contact.FixtureA == _fixture || contact.FixtureB == _fixture)
-						contact.ResetRestitution();
-					contactEdge = contactEdge.Next;
+					var contact = contactEdge.contact;
+					if( contact.fixtureA == _fixture || contact.fixtureB == _fixture )
+						contact.resetRestitution();
+					contactEdge = contactEdge.next;
 				}
 			}
-
 			return this;
 		}
 
 
-		public FSCollisionShape SetDensity(float density)
+		public FSCollisionShape setDensity( float density )
 		{
-			_fixtureDef.Density = density;
-			if (_fixture != null)
-				_fixture.Shape.Density = density;
+			_fixtureDef.density = density;
+			if( _fixture != null )
+				_fixture.shape.density = density;
 			return this;
 		}
 
 
-		public FSCollisionShape SetIsSensor(bool isSensor)
+		public FSCollisionShape setIsSensor( bool isSensor )
 		{
-			_fixtureDef.IsSensor = isSensor;
-			if (_fixture != null)
-				_fixture.IsSensor = isSensor;
+			_fixtureDef.isSensor = isSensor;
+			if( _fixture != null )
+				_fixture.isSensor = isSensor;
 			return this;
 		}
 
 
-		public FSCollisionShape SetCollidesWith(Category collidesWith)
+		public FSCollisionShape setCollidesWith( Category collidesWith )
 		{
-			_fixtureDef.CollidesWith = collidesWith;
-			if (_fixture != null)
-				_fixture.CollidesWith = collidesWith;
+			_fixtureDef.collidesWith = collidesWith;
+			if( _fixture != null )
+				_fixture.collidesWith = collidesWith;
 			return this;
 		}
 
 
-		public FSCollisionShape SetCollisionCategories(Category collisionCategories)
+		public FSCollisionShape setCollisionCategories( Category collisionCategories )
 		{
-			_fixtureDef.CollisionCategories = collisionCategories;
-			if (_fixture != null)
-				_fixture.CollisionCategories = collisionCategories;
+			_fixtureDef.collisionCategories = collisionCategories;
+			if( _fixture != null )
+				_fixture.collisionCategories = collisionCategories;
 			return this;
 		}
 
 
-		public FSCollisionShape SetIgnoreCCDWith(Category ignoreCCDWith)
+		public FSCollisionShape setIgnoreCCDWith( Category ignoreCCDWith )
 		{
-			_fixtureDef.IgnoreCCDWith = ignoreCCDWith;
-			if (_fixture != null)
-				_fixture.IgnoreCCDWith = ignoreCCDWith;
+			_fixtureDef.ignoreCCDWith = ignoreCCDWith;
+			if( _fixture != null )
+				_fixture.ignoreCCDWith = ignoreCCDWith;
 			return this;
 		}
 
 
-		public FSCollisionShape SetCollisionGroup(short collisionGroup)
+		public FSCollisionShape setCollisionGroup( short collisionGroup )
 		{
-			_fixtureDef.CollisionGroup = collisionGroup;
-			if (_fixture != null)
-				_fixture.CollisionGroup = collisionGroup;
+			_fixtureDef.collisionGroup = collisionGroup;
+			if( _fixture != null )
+				_fixture.collisionGroup = collisionGroup;
 			return this;
 		}
 
@@ -113,27 +112,27 @@ namespace Nez.Farseer
 
 		#region Component lifecycle
 
-		public override void OnAddedToEntity()
+		public override void onAddedToEntity()
 		{
-			CreateFixture();
+			createFixture();
 		}
 
 
-		public override void OnRemovedFromEntity()
+		public override void onRemovedFromEntity()
 		{
-			DestroyFixture();
+			destroyFixture();
 		}
 
 
-		public override void OnEnabled()
+		public override void onEnabled()
 		{
-			CreateFixture();
+			createFixture();
 		}
 
 
-		public override void OnDisabled()
+		public override void onDisabled()
 		{
-			DestroyFixture();
+			destroyFixture();
 		}
 
 		#endregion
@@ -143,57 +142,57 @@ namespace Nez.Farseer
 		/// wakes any contacting bodies. Useful when creating a fixture or changing something that won't trigger the bodies to wake themselves
 		/// such as Circle.center.
 		/// </summary>
-		protected void WakeAnyContactingBodies()
+		protected void wakeAnyContactingBodies()
 		{
-			var body = this.GetComponent<FSRigidBody>().Body;
-			var contactEdge = body.ContactList;
-			while (contactEdge != null)
+			var body = this.getComponent<FSRigidBody>().body;
+			var contactEdge = body.contactList;
+			while( contactEdge != null )
 			{
-				var contact = contactEdge.Contact;
-				if (contact.FixtureA == _fixture || contact.FixtureB == _fixture)
+				var contact = contactEdge.contact;
+				if( contact.fixtureA == _fixture || contact.fixtureB == _fixture )
 				{
-					contact.FixtureA.Body.IsAwake = true;
-					contact.FixtureB.Body.IsAwake = true;
+					contact.fixtureA.body.isAwake = true;
+					contact.fixtureB.body.isAwake = true;
 				}
-
-				contactEdge = contactEdge.Next;
-			}
+				contactEdge = contactEdge.next;
+			}	
 		}
 
 
-		internal virtual void CreateFixture()
+		internal virtual void createFixture()
 		{
-			if (_fixture != null)
+			if( _fixture != null )
 				return;
 
-			var rigidBody = this.GetComponent<FSRigidBody>();
-			if (rigidBody == null || rigidBody.Body == null)
+			var rigidBody = this.getComponent<FSRigidBody>();
+			if( rigidBody == null || rigidBody.body == null )
 				return;
 
-			var body = rigidBody.Body;
-			_fixtureDef.Shape.Density = _fixtureDef.Density;
-			_fixture = body.CreateFixture(_fixtureDef.Shape, this);
-			_fixture.Friction = _fixtureDef.Friction;
-			_fixture.Restitution = _fixtureDef.Restitution;
-			_fixture.IsSensor = _fixtureDef.IsSensor;
-			_fixture.CollidesWith = _fixtureDef.CollidesWith;
-			_fixture.CollisionCategories = _fixtureDef.CollisionCategories;
-			_fixture.IgnoreCCDWith = _fixtureDef.IgnoreCCDWith;
-			_fixture.CollisionGroup = _fixtureDef.CollisionGroup;
+			var body = rigidBody.body;
+			_fixtureDef.shape.density = _fixtureDef.density;
+			_fixture = body.createFixture( _fixtureDef.shape, this );
+			_fixture.friction = _fixtureDef.friction;
+			_fixture.restitution = _fixtureDef.restitution;
+			_fixture.isSensor = _fixtureDef.isSensor;
+			_fixture.collidesWith = _fixtureDef.collidesWith;
+			_fixture.collisionCategories = _fixtureDef.collisionCategories;
+			_fixture.ignoreCCDWith = _fixtureDef.ignoreCCDWith;
+			_fixture.collisionGroup = _fixtureDef.collisionGroup;
 		}
 
 
-		internal virtual void DestroyFixture()
+		internal virtual void destroyFixture()
 		{
-			if (_fixture == null)
+			if( _fixture == null )
 				return;
 
-			var rigidBody = this.GetComponent<FSRigidBody>();
-			if (rigidBody == null || rigidBody.Body == null)
+			var rigidBody = this.getComponent<FSRigidBody>();
+			if( rigidBody == null || rigidBody.body == null )
 				return;
 
-			rigidBody.Body.DestroyFixture(_fixture);
+			rigidBody.body.destroyFixture( _fixture );
 			_fixture = null;
 		}
+
 	}
 }

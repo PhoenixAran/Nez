@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.GOAP
+﻿using System;
+
+
+namespace Nez.AI.GOAP
 {
 	/// <summary>
 	/// convenince Action subclass with a typed context. This is useful when an Action requires validation so that it has some way to get
@@ -9,21 +12,22 @@
 		protected T _context;
 
 
-		public Action(T context, string name) : base(name)
+		public Action( T context, string name ) : base( name )
 		{
 			_context = context;
-			Name = name;
+			this.name = name;
 		}
 
 
-		public Action(T context, string name, int cost) : this(context, name)
+		public Action( T context, string name, int cost ) : this( context, name )
 		{
-			Cost = cost;
+			this.cost = cost;
 		}
 
 
-		public virtual void Execute()
-		{
-		}
+		public virtual void execute()
+		{}
+
 	}
 }
+

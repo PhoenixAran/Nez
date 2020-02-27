@@ -8,20 +8,21 @@ namespace Nez.AI.BehaviorTrees
 	/// </summary>
 	public class ExecuteAction<T> : Behavior<T>
 	{
-		Func<T, TaskStatus> _action;
+		Func<T,TaskStatus> _action;
 
 
-		public ExecuteAction(Func<T, TaskStatus> action)
+		public ExecuteAction( Func<T,TaskStatus> action )
 		{
 			_action = action;
 		}
 
 
-		public override TaskStatus Update(T context)
+		public override TaskStatus update( T context )
 		{
-			Insist.IsNotNull(_action, "action must not be null");
+			Assert.isNotNull( _action, "action must not be null" );
 
-			return _action(context);
+			return _action( context );
 		}
 	}
 }
+

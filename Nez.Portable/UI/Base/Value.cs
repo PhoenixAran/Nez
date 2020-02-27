@@ -1,4 +1,7 @@
-﻿namespace Nez.UI
+﻿using System;
+
+
+namespace Nez.UI
 {
 	/// <summary>
 	/// Value placeholder, allowing the value to be computed on request. Values are provided an element for context which reduces the
@@ -10,12 +13,12 @@
 		/// context May be null
 		/// </summary>
 		/// <param name="context">Context.</param>
-		abstract public float Get(Element context);
+		abstract public float get( Element context );
 
 		/// <summary>
 		/// A value that is always zero.
 		/// </summary>
-		public static Fixed Zero = new Fixed(0);
+		static public Fixed zero = new Fixed( 0 );
 
 
 		/// <summary>
@@ -25,115 +28,110 @@
 		{
 			float value;
 
-			public Fixed(float value)
+			public Fixed( float value )
 			{
 				this.value = value;
 			}
 
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
 				return value;
 			}
 		}
 
 
-		public static Value MinWidth = new MinWidthValue();
+		static public Value minWidth = new MinWidthValue();
 
 		/// <summary>
 		/// Value that is the minWidth of the element in the cell.
 		/// </summary>
 		public class MinWidthValue : Value
 		{
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
-				if (context is ILayout)
-					return ((ILayout) context).MinWidth;
-
+				if( context is ILayout )
+					return ( (ILayout)context ).minWidth;
 				return context == null ? 0 : context.width;
 			}
 		}
 
 
-		public static Value MinHeight = new MinHeightValue();
+		static public Value minHeight = new MinHeightValue();
 
 		/// <summary>
 		/// Value that is the minHeight of the element in the cell.
 		/// </summary>
 		public class MinHeightValue : Value
 		{
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
-				if (context is ILayout)
-					return ((ILayout) context).MinHeight;
-
+				if( context is ILayout )
+					return ( (ILayout)context ).minHeight;
 				return context == null ? 0 : context.height;
 			}
 		}
 
 
-		public static Value PrefWidth = new PrefWidthValue();
+		static public Value prefWidth = new PrefWidthValue();
 
 		/// <summary>
 		/// Value that is the prefWidth of the element in the cell.
 		/// </summary>
 		public class PrefWidthValue : Value
 		{
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
-				if (context is ILayout)
-					return ((ILayout) context).PreferredWidth;
-
+				if( context is ILayout )
+					return ( (ILayout)context ).preferredWidth;
 				return context == null ? 0 : context.width;
+
 			}
 		}
 
 
-		public static Value PrefHeight = new PrefHeightValue();
+		static public Value prefHeight = new PrefHeightValue();
 
 		/// <summary>
 		/// Value that is the prefHeight of the element in the cell.
 		/// </summary>
 		public class PrefHeightValue : Value
 		{
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
-				if (context is ILayout)
-					return ((ILayout) context).PreferredHeight;
-
+				if( context is ILayout )
+					return ( (ILayout)context ).preferredHeight;
 				return context == null ? 0 : context.height;
 			}
 		}
 
 
-		public static Value MaxWidth = new MaxWidthValue();
+		static public Value maxWidth = new MaxWidthValue();
 
 		/// <summary>
 		/// Value that is the maxWidth of the element in the cell.
 		/// </summary>
 		public class MaxWidthValue : Value
 		{
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
-				if (context is ILayout)
-					return ((ILayout) context).MaxWidth;
-
+				if( context is ILayout )
+					return ( (ILayout)context ).maxWidth;
 				return context == null ? 0 : context.width;
 			}
 		}
 
 
-		public static Value MaxHeight = new MaxHeightValue();
+		static public Value maxHeight = new MaxHeightValue();
 
 		/// <summary>
 		/// Value that is the maxHeight of the element in the cell.
 		/// </summary>
 		public class MaxHeightValue : Value
 		{
-			public override float Get(Element context)
+			public override float get( Element context )
 			{
-				if (context is ILayout)
-					return ((ILayout) context).MaxHeight;
-
+				if( context is ILayout )
+					return ( (ILayout)context ).maxHeight;
 				return context == null ? 0 : context.height;
 			}
 		}
@@ -142,11 +140,10 @@
 		/// <summary>
 		/// Value that is the maxHeight of the element in the cell.
 		/// </summary>
-		public static Value PercentWidth(float percent)
+		static public Value percentWidth( float percent )
 		{
-			return new PercentWidthValue()
-			{
-				Percent = percent
+			return new PercentWidthValue() {
+				percent = percent
 			};
 		}
 
@@ -155,11 +152,11 @@
 		/// </summary>
 		public class PercentWidthValue : Value
 		{
-			public float Percent;
+			public float percent;
 
-			public override float Get(Element element)
+			public override float get( Element element )
 			{
-				return element.width * Percent;
+				return element.width * percent;
 			}
 		}
 
@@ -167,12 +164,11 @@
 		/// <summary>
 		/// Returns a value that is a percentage of the specified elements's width. The context element is ignored.
 		/// </summary>
-		public static Value PercentWidth(float percent, Element delegateElement)
+		static public Value percentWidth( float percent, Element delegateElement )
 		{
-			return new PercentWidthDelegateValue()
-			{
-				DelegateElement = delegateElement,
-				Percent = percent
+			return new PercentWidthDelegateValue() {
+				delegateElement = delegateElement,
+				percent = percent
 			};
 		}
 
@@ -181,12 +177,12 @@
 		/// </summary>
 		public class PercentWidthDelegateValue : Value
 		{
-			public Element DelegateElement;
-			public float Percent;
+			public Element delegateElement;
+			public float percent;
 
-			public override float Get(Element element)
+			public override float get( Element element )
 			{
-				return DelegateElement.width * Percent;
+				return delegateElement.width * percent;
 			}
 		}
 
@@ -194,11 +190,10 @@
 		/// <summary>
 		/// Returns a value that is a percentage of the element's height.
 		/// </summary>
-		public static Value PercentHeight(float percent)
+		static public Value percentHeight( float percent )
 		{
-			return new PercentageHeightValue()
-			{
-				Percent = percent
+			return new PercentageHeightValue() {
+				percent = percent
 			};
 		}
 
@@ -207,11 +202,11 @@
 		/// </summary>
 		public class PercentageHeightValue : Value
 		{
-			public float Percent;
+			public float percent;
 
-			public override float Get(Element element)
+			public override float get( Element element )
 			{
-				return element.height * Percent;
+				return element.height * percent;
 			}
 		}
 
@@ -219,12 +214,11 @@
 		/// <summary>
 		/// Returns a value that is a percentage of the specified elements's height. The context element is ignored.
 		/// </summary>
-		public static Value PercentHeight(float percent, Element delegateElement)
+		static public Value percentHeight( float percent, Element delegateElement )
 		{
-			return new PercentHeightDelegateValue()
-			{
-				DelegateElement = delegateElement,
-				Percent = percent
+			return new PercentHeightDelegateValue() {
+				delegateElement = delegateElement,
+				percent = percent
 			};
 		}
 
@@ -233,13 +227,15 @@
 		/// </summary>
 		public class PercentHeightDelegateValue : Value
 		{
-			public Element DelegateElement;
-			public float Percent;
+			public Element delegateElement;
+			public float percent;
 
-			public override float Get(Element element)
+			public override float get( Element element )
 			{
-				return DelegateElement.height * Percent;
+				return delegateElement.height * percent;
 			}
 		}
+
 	}
 }
+

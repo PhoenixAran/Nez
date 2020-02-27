@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 
@@ -14,17 +15,17 @@ namespace Nez
 		/// vertical size in pixels or each row. default 5.0
 		/// </summary>
 		/// <value>The size of the vertical.</value>
-		public float VerticalSize
+		public float verticalSize
 		{
-			get => _verticalSize;
+			get { return _verticalSize; }
 			set
 			{
-				if (_verticalSize != value)
+				if( _verticalSize != value )
 				{
 					_verticalSize = value;
 
-					if (Effect != null)
-						_verticalSizeParam.SetValue(_verticalSize);
+					if( effect != null )
+						_verticalSizeParam.SetValue( _verticalSize );
 				}
 			}
 		}
@@ -33,20 +34,21 @@ namespace Nez
 		/// horizontal shift in pixels. default 10.0
 		/// </summary>
 		/// <value>The horizontal offset.</value>
-		public float HorizontalOffset
+		public float horizontalOffset
 		{
-			get => _horizontalOffset;
+			get { return _horizontalOffset; }
 			set
 			{
-				if (_horizontalOffset != value)
+				if( _horizontalOffset != value )
 				{
 					_horizontalOffset = value;
 
-					if (Effect != null)
-						_horizontalOffsetParam.SetValue(_horizontalOffset);
+					if( effect != null )
+						_horizontalOffsetParam.SetValue( _horizontalOffset );
 				}
 			}
 		}
+
 
 		float _verticalSize = 5f;
 		float _horizontalOffset = 10f;
@@ -55,33 +57,28 @@ namespace Nez
 		EffectParameter _screenSizeParam;
 
 
-		public PixelGlitchPostProcessor(int executionOrder) : base(executionOrder)
+		public PixelGlitchPostProcessor( int executionOrder ) : base( executionOrder )
+		{}
+
+
+		public override void onAddedToScene()
 		{
+			effect = scene.content.loadEffect<Effect>( "pixelGlitch", EffectResource.pixelGlitchBytes );
+
+			_verticalSizeParam = effect.Parameters["_verticalSize"];
+			_horizontalOffsetParam = effect.Parameters["_horizontalOffset"];
+			_screenSizeParam = effect.Parameters["_screenSize"];
+
+			_verticalSizeParam.SetValue( _verticalSize );
+			_horizontalOffsetParam.SetValue( _horizontalOffset );
+			_screenSizeParam.SetValue( new Vector2( Screen.width, Screen.height ) );
 		}
 
-		public override void OnAddedToScene(Scene scene)
+
+		public override void onSceneBackBufferSizeChanged( int newWidth, int newHeight )
 		{
-			base.OnAddedToScene(scene);
-			Effect = scene.Content.LoadEffect<Effect>("pixelGlitch", EffectResource.PixelGlitchBytes);
-
-			_verticalSizeParam = Effect.Parameters["_verticalSize"];
-			_horizontalOffsetParam = Effect.Parameters["_horizontalOffset"];
-			_screenSizeParam = Effect.Parameters["_screenSize"];
-
-			_verticalSizeParam.SetValue(_verticalSize);
-			_horizontalOffsetParam.SetValue(_horizontalOffset);
-			_screenSizeParam.SetValue(new Vector2(Screen.Width, Screen.Height));
-		}
-
-		public override void Unload()
-		{
-			_scene.Content.UnloadEffect(Effect);
-			base.Unload();
-		}
-
-		public override void OnSceneBackBufferSizeChanged(int newWidth, int newHeight)
-		{
-			_screenSizeParam.SetValue(new Vector2(newWidth, newHeight));
+			_screenSizeParam.SetValue( new Vector2( newWidth, newHeight ) );
 		}
 	}
 }
+

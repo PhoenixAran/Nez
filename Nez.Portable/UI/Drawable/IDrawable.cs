@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 
 namespace Nez.UI
@@ -9,16 +10,17 @@ namespace Nez.UI
 	/// </summary>
 	public interface IDrawable
 	{
-		float LeftWidth { get; set; }
-		float RightWidth { get; set; }
-		float TopHeight { get; set; }
-		float BottomHeight { get; set; }
-		float MinWidth { get; set; }
-		float MinHeight { get; set; }
+		float leftWidth { get; set; }
+		float rightWidth { get; set; }
+		float topHeight { get; set; }
+		float bottomHeight { get; set; }
+		float minWidth { get; set; }
+		float minHeight { get; set; }
 
 
-		void SetPadding(float top, float bottom, float left, float right);
+		void setPadding( float top, float bottom, float left, float right );
 
-		void Draw(Batcher batcher, float x, float y, float width, float height, Color color);
+		void draw( Graphics graphics, float x, float y, float width, float height, Color color );
 	}
 }
+

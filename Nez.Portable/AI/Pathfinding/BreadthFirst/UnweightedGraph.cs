@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Nez.AI.Pathfinding
@@ -9,19 +10,21 @@ namespace Nez.AI.Pathfinding
 	/// </summary>
 	public class UnweightedGraph<T> : IUnweightedGraph<T>
 	{
-		public Dictionary<T, T[]> Edges = new Dictionary<T, T[]>();
+		public Dictionary<T,T[]> edges = new Dictionary<T,T[]>();
 
 
-		public UnweightedGraph<T> AddEdgesForNode(T node, T[] edges)
+		public UnweightedGraph<T> addEdgesForNode( T node, T[] edges )
 		{
-			Edges[node] = edges;
+			this.edges[node] = edges;
 			return this;
 		}
 
 
-		public IEnumerable<T> GetNeighbors(T node)
+		public IEnumerable<T> getNeighbors( T node )
 		{
-			return Edges[node];
+			return edges[node];
 		}
+
 	}
 }
+

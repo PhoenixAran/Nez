@@ -70,11 +70,11 @@ namespace FarseerPhysics.Collision
 		/// <summary>
 		/// Compute the height of the binary tree in O(N) time. Should not be called often.
 		/// </summary>
-		public int Height
+		public int height
 		{
 			get
 			{
-				if (_root == nullNode)
+				if( _root == nullNode )
 					return 0;
 
 				return _nodes[_root].height;
@@ -84,27 +84,27 @@ namespace FarseerPhysics.Collision
 		/// <summary>
 		/// Get the ratio of the sum of the node areas to the root area.
 		/// </summary>
-		public float AreaRatio
+		public float areaRatio
 		{
 			get
 			{
-				if (_root == nullNode)
+				if( _root == nullNode )
 					return 0.0f;
 
 				var root = _nodes[_root];
-				float rootArea = root.aabb.Perimeter;
+				float rootArea = root.aabb.perimeter;
 
 				float totalArea = 0.0f;
-				for (int i = 0; i < _nodeCapacity; ++i)
+				for( int i = 0; i < _nodeCapacity; ++i )
 				{
 					var node = _nodes[i];
-					if (node.height < 0)
+					if( node.height < 0 )
 					{
 						// Free node in pool
 						continue;
 					}
 
-					totalArea += node.aabb.Perimeter;
+					totalArea += node.aabb.perimeter;
 				}
 
 				return totalArea / rootArea;
@@ -115,31 +115,31 @@ namespace FarseerPhysics.Collision
 		/// Get the maximum balance of an node in the tree. The balance is the difference
 		/// in height of the two children of a node.
 		/// </summary>
-		public int MaxBalance
+		public int maxBalance
 		{
 			get
 			{
 				int maxBalance = 0;
-				for (int i = 0; i < _nodeCapacity; ++i)
+				for( int i = 0; i < _nodeCapacity; ++i )
 				{
 					var node = _nodes[i];
-					if (node.height <= 1)
+					if( node.height <= 1 )
 						continue;
 
-					Debug.Assert(node.IsLeaf() == false);
+					Debug.Assert( node.IsLeaf() == false );
 
 					int child1 = node.child1;
 					int child2 = node.child2;
-					int balance = Math.Abs(_nodes[child2].height - _nodes[child1].height);
-					maxBalance = Math.Max(maxBalance, balance);
+					int balance = Math.Abs( _nodes[child2].height - _nodes[child1].height );
+					maxBalance = Math.Max( maxBalance, balance );
 				}
 
 				return maxBalance;
 			}
 		}
 
-		Stack<int> _raycastStack = new Stack<int>(256);
-		Stack<int> _queryStack = new Stack<int>(256);
+		Stack<int> _raycastStack = new Stack<int>( 256 );
+		Stack<int> _queryStack = new Stack<int>( 256 );
 		int _freeList;
 		int _nodeCapacity;
 		int _nodeCount;
@@ -162,13 +162,12 @@ namespace FarseerPhysics.Collision
 			_nodes = new TreeNode[_nodeCapacity];
 
 			// Build a linked list for the free list.
-			for (var i = 0; i < _nodeCapacity - 1; ++i)
+			for( var i = 0; i < _nodeCapacity - 1; ++i )
 			{
 				_nodes[i] = new TreeNode();
 				_nodes[i].parentOrNext = i + 1;
 				_nodes[i].height = 1;
 			}
-
 			_nodes[_nodeCapacity - 1] = new TreeNode();
 			_nodes[_nodeCapacity - 1].parentOrNext = nullNode;
 			_nodes[_nodeCapacity - 1].height = 1;
@@ -183,18 +182,18 @@ namespace FarseerPhysics.Collision
 		/// <param name="aabb">The aabb.</param>
 		/// <param name="userData">The user data.</param>
 		/// <returns>Index of the created proxy</returns>
-		public int AddProxy(ref AABB aabb, FixtureProxy userData)
+		public int addProxy( ref AABB aabb, FixtureProxy userData )
 		{
-			int proxyId = AllocateNode();
+			int proxyId = allocateNode();
 
 			// Fatten the aabb.
-			var r = new Vector2(Settings.AabbExtension, Settings.AabbExtension);
-			_nodes[proxyId].aabb.LowerBound = aabb.LowerBound - r;
-			_nodes[proxyId].aabb.UpperBound = aabb.UpperBound + r;
+			var r = new Vector2( Settings.aabbExtension, Settings.aabbExtension );
+			_nodes[proxyId].aabb.lowerBound = aabb.lowerBound - r;
+			_nodes[proxyId].aabb.upperBound = aabb.upperBound + r;
 			_nodes[proxyId].userData = userData;
 			_nodes[proxyId].height = 0;
 
-			InsertLeaf(proxyId);
+			insertLeaf( proxyId );
 
 			return proxyId;
 		}
@@ -203,13 +202,13 @@ namespace FarseerPhysics.Collision
 		/// Destroy a proxy. This asserts if the id is invalid.
 		/// </summary>
 		/// <param name="proxyId">The proxy id.</param>
-		public void RemoveProxy(int proxyId)
+		public void removeProxy( int proxyId )
 		{
-			Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
-			Debug.Assert(_nodes[proxyId].IsLeaf());
+			Debug.Assert( 0 <= proxyId && proxyId < _nodeCapacity );
+			Debug.Assert( _nodes[proxyId].IsLeaf() );
 
-			RemoveLeaf(proxyId);
-			FreeNode(proxyId);
+			removeLeaf( proxyId );
+			freeNode( proxyId );
 		}
 
 		/// <summary>
@@ -221,40 +220,40 @@ namespace FarseerPhysics.Collision
 		/// <param name="aabb">The aabb.</param>
 		/// <param name="displacement">The displacement.</param>
 		/// <returns>true if the proxy was re-inserted.</returns>
-		public bool MoveProxy(int proxyId, ref AABB aabb, Vector2 displacement)
+		public bool moveProxy( int proxyId, ref AABB aabb, Vector2 displacement )
 		{
-			Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
+			Debug.Assert( 0 <= proxyId && proxyId < _nodeCapacity );
 
-			Debug.Assert(_nodes[proxyId].IsLeaf());
+			Debug.Assert( _nodes[proxyId].IsLeaf() );
 
-			if (_nodes[proxyId].aabb.Contains(ref aabb))
+			if( _nodes[proxyId].aabb.contains( ref aabb ) )
 			{
 				return false;
 			}
 
-			RemoveLeaf(proxyId);
+			removeLeaf( proxyId );
 
 			// Extend AABB.
 			AABB b = aabb;
-			var r = new Vector2(Settings.AabbExtension, Settings.AabbExtension);
-			b.LowerBound = b.LowerBound - r;
-			b.UpperBound = b.UpperBound + r;
+			var r = new Vector2( Settings.aabbExtension, Settings.aabbExtension );
+			b.lowerBound = b.lowerBound - r;
+			b.upperBound = b.upperBound + r;
 
 			// Predict AABB displacement.
-			var d = Settings.AabbMultiplier * displacement;
-			if (d.X < 0.0f)
-				b.LowerBound.X += d.X;
+			var d = Settings.aabbMultiplier * displacement;
+			if( d.X < 0.0f )
+				b.lowerBound.X += d.X;
 			else
-				b.UpperBound.X += d.X;
+				b.upperBound.X += d.X;
 
-			if (d.Y < 0.0f)
-				b.LowerBound.Y += d.Y;
+			if( d.Y < 0.0f )
+				b.lowerBound.Y += d.Y;
 			else
-				b.UpperBound.Y += d.Y;
+				b.upperBound.Y += d.Y;
 
 			_nodes[proxyId].aabb = b;
 
-			InsertLeaf(proxyId);
+			insertLeaf( proxyId );
 			return true;
 		}
 
@@ -263,9 +262,9 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="proxyId">The proxy id.</param>
 		/// <returns>the proxy user data or 0 if the id is invalid.</returns>
-		public FixtureProxy GetUserData(int proxyId)
+		public FixtureProxy getUserData( int proxyId )
 		{
-			Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
+			Debug.Assert( 0 <= proxyId && proxyId < _nodeCapacity );
 			return _nodes[proxyId].userData;
 		}
 
@@ -274,9 +273,9 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="proxyId">The proxy id.</param>
 		/// <param name="fatAABB">The fat AABB.</param>
-		public void GetFatAABB(int proxyId, out AABB fatAABB)
+		public void getFatAABB( int proxyId, out AABB fatAABB )
 		{
-			Debug.Assert(0 <= proxyId && proxyId < _nodeCapacity);
+			Debug.Assert( 0 <= proxyId && proxyId < _nodeCapacity );
 			fatAABB = _nodes[proxyId].aabb;
 		}
 
@@ -285,30 +284,30 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="callback">The callback.</param>
 		/// <param name="aabb">The aabb.</param>
-		public void Query(Func<int, bool> callback, ref AABB aabb)
+		public void query( Func<int, bool> callback, ref AABB aabb )
 		{
 			_queryStack.Clear();
-			_queryStack.Push(_root);
+			_queryStack.Push( _root );
 
-			while (_queryStack.Count > 0)
+			while( _queryStack.Count > 0 )
 			{
 				var nodeId = _queryStack.Pop();
-				if (nodeId == nullNode)
+				if( nodeId == nullNode )
 					continue;
 
 				var node = _nodes[nodeId];
-				if (AABB.TestOverlap(ref node.aabb, ref aabb))
+				if( AABB.testOverlap( ref node.aabb, ref aabb ) )
 				{
-					if (node.IsLeaf())
+					if( node.IsLeaf() )
 					{
-						var proceed = callback(nodeId);
-						if (!proceed)
+						var proceed = callback( nodeId );
+						if( !proceed )
 							return;
 					}
 					else
 					{
-						_queryStack.Push(node.child1);
-						_queryStack.Push(node.child2);
+						_queryStack.Push( node.child1 );
+						_queryStack.Push( node.child2 );
 					}
 				}
 			}
@@ -319,28 +318,28 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="aabb">Aabb.</param>
 		/// <param name="fixtures">Fixtures.</param>
-		public void Query(ref AABB aabb, List<Fixture> fixtures)
+		public void query( ref AABB aabb, List<Fixture> fixtures )
 		{
 			_queryStack.Clear();
-			_queryStack.Push(_root);
+			_queryStack.Push( _root );
 
-			while (_queryStack.Count > 0)
+			while( _queryStack.Count > 0 )
 			{
 				var nodeId = _queryStack.Pop();
-				if (nodeId == nullNode)
+				if( nodeId == nullNode )
 					continue;
 
 				var node = _nodes[nodeId];
-				if (AABB.TestOverlap(ref node.aabb, ref aabb))
+				if( AABB.testOverlap( ref node.aabb, ref aabb ) )
 				{
-					if (node.IsLeaf())
+					if( node.IsLeaf() )
 					{
-						fixtures.Add(GetUserData(nodeId).Fixture);
+						fixtures.Add( getUserData( nodeId ).fixture );
 					}
 					else
 					{
-						_queryStack.Push(node.child1);
-						_queryStack.Push(node.child2);
+						_queryStack.Push( node.child1 );
+						_queryStack.Push( node.child2 );
 					}
 				}
 			}
@@ -355,105 +354,104 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="callback">A callback class that is called for each proxy that is hit by the ray.</param>
 		/// <param name="input">The ray-cast input data. The ray extends from p1 to p1 + maxFraction * (p2 - p1).</param>
-		public void RayCast(Func<RayCastInput, int, float> callback, ref RayCastInput input)
+		public void rayCast( Func<RayCastInput, int, float> callback, ref RayCastInput input )
 		{
-			var p1 = input.Point1;
-			var p2 = input.Point2;
+			var p1 = input.point1;
+			var p2 = input.point2;
 			var r = p2 - p1;
-			Debug.Assert(r.LengthSquared() > 0.0f);
-			Nez.Vector2Ext.Normalize(ref r);
+			Debug.Assert( r.LengthSquared() > 0.0f );
+			Nez.Vector2Ext.normalize( ref r );
 
 			// v is perpendicular to the segment.
-			var absV = MathUtils.Abs(new Vector2(-r.Y, r.X)); //FPE: Inlined the 'v' variable
+			var absV = MathUtils.abs( new Vector2( -r.Y, r.X ) ); //FPE: Inlined the 'v' variable
 
 			// Separating axis for segment (Gino, p80).
 			// |dot(v, p1 - c)| > dot(|v|, h)
 
-			var maxFraction = input.MaxFraction;
+			var maxFraction = input.maxFraction;
 
 			// Build a bounding box for the segment.
 			var segmentAABB = new AABB();
 			{
-				var t = p1 + maxFraction * (p2 - p1);
-				Vector2.Min(ref p1, ref t, out segmentAABB.LowerBound);
-				Vector2.Max(ref p1, ref t, out segmentAABB.UpperBound);
+				var t = p1 + maxFraction * ( p2 - p1 );
+				Vector2.Min( ref p1, ref t, out segmentAABB.lowerBound );
+				Vector2.Max( ref p1, ref t, out segmentAABB.upperBound );
 			}
 
 			_raycastStack.Clear();
-			_raycastStack.Push(_root);
+			_raycastStack.Push( _root );
 
-			while (_raycastStack.Count > 0)
+			while( _raycastStack.Count > 0 )
 			{
 				int nodeId = _raycastStack.Pop();
-				if (nodeId == nullNode)
+				if( nodeId == nullNode )
 					continue;
 
 				var node = _nodes[nodeId];
-				if (AABB.TestOverlap(ref node.aabb, ref segmentAABB) == false)
+				if( AABB.testOverlap( ref node.aabb, ref segmentAABB ) == false )
 					continue;
 
 				// Separating axis for segment (Gino, p80).
 				// |dot(v, p1 - c)| > dot(|v|, h)
-				var c = node.aabb.Center;
-				var h = node.aabb.Extents;
-				var separation = Math.Abs(Vector2.Dot(new Vector2(-r.Y, r.X), p1 - c)) - Vector2.Dot(absV, h);
-				if (separation > 0.0f)
+				var c = node.aabb.center;
+				var h = node.aabb.extents;
+				var separation = Math.Abs( Vector2.Dot( new Vector2( -r.Y, r.X ), p1 - c ) ) - Vector2.Dot( absV, h );
+				if( separation > 0.0f )
 					continue;
 
-				if (node.IsLeaf())
+				if( node.IsLeaf() )
 				{
 					RayCastInput subInput;
-					subInput.Point1 = input.Point1;
-					subInput.Point2 = input.Point2;
-					subInput.MaxFraction = maxFraction;
+					subInput.point1 = input.point1;
+					subInput.point2 = input.point2;
+					subInput.maxFraction = maxFraction;
 
-					float value = callback(subInput, nodeId);
+					float value = callback( subInput, nodeId );
 
-					if (value == 0.0f)
+					if( value == 0.0f )
 					{
 						// the client has terminated the raycast.
 						return;
 					}
 
-					if (value > 0.0f)
+					if( value > 0.0f )
 					{
 						// Update segment bounding box.
 						maxFraction = value;
-						var t = p1 + maxFraction * (p2 - p1);
-						segmentAABB.LowerBound = Vector2.Min(p1, t);
-						segmentAABB.UpperBound = Vector2.Max(p1, t);
+						var t = p1 + maxFraction * ( p2 - p1 );
+						segmentAABB.lowerBound = Vector2.Min( p1, t );
+						segmentAABB.upperBound = Vector2.Max( p1, t );
 					}
 				}
 				else
 				{
-					_raycastStack.Push(node.child1);
-					_raycastStack.Push(node.child2);
+					_raycastStack.Push( node.child1 );
+					_raycastStack.Push( node.child2 );
 				}
 			}
 		}
 
-		int AllocateNode()
+		int allocateNode()
 		{
 			// Expand the node pool as needed.
-			if (_freeList == nullNode)
+			if( _freeList == nullNode )
 			{
-				Debug.Assert(_nodeCount == _nodeCapacity);
+				Debug.Assert( _nodeCount == _nodeCapacity );
 
 				// The free list is empty. Rebuild a bigger pool.
 				var oldNodes = _nodes;
 				_nodeCapacity *= 2;
 				_nodes = new TreeNode[_nodeCapacity];
-				Array.Copy(oldNodes, _nodes, _nodeCount);
+				Array.Copy( oldNodes, _nodes, _nodeCount );
 
 				// Build a linked list for the free list. The parent
 				// pointer becomes the "next" pointer.
-				for (var i = _nodeCount; i < _nodeCapacity - 1; ++i)
+				for( var i = _nodeCount; i < _nodeCapacity - 1; ++i )
 				{
 					_nodes[i] = new TreeNode();
 					_nodes[i].parentOrNext = i + 1;
 					_nodes[i].height = -1;
 				}
-
 				_nodes[_nodeCapacity - 1] = new TreeNode();
 				_nodes[_nodeCapacity - 1].parentOrNext = nullNode;
 				_nodes[_nodeCapacity - 1].height = -1;
@@ -467,24 +465,24 @@ namespace FarseerPhysics.Collision
 			_nodes[nodeId].child1 = nullNode;
 			_nodes[nodeId].child2 = nullNode;
 			_nodes[nodeId].height = 0;
-			_nodes[nodeId].userData = default(FixtureProxy);
+			_nodes[nodeId].userData = default( FixtureProxy );
 			++_nodeCount;
 			return nodeId;
 		}
 
-		void FreeNode(int nodeId)
+		void freeNode( int nodeId )
 		{
-			Debug.Assert(0 <= nodeId && nodeId < _nodeCapacity);
-			Debug.Assert(0 < _nodeCount);
+			Debug.Assert( 0 <= nodeId && nodeId < _nodeCapacity );
+			Debug.Assert( 0 < _nodeCount );
 			_nodes[nodeId].parentOrNext = _freeList;
 			_nodes[nodeId].height = -1;
 			_freeList = nodeId;
 			--_nodeCount;
 		}
 
-		void InsertLeaf(int leaf)
+		void insertLeaf( int leaf )
 		{
-			if (_root == nullNode)
+			if( _root == nullNode )
 			{
 				_root = leaf;
 				_nodes[_root].parentOrNext = nullNode;
@@ -494,65 +492,65 @@ namespace FarseerPhysics.Collision
 			// Find the best sibling for this node
 			AABB leafAABB = _nodes[leaf].aabb;
 			int index = _root;
-			while (_nodes[index].IsLeaf() == false)
+			while( _nodes[index].IsLeaf() == false )
 			{
 				int child1 = _nodes[index].child1;
 				int child2 = _nodes[index].child2;
 
-				float area = _nodes[index].aabb.Perimeter;
+				float area = _nodes[index].aabb.perimeter;
 
 				var combinedAABB = new AABB();
-				combinedAABB.Combine(ref _nodes[index].aabb, ref leafAABB);
-				float combinedArea = combinedAABB.Perimeter;
+				combinedAABB.combine( ref _nodes[index].aabb, ref leafAABB );
+				float combinedArea = combinedAABB.perimeter;
 
 				// Cost of creating a new parent for this node and the new leaf
 				float cost = 2.0f * combinedArea;
 
 				// Minimum cost of pushing the leaf further down the tree
-				float inheritanceCost = 2.0f * (combinedArea - area);
+				float inheritanceCost = 2.0f * ( combinedArea - area );
 
 				// Cost of descending into child1
 				float cost1;
-				if (_nodes[child1].IsLeaf())
+				if( _nodes[child1].IsLeaf() )
 				{
 					var aabb = new AABB();
-					aabb.Combine(ref leafAABB, ref _nodes[child1].aabb);
-					cost1 = aabb.Perimeter + inheritanceCost;
+					aabb.combine( ref leafAABB, ref _nodes[child1].aabb );
+					cost1 = aabb.perimeter + inheritanceCost;
 				}
 				else
 				{
 					var aabb = new AABB();
-					aabb.Combine(ref leafAABB, ref _nodes[child1].aabb);
-					float oldArea = _nodes[child1].aabb.Perimeter;
-					float newArea = aabb.Perimeter;
-					cost1 = (newArea - oldArea) + inheritanceCost;
+					aabb.combine( ref leafAABB, ref _nodes[child1].aabb );
+					float oldArea = _nodes[child1].aabb.perimeter;
+					float newArea = aabb.perimeter;
+					cost1 = ( newArea - oldArea ) + inheritanceCost;
 				}
 
 				// Cost of descending into child2
 				float cost2;
-				if (_nodes[child2].IsLeaf())
+				if( _nodes[child2].IsLeaf() )
 				{
 					var aabb = new AABB();
-					aabb.Combine(ref leafAABB, ref _nodes[child2].aabb);
-					cost2 = aabb.Perimeter + inheritanceCost;
+					aabb.combine( ref leafAABB, ref _nodes[child2].aabb );
+					cost2 = aabb.perimeter + inheritanceCost;
 				}
 				else
 				{
 					var aabb = new AABB();
-					aabb.Combine(ref leafAABB, ref _nodes[child2].aabb);
-					float oldArea = _nodes[child2].aabb.Perimeter;
-					float newArea = aabb.Perimeter;
+					aabb.combine( ref leafAABB, ref _nodes[child2].aabb );
+					float oldArea = _nodes[child2].aabb.perimeter;
+					float newArea = aabb.perimeter;
 					cost2 = newArea - oldArea + inheritanceCost;
 				}
 
 				// Descend according to the minimum cost.
-				if (cost < cost1 && cost1 < cost2)
+				if( cost < cost1 && cost1 < cost2 )
 				{
 					break;
 				}
 
 				// Descend
-				if (cost1 < cost2)
+				if( cost1 < cost2 )
 					index = child1;
 				else
 					index = child2;
@@ -562,16 +560,16 @@ namespace FarseerPhysics.Collision
 
 			// Create a new parent.
 			int oldParent = _nodes[sibling].parentOrNext;
-			int newParent = AllocateNode();
+			int newParent = allocateNode();
 			_nodes[newParent].parentOrNext = oldParent;
-			_nodes[newParent].userData = default(FixtureProxy);
-			_nodes[newParent].aabb.Combine(ref leafAABB, ref _nodes[sibling].aabb);
+			_nodes[newParent].userData = default( FixtureProxy );
+			_nodes[newParent].aabb.combine( ref leafAABB, ref _nodes[sibling].aabb );
 			_nodes[newParent].height = _nodes[sibling].height + 1;
 
-			if (oldParent != nullNode)
+			if( oldParent != nullNode )
 			{
 				// The sibling was not the root.
-				if (_nodes[oldParent].child1 == sibling)
+				if( _nodes[oldParent].child1 == sibling )
 				{
 					_nodes[oldParent].child1 = newParent;
 				}
@@ -597,18 +595,18 @@ namespace FarseerPhysics.Collision
 
 			// Walk back up the tree fixing heights and AABBs
 			index = _nodes[leaf].parentOrNext;
-			while (index != nullNode)
+			while( index != nullNode )
 			{
-				index = Balance(index);
+				index = balance( index );
 
 				int child1 = _nodes[index].child1;
 				int child2 = _nodes[index].child2;
 
-				Debug.Assert(child1 != nullNode);
-				Debug.Assert(child2 != nullNode);
+				Debug.Assert( child1 != nullNode );
+				Debug.Assert( child2 != nullNode );
 
-				_nodes[index].height = 1 + Math.Max(_nodes[child1].height, _nodes[child2].height);
-				_nodes[index].aabb.Combine(ref _nodes[child1].aabb, ref _nodes[child2].aabb);
+				_nodes[index].height = 1 + Math.Max( _nodes[child1].height, _nodes[child2].height );
+				_nodes[index].aabb.combine( ref _nodes[child1].aabb, ref _nodes[child2].aabb );
 
 				index = _nodes[index].parentOrNext;
 			}
@@ -616,9 +614,9 @@ namespace FarseerPhysics.Collision
 			//Validate();
 		}
 
-		void RemoveLeaf(int leaf)
+		void removeLeaf( int leaf )
 		{
-			if (leaf == _root)
+			if( leaf == _root )
 			{
 				_root = nullNode;
 				return;
@@ -627,7 +625,7 @@ namespace FarseerPhysics.Collision
 			int parent = _nodes[leaf].parentOrNext;
 			int grandParent = _nodes[parent].parentOrNext;
 			int sibling;
-			if (_nodes[parent].child1 == leaf)
+			if( _nodes[parent].child1 == leaf )
 			{
 				sibling = _nodes[parent].child2;
 			}
@@ -636,10 +634,10 @@ namespace FarseerPhysics.Collision
 				sibling = _nodes[parent].child1;
 			}
 
-			if (grandParent != nullNode)
+			if( grandParent != nullNode )
 			{
 				// Destroy parent and connect sibling to grandParent.
-				if (_nodes[grandParent].child1 == parent)
+				if( _nodes[grandParent].child1 == parent )
 				{
 					_nodes[grandParent].child1 = sibling;
 				}
@@ -647,21 +645,20 @@ namespace FarseerPhysics.Collision
 				{
 					_nodes[grandParent].child2 = sibling;
 				}
-
 				_nodes[sibling].parentOrNext = grandParent;
-				FreeNode(parent);
+				freeNode( parent );
 
 				// Adjust ancestor bounds.
 				int index = grandParent;
-				while (index != nullNode)
+				while( index != nullNode )
 				{
-					index = Balance(index);
+					index = balance( index );
 
 					int child1 = _nodes[index].child1;
 					int child2 = _nodes[index].child2;
 
-					_nodes[index].aabb.Combine(ref _nodes[child1].aabb, ref _nodes[child2].aabb);
-					_nodes[index].height = 1 + Math.Max(_nodes[child1].height, _nodes[child2].height);
+					_nodes[index].aabb.combine( ref _nodes[child1].aabb, ref _nodes[child2].aabb );
+					_nodes[index].height = 1 + Math.Max( _nodes[child1].height, _nodes[child2].height );
 
 					index = _nodes[index].parentOrNext;
 				}
@@ -670,7 +667,7 @@ namespace FarseerPhysics.Collision
 			{
 				_root = sibling;
 				_nodes[sibling].parentOrNext = nullNode;
-				FreeNode(parent);
+				freeNode( parent );
 			}
 
 			//Validate();
@@ -681,18 +678,18 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="iA"></param>
 		/// <returns>the new root index.</returns>
-		int Balance(int iA)
+		int balance( int iA )
 		{
-			Debug.Assert(iA != nullNode);
+			Debug.Assert( iA != nullNode );
 
 			var A = _nodes[iA];
-			if (A.IsLeaf() || A.height < 2)
+			if( A.IsLeaf() || A.height < 2 )
 				return iA;
 
 			var iB = A.child1;
 			var iC = A.child2;
-			Debug.Assert(0 <= iB && iB < _nodeCapacity);
-			Debug.Assert(0 <= iC && iC < _nodeCapacity);
+			Debug.Assert( 0 <= iB && iB < _nodeCapacity );
+			Debug.Assert( 0 <= iC && iC < _nodeCapacity );
 
 			var B = _nodes[iB];
 			var C = _nodes[iC];
@@ -700,14 +697,14 @@ namespace FarseerPhysics.Collision
 			var balance = C.height - B.height;
 
 			// Rotate C up
-			if (balance > 1)
+			if( balance > 1 )
 			{
 				int iF = C.child1;
 				int iG = C.child2;
 				var F = _nodes[iF];
 				var G = _nodes[iG];
-				Debug.Assert(0 <= iF && iF < _nodeCapacity);
-				Debug.Assert(0 <= iG && iG < _nodeCapacity);
+				Debug.Assert( 0 <= iF && iF < _nodeCapacity );
+				Debug.Assert( 0 <= iG && iG < _nodeCapacity );
 
 				// Swap A and C
 				C.child1 = iA;
@@ -715,15 +712,15 @@ namespace FarseerPhysics.Collision
 				A.parentOrNext = iC;
 
 				// A's old parent should point to C
-				if (C.parentOrNext != nullNode)
+				if( C.parentOrNext != nullNode )
 				{
-					if (_nodes[C.parentOrNext].child1 == iA)
+					if( _nodes[C.parentOrNext].child1 == iA )
 					{
 						_nodes[C.parentOrNext].child1 = iC;
 					}
 					else
 					{
-						Debug.Assert(_nodes[C.parentOrNext].child2 == iA);
+						Debug.Assert( _nodes[C.parentOrNext].child2 == iA );
 						_nodes[C.parentOrNext].child2 = iC;
 					}
 				}
@@ -733,41 +730,41 @@ namespace FarseerPhysics.Collision
 				}
 
 				// Rotate
-				if (F.height > G.height)
+				if( F.height > G.height )
 				{
 					C.child2 = iF;
 					A.child2 = iG;
 					G.parentOrNext = iA;
-					A.aabb.Combine(ref B.aabb, ref G.aabb);
-					C.aabb.Combine(ref A.aabb, ref F.aabb);
+					A.aabb.combine( ref B.aabb, ref G.aabb );
+					C.aabb.combine( ref A.aabb, ref F.aabb );
 
-					A.height = 1 + Math.Max(B.height, G.height);
-					C.height = 1 + Math.Max(A.height, F.height);
+					A.height = 1 + Math.Max( B.height, G.height );
+					C.height = 1 + Math.Max( A.height, F.height );
 				}
 				else
 				{
 					C.child2 = iG;
 					A.child2 = iF;
 					F.parentOrNext = iA;
-					A.aabb.Combine(ref B.aabb, ref F.aabb);
-					C.aabb.Combine(ref A.aabb, ref G.aabb);
+					A.aabb.combine( ref B.aabb, ref F.aabb );
+					C.aabb.combine( ref A.aabb, ref G.aabb );
 
-					A.height = 1 + Math.Max(B.height, F.height);
-					C.height = 1 + Math.Max(A.height, G.height);
+					A.height = 1 + Math.Max( B.height, F.height );
+					C.height = 1 + Math.Max( A.height, G.height );
 				}
 
 				return iC;
 			}
 
 			// Rotate B up
-			if (balance < -1)
+			if( balance < -1 )
 			{
 				int iD = B.child1;
 				int iE = B.child2;
 				var D = _nodes[iD];
 				var E = _nodes[iE];
-				Debug.Assert(0 <= iD && iD < _nodeCapacity);
-				Debug.Assert(0 <= iE && iE < _nodeCapacity);
+				Debug.Assert( 0 <= iD && iD < _nodeCapacity );
+				Debug.Assert( 0 <= iE && iE < _nodeCapacity );
 
 				// Swap A and B
 				B.child1 = iA;
@@ -775,15 +772,15 @@ namespace FarseerPhysics.Collision
 				A.parentOrNext = iB;
 
 				// A's old parent should point to B
-				if (B.parentOrNext != nullNode)
+				if( B.parentOrNext != nullNode )
 				{
-					if (_nodes[B.parentOrNext].child1 == iA)
+					if( _nodes[B.parentOrNext].child1 == iA )
 					{
 						_nodes[B.parentOrNext].child1 = iB;
 					}
 					else
 					{
-						Debug.Assert(_nodes[B.parentOrNext].child2 == iA);
+						Debug.Assert( _nodes[B.parentOrNext].child2 == iA );
 						_nodes[B.parentOrNext].child2 = iB;
 					}
 				}
@@ -793,27 +790,27 @@ namespace FarseerPhysics.Collision
 				}
 
 				// Rotate
-				if (D.height > E.height)
+				if( D.height > E.height )
 				{
 					B.child2 = iD;
 					A.child1 = iE;
 					E.parentOrNext = iA;
-					A.aabb.Combine(ref C.aabb, ref E.aabb);
-					B.aabb.Combine(ref A.aabb, ref D.aabb);
+					A.aabb.combine( ref C.aabb, ref E.aabb );
+					B.aabb.combine( ref A.aabb, ref D.aabb );
 
-					A.height = 1 + Math.Max(C.height, E.height);
-					B.height = 1 + Math.Max(A.height, D.height);
+					A.height = 1 + Math.Max( C.height, E.height );
+					B.height = 1 + Math.Max( A.height, D.height );
 				}
 				else
 				{
 					B.child2 = iE;
 					A.child1 = iD;
 					D.parentOrNext = iA;
-					A.aabb.Combine(ref C.aabb, ref D.aabb);
-					B.aabb.Combine(ref A.aabb, ref E.aabb);
+					A.aabb.combine( ref C.aabb, ref D.aabb );
+					B.aabb.combine( ref A.aabb, ref E.aabb );
 
-					A.height = 1 + Math.Max(C.height, D.height);
-					B.height = 1 + Math.Max(A.height, E.height);
+					A.height = 1 + Math.Max( C.height, D.height );
+					B.height = 1 + Math.Max( A.height, E.height );
 				}
 
 				return iB;
@@ -827,65 +824,65 @@ namespace FarseerPhysics.Collision
 		/// </summary>
 		/// <param name="nodeId">The node id to use as parent.</param>
 		/// <returns>The height of the tree.</returns>
-		public int ComputeHeight(int nodeId)
+		public int computeHeight( int nodeId )
 		{
-			Debug.Assert(0 <= nodeId && nodeId < _nodeCapacity);
+			Debug.Assert( 0 <= nodeId && nodeId < _nodeCapacity );
 			var node = _nodes[nodeId];
 
-			if (node.IsLeaf())
+			if( node.IsLeaf() )
 			{
 				return 0;
 			}
 
-			int height1 = ComputeHeight(node.child1);
-			int height2 = ComputeHeight(node.child2);
-			return 1 + Math.Max(height1, height2);
+			int height1 = computeHeight( node.child1 );
+			int height2 = computeHeight( node.child2 );
+			return 1 + Math.Max( height1, height2 );
 		}
 
 		/// <summary>
 		/// Compute the height of the entire tree.
 		/// </summary>
 		/// <returns>The height of the tree.</returns>
-		public int ComputeHeight()
+		public int computeHeight()
 		{
-			int height = ComputeHeight(_root);
+			int height = computeHeight( _root );
 			return height;
 		}
 
-		public void ValidateStructure(int index)
+		public void validateStructure( int index )
 		{
-			if (index == nullNode)
+			if( index == nullNode )
 				return;
 
-			if (index == _root)
-				Debug.Assert(_nodes[index].parentOrNext == nullNode);
+			if( index == _root )
+				Debug.Assert( _nodes[index].parentOrNext == nullNode );
 
 			var node = _nodes[index];
 
 			int child1 = node.child1;
 			int child2 = node.child2;
 
-			if (node.IsLeaf())
+			if( node.IsLeaf() )
 			{
-				Debug.Assert(child1 == nullNode);
-				Debug.Assert(child2 == nullNode);
-				Debug.Assert(node.height == 0);
+				Debug.Assert( child1 == nullNode );
+				Debug.Assert( child2 == nullNode );
+				Debug.Assert( node.height == 0 );
 				return;
 			}
 
-			Debug.Assert(0 <= child1 && child1 < _nodeCapacity);
-			Debug.Assert(0 <= child2 && child2 < _nodeCapacity);
+			Debug.Assert( 0 <= child1 && child1 < _nodeCapacity );
+			Debug.Assert( 0 <= child2 && child2 < _nodeCapacity );
 
-			Debug.Assert(_nodes[child1].parentOrNext == index);
-			Debug.Assert(_nodes[child2].parentOrNext == index);
+			Debug.Assert( _nodes[child1].parentOrNext == index );
+			Debug.Assert( _nodes[child2].parentOrNext == index );
 
-			ValidateStructure(child1);
-			ValidateStructure(child2);
+			validateStructure( child1 );
+			validateStructure( child2 );
 		}
 
-		public void ValidateMetrics(int index)
+		public void validateMetrics( int index )
 		{
-			if (index == nullNode)
+			if( index == nullNode )
 				return;
 
 			var node = _nodes[index];
@@ -893,72 +890,72 @@ namespace FarseerPhysics.Collision
 			int child1 = node.child1;
 			int child2 = node.child2;
 
-			if (node.IsLeaf())
+			if( node.IsLeaf() )
 			{
-				Debug.Assert(child1 == nullNode);
-				Debug.Assert(child2 == nullNode);
-				Debug.Assert(node.height == 0);
+				Debug.Assert( child1 == nullNode );
+				Debug.Assert( child2 == nullNode );
+				Debug.Assert( node.height == 0 );
 				return;
 			}
 
-			Debug.Assert(0 <= child1 && child1 < _nodeCapacity);
-			Debug.Assert(0 <= child2 && child2 < _nodeCapacity);
+			Debug.Assert( 0 <= child1 && child1 < _nodeCapacity );
+			Debug.Assert( 0 <= child2 && child2 < _nodeCapacity );
 
 			int height1 = _nodes[child1].height;
 			int height2 = _nodes[child2].height;
-			int height = 1 + Math.Max(height1, height2);
-			Debug.Assert(node.height == height);
+			int height = 1 + Math.Max( height1, height2 );
+			Debug.Assert( node.height == height );
 
 			var AABB = new AABB();
-			AABB.Combine(ref _nodes[child1].aabb, ref _nodes[child2].aabb);
+			AABB.combine( ref _nodes[child1].aabb, ref _nodes[child2].aabb );
 
-			Debug.Assert(AABB.LowerBound == node.aabb.LowerBound);
-			Debug.Assert(AABB.UpperBound == node.aabb.UpperBound);
+			Debug.Assert( AABB.lowerBound == node.aabb.lowerBound );
+			Debug.Assert( AABB.upperBound == node.aabb.upperBound );
 
-			ValidateMetrics(child1);
-			ValidateMetrics(child2);
+			validateMetrics( child1 );
+			validateMetrics( child2 );
 		}
 
 		/// <summary>
 		/// Validate this tree. For testing.
 		/// </summary>
-		public void Validate()
+		public void validate()
 		{
-			ValidateStructure(_root);
-			ValidateMetrics(_root);
+			validateStructure( _root );
+			validateMetrics( _root );
 
 			int freeCount = 0;
 			int freeIndex = _freeList;
-			while (freeIndex != nullNode)
+			while( freeIndex != nullNode )
 			{
-				Debug.Assert(0 <= freeIndex && freeIndex < _nodeCapacity);
+				Debug.Assert( 0 <= freeIndex && freeIndex < _nodeCapacity );
 				freeIndex = _nodes[freeIndex].parentOrNext;
 				++freeCount;
 			}
 
-			Debug.Assert(Height == ComputeHeight());
+			Debug.Assert( height == computeHeight() );
 
-			Debug.Assert(_nodeCount + freeCount == _nodeCapacity);
+			Debug.Assert( _nodeCount + freeCount == _nodeCapacity );
 		}
 
 		/// <summary>
 		/// Build an optimal tree. Very expensive. For testing.
 		/// </summary>
-		public void RebuildBottomUp()
+		public void rebuildBottomUp()
 		{
 			int[] nodes = new int[_nodeCount];
 			int count = 0;
 
 			// Build array of leaves. Free the rest.
-			for (int i = 0; i < _nodeCapacity; ++i)
+			for( int i = 0; i < _nodeCapacity; ++i )
 			{
-				if (_nodes[i].height < 0)
+				if( _nodes[i].height < 0 )
 				{
 					// free node in pool
 					continue;
 				}
 
-				if (_nodes[i].IsLeaf())
+				if( _nodes[i].IsLeaf() )
 				{
 					_nodes[i].parentOrNext = nullNode;
 					nodes[count] = i;
@@ -966,25 +963,25 @@ namespace FarseerPhysics.Collision
 				}
 				else
 				{
-					FreeNode(i);
+					freeNode( i );
 				}
 			}
 
-			while (count > 1)
+			while( count > 1 )
 			{
-				float minCost = Settings.MaxFloat;
+				float minCost = Settings.maxFloat;
 				int iMin = -1, jMin = -1;
-				for (int i = 0; i < count; ++i)
+				for( int i = 0; i < count; ++i )
 				{
 					AABB AABBi = _nodes[nodes[i]].aabb;
 
-					for (int j = i + 1; j < count; ++j)
+					for( int j = i + 1; j < count; ++j )
 					{
 						AABB AABBj = _nodes[nodes[j]].aabb;
 						var b = new AABB();
-						b.Combine(ref AABBi, ref AABBj);
-						float cost = b.Perimeter;
-						if (cost < minCost)
+						b.combine( ref AABBi, ref AABBj );
+						float cost = b.perimeter;
+						if( cost < minCost )
 						{
 							iMin = i;
 							jMin = j;
@@ -998,12 +995,12 @@ namespace FarseerPhysics.Collision
 				var child1 = _nodes[index1];
 				var child2 = _nodes[index2];
 
-				var parentIndex = AllocateNode();
+				var parentIndex = allocateNode();
 				var parent = _nodes[parentIndex];
 				parent.child1 = index1;
 				parent.child2 = index2;
-				parent.height = 1 + Math.Max(child1.height, child2.height);
-				parent.aabb.Combine(ref child1.aabb, ref child2.aabb);
+				parent.height = 1 + Math.Max( child1.height, child2.height );
+				parent.aabb.combine( ref child1.aabb, ref child2.aabb );
 				parent.parentOrNext = nullNode;
 
 				child1.parentOrNext = parentIndex;
@@ -1016,21 +1013,22 @@ namespace FarseerPhysics.Collision
 
 			_root = nodes[0];
 
-			Validate();
+			validate();
 		}
 
 		/// <summary>
 		/// Shift the origin of the nodes
 		/// </summary>
 		/// <param name="newOrigin">The displacement to use.</param>
-		public void ShiftOrigin(Vector2 newOrigin)
+		public void shiftOrigin( Vector2 newOrigin )
 		{
 			// Build array of leaves. Free the rest.
-			for (int i = 0; i < _nodeCapacity; ++i)
+			for( int i = 0; i < _nodeCapacity; ++i )
 			{
-				_nodes[i].aabb.LowerBound -= newOrigin;
-				_nodes[i].aabb.UpperBound -= newOrigin;
+				_nodes[i].aabb.lowerBound -= newOrigin;
+				_nodes[i].aabb.upperBound -= newOrigin;
 			}
 		}
+
 	}
 }

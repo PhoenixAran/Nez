@@ -5,10 +5,13 @@ namespace Nez.Svg
 {
 	public class SvgCircle : SvgElement
 	{
-		[XmlAttribute("r")] public float Radius;
+		[XmlAttribute( "r" )]
+		public float radius;
 
-		[XmlAttribute("cy")] public float CenterY;
+		[XmlAttribute( "cy" )]
+		public float centerY;
 
-		[XmlAttribute("cx")] public float CenterX;
+		[XmlAttribute( "cx" )]
+		public float centerX;
 	}
 }

@@ -10,53 +10,56 @@ namespace Nez
 		Slider _slider;
 
 
-		public override void Initialize(Table table, Skin skin, float leftCellWidth)
+		public override void initialize( Table table, Skin skin, float leftCellWidth )
 		{
 			// if we have a RangeAttribute we need to make a slider
-			var rangeAttr = GetFieldOrPropertyAttribute<RangeAttribute>();
-			if (rangeAttr != null)
-				SetupSlider(table, skin, leftCellWidth, rangeAttr.MinValue, rangeAttr.MaxValue, rangeAttr.StepSize);
+			var rangeAttr = getFieldOrPropertyAttribute<RangeAttribute>();
+			if( rangeAttr != null )
+				setupSlider( table, skin, leftCellWidth, rangeAttr.minValue, rangeAttr.maxValue, rangeAttr.stepSize );
 			else
-				SetupTextField(table, skin, leftCellWidth);
+				setupTextField( table, skin, leftCellWidth );
 		}
 
 
-		void SetupTextField(Table table, Skin skin, float leftCellWidth)
+		void setupTextField( Table table, Skin skin, float leftCellWidth )
 		{
-			var label = CreateNameLabel(table, skin, leftCellWidth);
-			_textField = new TextField(GetValue<int>().ToString(), skin);
-			_textField.SetTextFieldFilter(new FloatFilter());
-			_textField.OnTextChanged += (field, str) =>
+			var label = createNameLabel( table, skin, leftCellWidth );
+			_textField = new TextField( getValue<int>().ToString(), skin );
+			_textField.setTextFieldFilter( new FloatFilter() );
+			_textField.onTextChanged += ( field, str ) =>
 			{
 				int newValue;
-				if (int.TryParse(str, out newValue))
-					SetValue(newValue);
+				if( int.TryParse( str, out newValue ) )
+					setValue( newValue );
 			};
 
-			table.Add(label);
-			table.Add(_textField).SetMaxWidth(70);
+			table.add( label );
+			table.add( _textField ).setMaxWidth( 70 );
 		}
 
 
-		void SetupSlider(Table table, Skin skin, float leftCellWidth, float minValue, float maxValue, float stepSize)
+		void setupSlider( Table table, Skin skin, float leftCellWidth, float minValue, float maxValue, float stepSize )
 		{
-			var label = CreateNameLabel(table, skin, leftCellWidth);
-			_slider = new Slider(skin, null, minValue, maxValue);
-			_slider.SetStepSize(stepSize);
-			_slider.SetValue(GetValue<int>());
-			_slider.OnChanged += newValue => { _setter.Invoke((int) newValue); };
+			var label = createNameLabel( table, skin, leftCellWidth );
+			_slider = new Slider( skin, null, minValue, maxValue );
+			_slider.setStepSize( stepSize );
+			_slider.setValue( getValue<int>() );
+			_slider.onChanged += newValue =>
+			{
+				_setter.Invoke( (int)newValue );
+			};
 
-			table.Add(label);
-			table.Add(_slider);
+			table.add( label );
+			table.add( _slider );
 		}
 
 
-		public override void Update()
+		public override void update()
 		{
-			if (_textField != null)
-				_textField.SetText(GetValue<int>().ToString());
-			if (_slider != null)
-				_slider.SetValue(GetValue<int>());
+			if( _textField != null )
+				_textField.setText( getValue<int>().ToString() );
+			if( _slider != null )
+				_slider.setValue( getValue<int>() );
 		}
 	}
 }

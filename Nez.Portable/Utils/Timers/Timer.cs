@@ -8,7 +8,7 @@ namespace Nez.Timers
 	/// </summary>
 	class Timer : ITimer
 	{
-		public object Context { get; set; }
+		public object context { get; set; }
 
 		float _timeInSeconds;
 		bool _repeats;
@@ -17,53 +17,60 @@ namespace Nez.Timers
 		float _elapsedTime;
 
 
-		public void Stop()
+		public void stop()
 		{
 			_isDone = true;
 		}
 
-		public void Reset()
+
+		public void reset()
 		{
 			_elapsedTime = 0f;
 		}
 
-		public T GetContext<T>()
+
+		public T getContext<T>()
 		{
-			return (T)Context;
+			return (T)context;
 		}
 
-		internal bool Tick()
+
+		internal bool tick()
 		{
 			// if stop was called before the tick then isDone will be true and we should not tick again no matter what
-			if (!_isDone && _elapsedTime > _timeInSeconds)
+			if( !_isDone && _elapsedTime > _timeInSeconds )
 			{
 				_elapsedTime -= _timeInSeconds;
-				_onTime(this);
+				_onTime( this );
 
-				if (!_isDone && !_repeats)
+				if( !_isDone && !_repeats )
 					_isDone = true;
 			}
 
-			_elapsedTime += Time.DeltaTime;
+			_elapsedTime += Time.deltaTime;
 
 			return _isDone;
 		}
 
-		internal void Initialize(float timeInSeconds, bool repeats, object context, Action<ITimer> onTime)
+
+		internal void initialize( float timeInSeconds, bool repeats, object context, Action<ITimer> onTime )
 		{
 			_timeInSeconds = timeInSeconds;
 			_repeats = repeats;
-			Context = context;
+			this.context = context;
 			_onTime = onTime;
 		}
+
 
 		/// <summary>
 		/// nulls out the object references so the GC can pick them up if needed
 		/// </summary>
-		internal void Unload()
+		internal void unload()
 		{
-			Context = null;
+			context = null;
 			_onTime = null;
 		}
+
 	}
 }
+

@@ -12,58 +12,59 @@ namespace Nez.Farseer
 
 		public FSCollisionCircle()
 		{
-			_fixtureDef.Shape = new CircleShape();
+			_fixtureDef.shape = new CircleShape();
 		}
 
 
-		public FSCollisionCircle(float radius) : this()
+		public FSCollisionCircle( float radius ) : this()
 		{
 			_radius = radius;
-			_fixtureDef.Shape.Radius = _radius * FSConvert.DisplayToSim;
+			_fixtureDef.shape.radius = _radius * FSConvert.displayToSim;
 		}
 
 
 		#region Configuration
 
-		public FSCollisionCircle SetRadius(float radius)
+		public FSCollisionCircle setRadius( float radius )
 		{
 			_radius = radius;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionCircle SetCenter(Vector2 center)
+		public FSCollisionCircle setCenter( Vector2 center )
 		{
 			_center = center;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 		#endregion
 
 
-		public override void OnEntityTransformChanged(Transform.Component comp)
+		public override void onEntityTransformChanged( Transform.Component comp )
 		{
-			if (comp == Transform.Component.Scale)
-				RecreateFixture();
+			if( comp == Transform.Component.Scale )
+				recreateFixture();
 		}
 
 
-		void RecreateFixture()
+		void recreateFixture()
 		{
-			_fixtureDef.Shape.Radius = _radius * Transform.Scale.X * FSConvert.DisplayToSim;
-			(_fixtureDef.Shape as CircleShape).Position = FSConvert.DisplayToSim * _center;
+			_fixtureDef.shape.radius = _radius * transform.scale.X * FSConvert.displayToSim;
+			( _fixtureDef.shape as CircleShape ).position = FSConvert.displayToSim * _center;
 
-			if (_fixture != null)
+			if( _fixture != null )
 			{
-				var circleShape = _fixture.Shape as CircleShape;
-				circleShape.Radius = _fixtureDef.Shape.Radius;
-				circleShape.Position = FSConvert.DisplayToSim * _center;
+				var circleShape = _fixture.shape as CircleShape;
+				circleShape.radius = _fixtureDef.shape.radius;
+				circleShape.position = FSConvert.displayToSim * _center;
 
 				// wake the body if it is asleep to update collisions
-				WakeAnyContactingBodies();
+				wakeAnyContactingBodies();
 			}
 		}
+
 	}
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 
 
 namespace Nez.DeferredLighting
@@ -14,20 +15,20 @@ namespace Nez.DeferredLighting
 		/// alpha cutoff for the alpha test. defaults to 0.3
 		/// </summary>
 		/// <value>The alpha cutoff.</value>
-		public float AlphaCutoff => _alphaCutoff;
+		public float alphaCutoff { get { return _alphaCutoff; } }
 
 		/// <summary>
 		/// if true, the normal map alpha channel will be used for self illumination. Note that you need to turn off premultiplied
 		/// alpha in the Pipeline tool when using the alpha for self illumination!
 		/// </summary>
 		/// <value><c>true</c> if use normal alpha channel for self illumination; otherwise, <c>false</c>.</value>
-		public bool UseNormalAlphaChannelForSelfIllumination => _useNormalAlphaChannelForSelfIllumination;
+		public bool useNormalAlphaChannelForSelfIllumination { get { return _useNormalAlphaChannelForSelfIllumination; } }
 
 		/// <summary>
 		/// controls the power of the self illumination where 0 is no contribution and 1 is fully self illuminated
 		/// </summary>
 		/// <value>The self illumination power parameter.</value>
-		public float SelfIlluminationPower => _selfIlluminationPower;
+		public float selfIlluminationPower { get { return _selfIlluminationPower; } }
 
 
 		float _alphaCutoff;
@@ -40,23 +41,23 @@ namespace Nez.DeferredLighting
 		EffectParameter _selfIlluminationPowerParam;
 
 
-		public DeferredSpriteEffect() : base(Core.GraphicsDevice, EffectResource.DeferredSpriteBytes)
+		public DeferredSpriteEffect() : base( Core.graphicsDevice, EffectResource.deferredSpriteBytes )
 		{
 			_normalMapParam = Parameters["_normalMap"];
 			_alphaCutoffParam = Parameters["_alphaCutoff"];
 			_alphaAsSelfIlluminationParam = Parameters["_alphaAsSelfIllumination"];
 			_selfIlluminationPowerParam = Parameters["_selfIlluminationPower"];
 
-			SetAlphaCutoff(0.3f);
-			SetSelfIlluminationPower(1);
+			setAlphaCutoff( 0.3f );
+			setSelfIlluminationPower( 1 );
 		}
 
 
 		#region Configuration
 
-		public DeferredSpriteEffect SetNormalMap(Texture2D normalMap)
+		public DeferredSpriteEffect setNormalMap( Texture2D normalMap )
 		{
-			_normalMapParam.SetValue(normalMap);
+			_normalMapParam.SetValue( normalMap );
 			return this;
 		}
 
@@ -66,14 +67,13 @@ namespace Nez.DeferredLighting
 		/// </summary>
 		/// <returns>The alpha cutoff.</returns>
 		/// <param name="alphaCutoff">Alpha cutoff.</param>
-		public DeferredSpriteEffect SetAlphaCutoff(float alphaCutoff)
+		public DeferredSpriteEffect setAlphaCutoff( float alphaCutoff )
 		{
-			if (_alphaCutoff != alphaCutoff)
+			if( _alphaCutoff != alphaCutoff )
 			{
 				_alphaCutoff = alphaCutoff;
-				_alphaCutoffParam.SetValue(alphaCutoff);
+				_alphaCutoffParam.SetValue( alphaCutoff );
 			}
-
 			return this;
 		}
 
@@ -84,15 +84,13 @@ namespace Nez.DeferredLighting
 		/// </summary>
 		/// <returns>The use normal alpha channel for self illumination.</returns>
 		/// <param name="useNormalAlphaChannelForSelfIllumination">If set to <c>true</c> use normal alpha channel for self illumination.</param>
-		public DeferredSpriteEffect SetUseNormalAlphaChannelForSelfIllumination(
-			bool useNormalAlphaChannelForSelfIllumination)
+		public DeferredSpriteEffect setUseNormalAlphaChannelForSelfIllumination( bool useNormalAlphaChannelForSelfIllumination )
 		{
-			if (_useNormalAlphaChannelForSelfIllumination != useNormalAlphaChannelForSelfIllumination)
+			if( _useNormalAlphaChannelForSelfIllumination != useNormalAlphaChannelForSelfIllumination )
 			{
 				_useNormalAlphaChannelForSelfIllumination = useNormalAlphaChannelForSelfIllumination;
-				_alphaAsSelfIlluminationParam.SetValue(useNormalAlphaChannelForSelfIllumination ? 1f : 0f);
+				_alphaAsSelfIlluminationParam.SetValue( useNormalAlphaChannelForSelfIllumination ? 1f : 0f );
 			}
-
 			return this;
 		}
 
@@ -102,17 +100,18 @@ namespace Nez.DeferredLighting
 		/// </summary>
 		/// <returns>The self illumination power.</returns>
 		/// <param name="selfIlluminationPower">Self illumination power.</param>
-		public DeferredSpriteEffect SetSelfIlluminationPower(float selfIlluminationPower)
+		public DeferredSpriteEffect setSelfIlluminationPower( float selfIlluminationPower )
 		{
-			if (_selfIlluminationPower != selfIlluminationPower)
+			if( _selfIlluminationPower != selfIlluminationPower )
 			{
 				_selfIlluminationPower = selfIlluminationPower;
-				_selfIlluminationPowerParam.SetValue(selfIlluminationPower);
+				_selfIlluminationPowerParam.SetValue( selfIlluminationPower );
 			}
-
 			return this;
 		}
 
 		#endregion
+
 	}
 }
+

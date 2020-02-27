@@ -12,27 +12,27 @@ namespace Nez
 		/// <summary>
 		/// default value for all methods that accept a layerMask
 		/// </summary>
-		public const int AllLayers = -1;
+		public const int allLayers = -1;
 
 		/// <summary>
 		/// convenience field for storing a gravity value globally 
 		/// </summary>
-		public static Vector2 Gravity = new Vector2(0, 300f);
+		public static Vector2 gravity = new Vector2( 0, 300f );
 
 		/// <summary>
 		/// cell size used when reset is called and a new SpatialHash is created
 		/// </summary>
-		public static int SpatialHashCellSize = 100;
+		public static int spatialHashCellSize = 100;
 
 		/// <summary>
 		/// Do raycasts detect Colliders configured as triggers?
 		/// </summary>
-		public static bool RaycastsHitTriggers = false;
+		public static bool raycastsHitTriggers = false;
 
 		/// <summary>
 		/// Do ray/line casts that start inside a collider detect those colliders?
 		/// </summary>
-		public static bool RaycastsStartInColliders = false;
+		public static bool raycastsStartInColliders = false;
 
 		/// <summary>
 		/// we keep this around to avoid allocating it every time a raycast happens
@@ -45,10 +45,10 @@ namespace Nez
 		static Collider[] _colliderArray = new Collider[1];
 
 
-		public static void Reset()
+		public static void reset()
 		{
-			_spatialHash = new SpatialHash(SpatialHashCellSize);
-			_hitArray[0].Reset();
+			_spatialHash = new SpatialHash( spatialHashCellSize );
+			_hitArray[0].reset();
 			_colliderArray[0] = null;
 		}
 
@@ -56,9 +56,9 @@ namespace Nez
 		/// <summary>
 		/// removes all colliders from the SpatialHash
 		/// </summary>
-		public static void Clear()
+		public static void clear()
 		{
-			_spatialHash.Clear();
+			_spatialHash.clear();
 		}
 
 
@@ -66,9 +66,9 @@ namespace Nez
 		/// debug draws the contents of the spatial hash. Note that Core.debugRenderEnabled must be true or nothing will be displayed.
 		/// </summary>
 		/// <param name="secondsToDisplay">Seconds to display.</param>
-		internal static void DebugDraw(float secondsToDisplay)
+		internal static void debugDraw( float secondsToDisplay )
 		{
-			_spatialHash.DebugDraw(secondsToDisplay, 2f);
+			_spatialHash.debugDraw( secondsToDisplay, 2f );
 		}
 
 
@@ -78,9 +78,9 @@ namespace Nez
 		/// gets all the Colliders managed by the SpatialHash
 		/// </summary>
 		/// <returns>The all colliders.</returns>
-		public static IEnumerable<Collider> GetAllColliders()
+		public static IEnumerable<Collider> getAllColliders()
 		{
-			return _spatialHash.GetAllObjects();
+			return _spatialHash.getAllObjects();
 		}
 
 
@@ -88,9 +88,9 @@ namespace Nez
 		/// adds the collider to the physics system
 		/// </summary>
 		/// <param name="collider">Collider.</param>
-		public static void AddCollider(Collider collider)
+		public static void addCollider( Collider collider )
 		{
-			_spatialHash.Register(collider);
+			_spatialHash.register( collider );
 		}
 
 
@@ -99,9 +99,9 @@ namespace Nez
 		/// </summary>
 		/// <returns>The collider.</returns>
 		/// <param name="collider">Collider.</param>
-		public static void RemoveCollider(Collider collider)
+		public static void removeCollider( Collider collider )
 		{
-			_spatialHash.Remove(collider);
+			_spatialHash.remove( collider );
 		}
 
 
@@ -110,10 +110,10 @@ namespace Nez
 		/// new bounds
 		/// </summary>
 		/// <param name="collider">Collider.</param>
-		public static void UpdateCollider(Collider collider)
+		public static void updateCollider( Collider collider )
 		{
-			_spatialHash.Remove(collider);
-			_spatialHash.Register(collider);
+			_spatialHash.remove( collider );
+			_spatialHash.register( collider );
 		}
 
 		#endregion
@@ -125,11 +125,11 @@ namespace Nez
 		/// <param name="start">Start.</param>
 		/// <param name="end">End.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static RaycastHit Linecast(Vector2 start, Vector2 end, int layerMask = AllLayers)
+		public static RaycastHit linecast( Vector2 start, Vector2 end, int layerMask = allLayers )
 		{
 			// cleanse the collider before proceeding
-			_hitArray[0].Reset();
-			LinecastAll(start, end, _hitArray, layerMask);
+			_hitArray[0].reset();
+			linecastAll( start, end, _hitArray, layerMask );
 			return _hitArray[0];
 		}
 
@@ -142,10 +142,10 @@ namespace Nez
 		/// <param name="end">End.</param>
 		/// <param name="hits">Hits.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static int LinecastAll(Vector2 start, Vector2 end, RaycastHit[] hits, int layerMask = AllLayers)
+		public static int linecastAll( Vector2 start, Vector2 end, RaycastHit[] hits, int layerMask = allLayers )
 		{
-			Insist.IsFalse(hits.Length == 0, "An empty hits array was passed in. No hits will ever be returned.");
-			return _spatialHash.Linecast(start, end, hits, layerMask);
+			Assert.isFalse( hits.Length == 0, "An empty hits array was passed in. No hits will ever be returned." );
+			return _spatialHash.linecast( start, end, hits, layerMask );
 		}
 
 
@@ -155,9 +155,9 @@ namespace Nez
 		/// <returns>The rectangle.</returns>
 		/// <param name="rect">Rect.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static Collider OverlapRectangle(RectangleF rect, int layerMask = AllLayers)
+		public static Collider overlapRectangle( RectangleF rect, int layerMask = allLayers )
 		{
-			return OverlapRectangle(ref rect, layerMask);
+			return overlapRectangle( ref rect, layerMask );
 		}
 
 
@@ -167,10 +167,10 @@ namespace Nez
 		/// <returns>The rectangle.</returns>
 		/// <param name="rect">Rect.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static Collider OverlapRectangle(ref RectangleF rect, int layerMask = AllLayers)
+		public static Collider overlapRectangle( ref RectangleF rect, int layerMask = allLayers )
 		{
 			_colliderArray[0] = null;
-			_spatialHash.OverlapRectangle(ref rect, _colliderArray, layerMask);
+			_spatialHash.overlapRectangle( ref rect, _colliderArray, layerMask );
 			return _colliderArray[0];
 		}
 
@@ -182,11 +182,10 @@ namespace Nez
 		/// <param name="rect">Rect.</param>
 		/// <param name="results">Results.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static int OverlapRectangleAll(ref RectangleF rect, Collider[] results, int layerMask = AllLayers)
+		public static int overlapRectangleAll( ref RectangleF rect, Collider[] results, int layerMask = allLayers )
 		{
-			Insist.IsFalse(results.Length == 0,
-				"An empty results array was passed in. No results will ever be returned.");
-			return _spatialHash.OverlapRectangle(ref rect, results, layerMask);
+			Assert.isFalse( results.Length == 0, "An empty results array was passed in. No results will ever be returned." );
+			return _spatialHash.overlapRectangle( ref rect, results, layerMask );
 		}
 
 
@@ -197,10 +196,10 @@ namespace Nez
 		/// <param name="center">Center.</param>
 		/// <param name="radius">Radius.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static Collider OverlapCircle(Vector2 center, float radius, int layerMask = AllLayers)
+		public static Collider overlapCircle( Vector2 center, float radius, int layerMask = allLayers )
 		{
 			_colliderArray[0] = null;
-			_spatialHash.OverlapCircle(center, radius, _colliderArray, layerMask);
+			_spatialHash.overlapCircle( center, radius, _colliderArray, layerMask );
 			return _colliderArray[0];
 		}
 
@@ -213,11 +212,10 @@ namespace Nez
 		/// <param name="radius">Radius.</param>
 		/// <param name="results">Results.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static int OverlapCircleAll(Vector2 center, float radius, Collider[] results, int layerMask = AllLayers)
+		public static int overlapCircleAll( Vector2 center, float radius, Collider[] results, int layerMask = allLayers )
 		{
-			Insist.IsFalse(results.Length == 0,
-				"An empty results array was passed in. No results will ever be returned.");
-			return _spatialHash.OverlapCircle(center, radius, results, layerMask);
+			Assert.isFalse( results.Length == 0, "An empty results array was passed in. No results will ever be returned." );
+			return _spatialHash.overlapCircle( center, radius, results, layerMask );
 		}
 
 
@@ -229,9 +227,9 @@ namespace Nez
 		/// </summary>
 		/// <param name="bounds">Bounds.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static IEnumerable<Collider> BoxcastBroadphase(RectangleF rect, int layerMask = AllLayers)
+		public static IEnumerable<Collider> boxcastBroadphase( RectangleF rect, int layerMask = allLayers )
 		{
-			return _spatialHash.AabbBroadphase(ref rect, null, layerMask);
+			return _spatialHash.aabbBroadphase( ref rect, null, layerMask );
 		}
 
 
@@ -241,9 +239,9 @@ namespace Nez
 		/// </summary>
 		/// <param name="bounds">Bounds.</param>
 		/// <param name="layerMask">Layer mask.</param>
-		public static IEnumerable<Collider> BoxcastBroadphase(ref RectangleF rect, int layerMask = AllLayers)
+		public static IEnumerable<Collider> boxcastBroadphase( ref RectangleF rect, int layerMask = allLayers )
 		{
-			return _spatialHash.AabbBroadphase(ref rect, null, layerMask);
+			return _spatialHash.aabbBroadphase( ref rect, null, layerMask );
 		}
 
 
@@ -252,10 +250,10 @@ namespace Nez
 		/// </summary>
 		/// <returns>The neighbors excluding self.</returns>
 		/// <param name="collider">Collider.</param>
-		public static IEnumerable<Collider> BoxcastBroadphaseExcludingSelf(Collider collider, int layerMask = AllLayers)
+		public static IEnumerable<Collider> boxcastBroadphaseExcludingSelf( Collider collider, int layerMask = allLayers )
 		{
-			var bounds = collider.Bounds;
-			return _spatialHash.AabbBroadphase(ref bounds, collider, layerMask);
+			var bounds = collider.bounds;
+			return _spatialHash.aabbBroadphase( ref bounds, collider, layerMask );
 		}
 
 
@@ -266,10 +264,9 @@ namespace Nez
 		/// <returns>The excluding self.</returns>
 		/// <param name="collider">Collider.</param>
 		/// <param name="bounds">Bounds.</param>
-		public static IEnumerable<Collider> BoxcastBroadphaseExcludingSelf(
-			Collider collider, ref RectangleF rect, int layerMask = AllLayers)
+		public static IEnumerable<Collider> boxcastBroadphaseExcludingSelf( Collider collider, ref RectangleF rect, int layerMask = allLayers )
 		{
-			return _spatialHash.AabbBroadphase(ref rect, collider, layerMask);
+			return _spatialHash.aabbBroadphase( ref rect, collider, layerMask );
 		}
 
 
@@ -279,14 +276,15 @@ namespace Nez
 		/// </summary>
 		/// <returns>The neighbors excluding self.</returns>
 		/// <param name="collider">Collider.</param>
-		public static IEnumerable<Collider> BoxcastBroadphaseExcludingSelf(
-			Collider collider, float deltaX, float deltaY, int layerMask = AllLayers)
+		public static IEnumerable<Collider> boxcastBroadphaseExcludingSelf( Collider collider, float deltaX, float deltaY, int layerMask = allLayers )
 		{
-			var colliderBounds = collider.Bounds;
-			var sweptBounds = colliderBounds.GetSweptBroadphaseBounds(deltaX, deltaY);
-			return _spatialHash.AabbBroadphase(ref sweptBounds, collider, layerMask);
+			var colliderBounds = collider.bounds;
+			var sweptBounds = colliderBounds.getSweptBroadphaseBounds( deltaX, deltaY );
+			return _spatialHash.aabbBroadphase( ref sweptBounds, collider, layerMask );
 		}
 
 		#endregion
+
 	}
 }
+

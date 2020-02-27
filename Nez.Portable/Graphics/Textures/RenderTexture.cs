@@ -22,12 +22,12 @@ namespace Nez.Textures
 		/// <summary>
 		/// the RenderTarget2D this RenderTexture manages
 		/// </summary>
-		public RenderTarget2D RenderTarget;
+		public RenderTarget2D renderTarget;
 
 		/// <summary>
 		/// resize behavior that should occur when onSceneBackBufferSizeChanged is called
 		/// </summary>
-		public RenderTextureResizeBehavior ResizeBehavior = RenderTextureResizeBehavior.SizeToSceneRenderTarget;
+		public RenderTextureResizeBehavior resizeBehavior = RenderTextureResizeBehavior.SizeToSceneRenderTarget;
 
 
 		#region constructors
@@ -37,8 +37,7 @@ namespace Nez.Textures
 		/// </summary>
 		public RenderTexture()
 		{
-			RenderTarget = Textures.RenderTarget.Create(Screen.Width, Screen.Height, Screen.BackBufferFormat,
-				Screen.PreferredDepthStencilFormat);
+			renderTarget = RenderTarget.create( Screen.width, Screen.height, Screen.backBufferFormat, Screen.preferredDepthStencilFormat );
 		}
 
 
@@ -46,10 +45,9 @@ namespace Nez.Textures
 		/// helper for creating a full screen RenderTarget2D with a specific DepthFormat
 		/// </summary>
 		/// <param name="preferredDepthFormat">Preferred depth format.</param>
-		public RenderTexture(DepthFormat preferredDepthFormat)
+		public RenderTexture( DepthFormat preferredDepthFormat )
 		{
-			RenderTarget = Textures.RenderTarget.Create(Screen.Width, Screen.Height, Screen.BackBufferFormat,
-				preferredDepthFormat);
+			renderTarget = RenderTarget.create( Screen.width, Screen.height, Screen.backBufferFormat, preferredDepthFormat );
 		}
 
 
@@ -58,10 +56,9 @@ namespace Nez.Textures
 		/// </summary>
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
-		public RenderTexture(int width, int height)
+		public RenderTexture( int width, int height )
 		{
-			RenderTarget = Textures.RenderTarget.Create(width, height, Screen.BackBufferFormat,
-				Screen.PreferredDepthStencilFormat);
+			renderTarget = RenderTarget.create( width, height, Screen.backBufferFormat, Screen.preferredDepthStencilFormat );
 		}
 
 
@@ -71,9 +68,9 @@ namespace Nez.Textures
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
 		/// <param name="preferredDepthFormat">Preferred depth format.</param>
-		public RenderTexture(int width, int height, DepthFormat preferredDepthFormat)
+		public RenderTexture( int width, int height, DepthFormat preferredDepthFormat )
 		{
-			RenderTarget = Textures.RenderTarget.Create(width, height, Screen.BackBufferFormat, preferredDepthFormat);
+			renderTarget = RenderTarget.create( width, height, Screen.backBufferFormat, preferredDepthFormat );
 		}
 
 
@@ -84,10 +81,9 @@ namespace Nez.Textures
 		/// <param name="height">Height.</param>
 		/// <param name="preferredFormat">Preferred format.</param>
 		/// <param name="preferredDepthFormat">Preferred depth format.</param>
-		public RenderTexture(int width, int height, SurfaceFormat preferredFormat, DepthFormat preferredDepthFormat)
+		public RenderTexture( int width, int height, SurfaceFormat preferredFormat, DepthFormat preferredDepthFormat )
 		{
-			RenderTarget = new RenderTarget2D(Core.GraphicsDevice, width, height, false, preferredFormat,
-				preferredDepthFormat, 0, RenderTargetUsage.PreserveContents);
+			renderTarget = new RenderTarget2D( Core.graphicsDevice, width, height, false, preferredFormat, preferredDepthFormat, 0, RenderTargetUsage.PreserveContents );
 		}
 
 		#endregion
@@ -98,17 +94,17 @@ namespace Nez.Textures
 		/// </summary>
 		/// <param name="newWidth">New width.</param>
 		/// <param name="newHeight">New height.</param>
-		public void OnSceneBackBufferSizeChanged(int newWidth, int newHeight)
+		public void onSceneBackBufferSizeChanged( int newWidth, int newHeight )
 		{
-			switch (ResizeBehavior)
+			switch( resizeBehavior )
 			{
 				case RenderTextureResizeBehavior.None:
 					break;
 				case RenderTextureResizeBehavior.SizeToSceneRenderTarget:
-					Resize(newWidth, newHeight);
+					resize( newWidth, newHeight );
 					break;
 				case RenderTextureResizeBehavior.SizeToScreen:
-					Resize(Screen.Width, Screen.Height);
+					resize( Screen.width, Screen.height );
 					break;
 			}
 		}
@@ -117,9 +113,9 @@ namespace Nez.Textures
 		/// <summary>
 		/// resizes the RenderTarget2D to match the back buffer size
 		/// </summary>
-		public void ResizeToFitBackbuffer()
+		public void resizeToFitBackbuffer()
 		{
-			Resize(Screen.Width, Screen.Height);
+			resize( Screen.width, Screen.height );
 		}
 
 
@@ -128,35 +124,36 @@ namespace Nez.Textures
 		/// </summary>
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
-		public void Resize(int width, int height)
+		public void resize( int width, int height )
 		{
 			// no need to resize if we are already the right size
-			if (RenderTarget.Width == width && RenderTarget.Height == height && !RenderTarget.IsDisposed)
+			if( renderTarget.Width == width && renderTarget.Height == height && !renderTarget.IsDisposed )
 				return;
 
 			// retain the same DepthFormat when we recreate the RenderTarget2D
-			var depthFormat = RenderTarget.DepthStencilFormat;
+			var depthFormat = renderTarget.DepthStencilFormat;
 
 			// unload if necessary
 			Dispose();
 
-			RenderTarget = Textures.RenderTarget.Create(width, height, depthFormat);
+			renderTarget = RenderTarget.create( width, height, depthFormat );
 		}
 
 
 		public void Dispose()
 		{
-			if (RenderTarget != null && !RenderTarget.IsDisposed)
+			if( renderTarget != null && !renderTarget.IsDisposed )
 			{
-				RenderTarget.Dispose();
-				RenderTarget = null;
+				renderTarget.Dispose();
+				renderTarget = null;
 			}
 		}
 
 
-		public static implicit operator RenderTarget2D(RenderTexture tex)
+		public static implicit operator RenderTarget2D( RenderTexture tex )
 		{
-			return tex.RenderTarget;
+			return tex.renderTarget;
 		}
 	}
 }
+

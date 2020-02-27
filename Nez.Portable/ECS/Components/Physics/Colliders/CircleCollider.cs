@@ -1,15 +1,15 @@
-﻿using Nez.PhysicsShapes;
+﻿using Microsoft.Xna.Framework;
+using Nez.PhysicsShapes;
 
 
 namespace Nez
 {
 	public class CircleCollider : Collider
 	{
-		[Inspectable]
-		public float Radius
+		public float radius
 		{
-			get => ((Circle) Shape).Radius;
-			set => SetRadius(value);
+			get { return ( (Circle)shape ).radius; }
+			set { setRadius( value ); }
 		}
 
 
@@ -21,7 +21,7 @@ namespace Nez
 		{
 			// we stick a 1px circle in here as a placeholder until the next frame when the Collider is added to the Entity and can get more
 			// accurate auto-sizing data
-			Shape = new Circle(1);
+			shape = new Circle( 1 );
 			_colliderRequiresAutoSizing = true;
 		}
 
@@ -36,9 +36,9 @@ namespace Nez
 		///     entity.collider.originNormalized = Vector2Extension.halfVector() / 1.5f;
 		/// </summary>
 		/// <param name="radius">Radius.</param>
-		public CircleCollider(float radius)
+		public CircleCollider( float radius )
 		{
-			Shape = new Circle(radius);
+			shape = new Circle( radius );
 		}
 
 
@@ -49,39 +49,39 @@ namespace Nez
 		/// </summary>
 		/// <returns>The radius.</returns>
 		/// <param name="radius">Radius.</param>
-		public CircleCollider SetRadius(float radius)
+		public CircleCollider setRadius( float radius )
 		{
 			_colliderRequiresAutoSizing = false;
-			var circle = Shape as Circle;
-			if (radius != circle.Radius)
+			var circle = shape as Circle;
+			if( radius != circle.radius )
 			{
-				circle.Radius = radius;
+				circle.radius = radius;
 				circle._originalRadius = radius;
 				_isPositionDirty = true;
 
-				if (Entity != null && _isParentEntityAddedToScene)
-					Physics.UpdateCollider(this);
+				if( entity != null && _isParentEntityAddedToScene )
+					Physics.updateCollider( this );
 			}
-
 			return this;
 		}
 
 		#endregion
 
 
-		public override void DebugRender(Batcher batcher)
+		public override void debugRender( Graphics graphics )
 		{
-			batcher.DrawHollowRect(Bounds, Debug.Colors.ColliderBounds, Debug.Size.LineSizeMultiplier);
-			batcher.DrawCircle(Shape.position, ((Circle) Shape).Radius, Debug.Colors.ColliderEdge,
-				Debug.Size.LineSizeMultiplier);
-			batcher.DrawPixel(Entity.Transform.Position, Debug.Colors.ColliderPosition,
-				4 * Debug.Size.LineSizeMultiplier);
-			batcher.DrawPixel(Shape.position, Debug.Colors.ColliderCenter, 2 * Debug.Size.LineSizeMultiplier);
+			graphics.batcher.drawHollowRect( bounds, Debug.Colors.colliderBounds, Debug.Size.lineSizeMultiplier );
+			graphics.batcher.drawCircle( shape.position, ( (Circle)shape ).radius, Debug.Colors.colliderEdge, Debug.Size.lineSizeMultiplier );
+			graphics.batcher.drawPixel( entity.transform.position, Debug.Colors.colliderPosition, 4 * Debug.Size.lineSizeMultiplier );
+			graphics.batcher.drawPixel( shape.position, Debug.Colors.colliderCenter, 2 * Debug.Size.lineSizeMultiplier );
 		}
+
 
 		public override string ToString()
 		{
-			return string.Format("[CircleCollider: bounds: {0}, radius: {1}", Bounds, ((Circle) Shape).Radius);
+			return string.Format( "[CircleCollider: bounds: {0}, radius: {1}", bounds, ( (Circle)shape ).radius );
 		}
+
 	}
 }
+

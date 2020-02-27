@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	/// <summary>
 	/// decorator that will only run its child if a condition is met. By default, the condition will be reevaluated every tick.
@@ -10,41 +13,40 @@
 		TaskStatus _conditionalStatus;
 
 
-		public ConditionalDecorator(IConditional<T> conditional, bool shouldReevalute)
+		public ConditionalDecorator( IConditional<T> conditional, bool shouldReevalute )
 		{
-			Insist.IsTrue(conditional is IConditional<T>, "conditional must implment IConditional");
+			Assert.isTrue( conditional is IConditional<T>, "conditional must implment IConditional" );
 			_conditional = conditional;
 			_shouldReevaluate = shouldReevalute;
 		}
 
 
-		public ConditionalDecorator(IConditional<T> conditional) : this(conditional, true)
-		{
-		}
+		public ConditionalDecorator( IConditional<T> conditional ) : this( conditional, true )
+		{}
 
 
-		public override void Invalidate()
+		public override void invalidate()
 		{
-			base.Invalidate();
+			base.invalidate();
 			_conditionalStatus = TaskStatus.Invalid;
 		}
 
 
-		public override void OnStart()
+		public override void onStart()
 		{
 			_conditionalStatus = TaskStatus.Invalid;
 		}
 
-
-		public override TaskStatus Update(T context)
+		
+		public override TaskStatus update( T context )
 		{
-			Insist.IsNotNull(Child, "child must not be null");
+			Assert.isNotNull( child, "child must not be null" );
 
 			// evalute the condition if we need to
-			_conditionalStatus = ExecuteConditional(context);
-
-			if (_conditionalStatus == TaskStatus.Success)
-				return Child.Tick(context);
+			_conditionalStatus = executeConditional( context );
+			
+			if( _conditionalStatus == TaskStatus.Success )
+				return child.tick( context );
 
 			return TaskStatus.Failure;
 		}
@@ -57,11 +59,13 @@
 		/// <returns>The conditional.</returns>
 		/// <param name="context">Context.</param>
 		/// <param name="forceUpdate">If set to <c>true</c> force update.</param>
-		internal TaskStatus ExecuteConditional(T context, bool forceUpdate = false)
+		internal TaskStatus executeConditional( T context, bool forceUpdate = false )
 		{
-			if (forceUpdate || _shouldReevaluate || _conditionalStatus == TaskStatus.Invalid)
-				_conditionalStatus = _conditional.Update(context);
+			if( forceUpdate || _shouldReevaluate || _conditionalStatus == TaskStatus.Invalid )
+				_conditionalStatus = _conditional.update( context );
 			return _conditionalStatus;
 		}
+
 	}
 }
+

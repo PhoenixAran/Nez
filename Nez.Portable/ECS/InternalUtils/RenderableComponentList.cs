@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 
+
 namespace Nez
 {
 	public class RenderableComponentList
 	{
-		// global updateOrder sort for the IRenderable lists
-		public static IComparer<IRenderable> CompareUpdatableOrder = new RenderableComparer();
+		// global updateOrder sort for the IUpdatable list
+		static IRenderableComparer compareUpdatableOrder = new IRenderableComparer();
 
 		/// <summary>
 		/// list of components added to the entity
@@ -16,96 +17,105 @@ namespace Nez
 		/// tracks components by renderLayer for easy retrieval
 		/// </summary>
 		Dictionary<int, FastList<IRenderable>> _componentsByRenderLayer = new Dictionary<int, FastList<IRenderable>>();
-
 		List<int> _unsortedRenderLayers = new List<int>();
 		bool _componentsNeedSort = true;
 
 
 		#region array access
 
-		public int Count => _components.Length;
+		public int count { get { return _components.length; } }
 
-		public IRenderable this[int index] => _components.Buffer[index];
+		public IRenderable this[int index] { get { return _components.buffer[index]; } }
 
 		#endregion
 
 
-		public void Add(IRenderable component)
+		public void add( IRenderable component )
 		{
-			_components.Add(component);
-			AddToRenderLayerList(component, component.RenderLayer);
+			_components.add( component );
+			addToRenderLayerList( component, component.renderLayer );
 		}
 
-		public void Remove(IRenderable component)
+
+		public void remove( IRenderable component )
 		{
-			_components.Remove(component);
-			_componentsByRenderLayer[component.RenderLayer].Remove(component);
+			_components.remove( component );
+			_componentsByRenderLayer[component.renderLayer].remove( component );
 		}
 
-		public void UpdateRenderableRenderLayer(IRenderable component, int oldRenderLayer, int newRenderLayer)
+
+		public void updateRenderableRenderLayer( IRenderable component, int oldRenderLayer, int newRenderLayer )
 		{
 			// a bit of care needs to be taken in case a renderLayer is changed before the component is "live". this can happen when a component
 			// changes its renderLayer immediately after being created
-			if (_componentsByRenderLayer.ContainsKey(oldRenderLayer) && _componentsByRenderLayer[oldRenderLayer].Contains(component))
+			if( _componentsByRenderLayer.ContainsKey( oldRenderLayer ) && _componentsByRenderLayer[oldRenderLayer].contains( component ) )
 			{
-				_componentsByRenderLayer[oldRenderLayer].Remove(component);
-				AddToRenderLayerList(component, newRenderLayer);
+				_componentsByRenderLayer[oldRenderLayer].remove( component );
+				addToRenderLayerList( component, newRenderLayer );
 			}
 		}
 
-		/// <summary>
-		/// dirties a RenderLayers sort flag, causing a re-sort of all components to occur
-		/// </summary>
-		/// <param name="renderLayer"></param>
-		public void SetRenderLayerNeedsComponentSort(int renderLayer)
+
+		public void setRenderLayerNeedsComponentSort( int renderLayer )
 		{
-			if (!_unsortedRenderLayers.Contains(renderLayer))
-				_unsortedRenderLayers.Add(renderLayer);
+			if( !_unsortedRenderLayers.Contains( renderLayer ) )
+				_unsortedRenderLayers.Add( renderLayer );
 			_componentsNeedSort = true;
 		}
 
-		internal void SetNeedsComponentSort() => _componentsNeedSort = true;
 
-		void AddToRenderLayerList(IRenderable component, int renderLayer)
+		internal void setNeedsComponentSort()
 		{
-			var list = ComponentsWithRenderLayer(renderLayer);
-			Insist.IsFalse(list.Contains(component), "Component renderLayer list already contains this component");
-
-			list.Add(component);
-			if (!_unsortedRenderLayers.Contains(renderLayer))
-				_unsortedRenderLayers.Add(renderLayer);
 			_componentsNeedSort = true;
 		}
 
-		/// <summary>
-		/// fetches all the Components with the given renderLayer. The component list is pre-sorted.
-		/// </summary>
-		public FastList<IRenderable> ComponentsWithRenderLayer(int renderLayer)
+
+		void addToRenderLayerList( IRenderable component, int renderLayer )
 		{
-			if (!_componentsByRenderLayer.TryGetValue(renderLayer, out _))
-				_componentsByRenderLayer[renderLayer] = new FastList<IRenderable>();
+			var list = componentsWithRenderLayer( renderLayer );
+			Assert.isFalse( list.contains( component ), "Component renderLayer list already contains this component" );
+
+			list.add( component );
+			if( !_unsortedRenderLayers.Contains( renderLayer ) )
+				_unsortedRenderLayers.Add( renderLayer );
+			_componentsNeedSort = true;
+		}
+
+
+		public FastList<IRenderable> componentsWithRenderLayer( int renderLayer )
+		{
+			FastList<IRenderable> list = null;
+			if( !_componentsByRenderLayer.TryGetValue( renderLayer, out list ) )
+			{
+				list = new FastList<IRenderable>();
+				_componentsByRenderLayer[renderLayer] = list;
+			}
 
 			return _componentsByRenderLayer[renderLayer];
 		}
 
-		public void UpdateLists()
+
+		public void updateLists()
 		{
-			if (_componentsNeedSort)
+			if( _componentsNeedSort )
 			{
-				_components.Sort(CompareUpdatableOrder);
+				_components.sort( compareUpdatableOrder );
 				_componentsNeedSort = false;
 			}
 
-			if (_unsortedRenderLayers.Count > 0)
+			if( _unsortedRenderLayers.Count > 0 )
 			{
-				for (int i = 0, count = _unsortedRenderLayers.Count; i < count; i++)
+				for( int i = 0, count = _unsortedRenderLayers.Count; i < count; i++ )
 				{
-					if (_componentsByRenderLayer.TryGetValue(_unsortedRenderLayers[i], out var renderLayerComponents))
-						renderLayerComponents.Sort(CompareUpdatableOrder);
+					FastList<IRenderable> renderLayerComponents;
+					if( _componentsByRenderLayer.TryGetValue( _unsortedRenderLayers[i], out renderLayerComponents ) )
+						renderLayerComponents.sort( compareUpdatableOrder );
 				}
 
 				_unsortedRenderLayers.Clear();
 			}
 		}
+
 	}
 }
+

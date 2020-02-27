@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 
 namespace Nez
@@ -8,16 +9,17 @@ namespace Nez
 	/// </summary>
 	public struct Ray2D
 	{
-		public Vector2 Start;
-		public Vector2 End;
-		public Vector2 Direction;
+		public Vector2 start;
+		public Vector2 end;
+		public Vector2 direction;
 
-
-		public Ray2D(Vector2 position, Vector2 end)
+		
+		public Ray2D( Vector2 position, Vector2 end )
 		{
-			Start = position;
-			End = end;
-			Direction = end - Start;
+			this.start = position;
+			this.end = end;
+			direction = end - start;
 		}
 	}
 }
+

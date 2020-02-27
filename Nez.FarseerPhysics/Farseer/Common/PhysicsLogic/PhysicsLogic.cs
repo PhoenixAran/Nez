@@ -7,30 +7,30 @@ namespace FarseerPhysics.Common.PhysicsLogic
 	[Flags]
 	public enum PhysicsLogicType
 	{
-		Explosion = (1 << 0)
+		Explosion = ( 1 << 0 )
 	}
 
 
 	public struct PhysicsLogicFilter
 	{
-		public PhysicsLogicType ControllerIgnores;
+		public PhysicsLogicType controllerIgnores;
 
 		/// <summary>
 		/// Ignores the controller. The controller has no effect on this body.
 		/// </summary>
 		/// <param name="type">The logic type.</param>
-		public void IgnorePhysicsLogic(PhysicsLogicType type)
+		public void IgnorePhysicsLogic( PhysicsLogicType type )
 		{
-			ControllerIgnores |= type;
+			controllerIgnores |= type;
 		}
 
 		/// <summary>
 		/// Restore the controller. The controller affects this body.
 		/// </summary>
 		/// <param name="type">The logic type.</param>
-		public void RestorePhysicsLogic(PhysicsLogicType type)
+		public void RestorePhysicsLogic( PhysicsLogicType type )
 		{
-			ControllerIgnores &= ~type;
+			controllerIgnores &= ~type;
 		}
 
 		/// <summary>
@@ -40,30 +40,30 @@ namespace FarseerPhysics.Common.PhysicsLogic
 		/// <returns>
 		/// 	<c>true</c> if the body has the specified flag; otherwise, <c>false</c>.
 		/// </returns>
-		public bool IsPhysicsLogicIgnored(PhysicsLogicType type)
+		public bool IsPhysicsLogicIgnored( PhysicsLogicType type )
 		{
-			return (ControllerIgnores & type) == type;
+			return ( controllerIgnores & type ) == type;
 		}
 	}
 
 
 	public abstract class PhysicsLogic : FilterData
 	{
-		public World World;
+		public World world;
 		PhysicsLogicType _type;
 
-		public override bool IsActiveOn(Body body)
+		public override bool isActiveOn( Body body )
 		{
-			if (body.PhysicsLogicFilter.IsPhysicsLogicIgnored(_type))
+			if( body.physicsLogicFilter.IsPhysicsLogicIgnored( _type ) )
 				return false;
 
-			return base.IsActiveOn(body);
+			return base.isActiveOn( body );
 		}
 
-		protected PhysicsLogic(World world, PhysicsLogicType type)
+		protected PhysicsLogic( World world, PhysicsLogicType type )
 		{
 			_type = type;
-			this.World = world;
+			this.world = world;
 		}
 	}
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 
@@ -12,42 +13,41 @@ namespace Nez
 
 
 		public Matcher()
-		{
-		}
+		{}
 
 
-		public BitSet GetAllSet()
+		public BitSet getAllSet()
 		{
 			return allSet;
 		}
 
 
-		public BitSet GetExclusionSet()
+		public BitSet getExclusionSet()
 		{
 			return exclusionSet;
 		}
 
 
-		public BitSet GetOneSet()
+		public BitSet getOneSet()
 		{
 			return oneSet;
 		}
 
 
-		public bool IsInterested(Entity e)
+		public bool isInterested( Entity e )
 		{
-			return IsInterested(e.componentBits);
+			return isInterested( e.componentBits );
 		}
 
 
-		public bool IsInterested(BitSet componentBits)
+		public bool isInterested( BitSet componentBits )
 		{
 			// Check if the entity possesses ALL of the components defined in the aspect.
-			if (!allSet.IsEmpty())
+			if( !allSet.isEmpty() )
 			{
-				for (int i = allSet.NextSetBit(0); i >= 0; i = allSet.NextSetBit(i + 1))
+				for( int i = allSet.nextSetBit( 0 ); i >= 0; i = allSet.nextSetBit( i + 1 ) )
 				{
-					if (!componentBits.Get(i))
+					if( !componentBits.get( i ) )
 					{
 						return false;
 					}
@@ -56,14 +56,14 @@ namespace Nez
 
 			// If we are STILL interested,
 			// Check if the entity possesses ANY of the exclusion components, if it does then the system is not interested.
-			if (!exclusionSet.IsEmpty() && exclusionSet.Intersects(componentBits))
+			if( !exclusionSet.isEmpty() && exclusionSet.intersects( componentBits ) )
 			{
 				return false;
 			}
 
 			// If we are STILL interested,
 			// Check if the entity possesses ANY of the components in the oneSet. If so, the system is interested.
-			if (!oneSet.IsEmpty() && !oneSet.Intersects(componentBits))
+			if( !oneSet.isEmpty() && !oneSet.intersects( componentBits ) )
 			{
 				return false;
 			}
@@ -72,34 +72,34 @@ namespace Nez
 		}
 
 
-		public Matcher All(params Type[] types)
+		public Matcher all( params Type[] types )
 		{
-			foreach (var type in types)
-				allSet.Set(ComponentTypeManager.GetIndexFor(type));
+			foreach( var type in types )
+				allSet.set( ComponentTypeManager.getIndexFor( type ) );
 
 			return this;
 		}
 
 
-		public Matcher Exclude(params Type[] types)
+		public Matcher exclude( params Type[] types )
 		{
-			foreach (var type in types)
-				exclusionSet.Set(ComponentTypeManager.GetIndexFor(type));
+			foreach( var type in types )
+				exclusionSet.set( ComponentTypeManager.getIndexFor( type ) );
 
 			return this;
 		}
 
 
-		public Matcher One(params Type[] types)
+		public Matcher one( params Type[] types )
 		{
-			foreach (var type in types)
-				oneSet.Set(ComponentTypeManager.GetIndexFor(type));
+			foreach( var type in types )
+				oneSet.set( ComponentTypeManager.getIndexFor( type ) );
 
 			return this;
 		}
 
 
-		public static Matcher Empty()
+		public static Matcher empty()
 		{
 			return new Matcher();
 		}
@@ -107,31 +107,33 @@ namespace Nez
 
 		public override string ToString()
 		{
-			var builder = new StringBuilder(1024);
+			var builder = new StringBuilder( 1024 );
 
-			builder.AppendLine("Matcher:");
-			AppendTypes(builder, " -  Requires the components: ", allSet);
-			AppendTypes(builder, " -  Has none of the components: ", exclusionSet);
-			AppendTypes(builder, " -  Has at least one of the components: ", oneSet);
+			builder.AppendLine( "Matcher:" );
+			appendTypes( builder, " -  Requires the components: ", allSet );
+			appendTypes( builder, " -  Has none of the components: ", exclusionSet );
+			appendTypes( builder, " -  Has at least one of the components: ", oneSet );
 
 			return builder.ToString();
 		}
 
 
-		static void AppendTypes(StringBuilder builder, string headerMessage, BitSet typeBits)
+		static void appendTypes( StringBuilder builder, string headerMessage, BitSet typeBits )
 		{
 			var firstType = true;
-			builder.Append(headerMessage);
-			foreach (var type in ComponentTypeManager.GetTypesFromBits(typeBits))
+			builder.Append( headerMessage );
+			foreach( var type in ComponentTypeManager.getTypesFromBits( typeBits ) )
 			{
-				if (!firstType)
-					builder.Append(", ");
-				builder.Append(type.Name);
+				if( !firstType )
+					builder.Append( ", " );
+				builder.Append( type.Name );
 
 				firstType = false;
 			}
 
 			builder.AppendLine();
 		}
+
 	}
 }
+

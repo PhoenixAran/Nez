@@ -13,32 +13,32 @@ namespace Nez.Verlet
 		/// <summary>
 		/// gravity for the simulation
 		/// </summary>
-		public Vector2 Gravity = new Vector2(0, 980f);
+		public Vector2 gravity = new Vector2( 0, 980f );
 
 		/// <summary>
 		/// number of iterations that will be used for Constraint solving
 		/// </summary>
-		public int ConstraintIterations = 3;
+		public int constraintIterations = 3;
 
 		/// <summary>
 		/// max number of iterations for the simulation as a whole
 		/// </summary>
-		public int MaximumStepIterations = 5;
+		public int maximumStepIterations = 5;
 
 		/// <summary>
 		/// Bounds of the Verlet World. Particles will be confined to this space if set.
 		/// </summary>
-		public Rectangle? SimulationBounds;
+		public Rectangle? simulationBounds;
 
 		/// <summary>
 		/// should Particles be allowed to be dragged?
 		/// </summary>
-		public bool AllowDragging = true;
+		public bool allowDragging = true;
 
 		/// <summary>
 		/// squared selection radius of the mouse pointer
 		/// </summary>
-		public float SelectionRadiusSquared = 20 * 20;
+		public float selectionRadiusSquared = 20 * 20;
 
 		Particle _draggedParticle;
 
@@ -46,7 +46,7 @@ namespace Nez.Verlet
 
 		// collision helpers
 		internal static Collider[] _colliders = new Collider[4];
-		Circle _tempCircle = new Circle(1);
+		Circle _tempCircle = new Circle( 1 );
 
 		// timing
 		float _leftOverTime;
@@ -55,134 +55,134 @@ namespace Nez.Verlet
 		float _fixedDeltaTimeSq;
 
 
-		public VerletWorld(Rectangle? simulationBounds = null)
+		public VerletWorld( Rectangle? simulationBounds = null )
 		{
-			SimulationBounds = simulationBounds;
-			_fixedDeltaTimeSq = Mathf.Pow(_fixedDeltaTime, 2);
+			this.simulationBounds = simulationBounds;
+			_fixedDeltaTimeSq = Mathf.pow( _fixedDeltaTime, 2 );
 		}
 
 
 		#region verlet simulation
 
-		public void Update()
+		public void update()
 		{
-			UpdateTiming();
+			updateTiming();
 
-			if (AllowDragging)
-				HandleDragging();
+			if( allowDragging )
+				handleDragging();
 
-			for (var iteration = 1; iteration <= _iterationSteps; iteration++)
+			for( var iteration = 1; iteration <= _iterationSteps; iteration++ )
 			{
-				for (var i = _composites.Length - 1; i >= 0; i--)
+				for( var i = _composites.length - 1; i >= 0; i-- )
 				{
-					var composite = _composites.Buffer[i];
+					var composite = _composites.buffer[i];
 
 					// solve constraints
-					for (var s = 0; s < ConstraintIterations; s++)
-						composite.SolveConstraints();
+					for( var s = 0; s < constraintIterations; s++ )
+						composite.solveConstraints();
 
 					// do the verlet integration
-					composite.UpdateParticles(_fixedDeltaTimeSq, Gravity);
+					composite.updateParticles( _fixedDeltaTimeSq, gravity );
 
 					// handle collisions with Nez Colliders
-					composite.HandleConstraintCollisions();
+					composite.handleConstraintCollisions();
 
-					for (var j = 0; j < composite.Particles.Length; j++)
+					for( var j = 0; j < composite.particles.length; j++ )
 					{
-						var p = composite.Particles.Buffer[j];
+						var p = composite.particles.buffer[j];
 
 						// optinally constrain to bounds
-						if (SimulationBounds.HasValue)
-							ConstrainParticleToBounds(p);
+						if( simulationBounds.HasValue )
+							constrainParticleToBounds( p );
 
 						// optionally handle collisions with Nez Colliders
-						if (p.CollidesWithColliders)
-							HandleCollisions(p, composite.CollidesWithLayers);
+						if( p.collidesWithColliders )
+							handleCollisions( p, composite.collidesWithLayers );
 					}
 				}
 			}
 		}
 
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void ConstrainParticleToBounds(Particle p)
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		void constrainParticleToBounds( Particle p )
 		{
-			var tempPos = p.Position;
-			var bounds = SimulationBounds.Value;
+			var tempPos = p.position;
+			var bounds = simulationBounds.Value;
 
-			if (p.Radius == 0)
+			if( p.radius == 0 )
 			{
-				if (tempPos.Y > bounds.Height)
+				if( tempPos.Y > bounds.Height )
 					tempPos.Y = bounds.Height;
-				else if (tempPos.Y < bounds.Y)
+				else if( tempPos.Y < bounds.Y )
 					tempPos.Y = bounds.Y;
 
-				if (tempPos.X < bounds.X)
+				if( tempPos.X < bounds.X )
 					tempPos.X = bounds.X;
-				else if (tempPos.X > bounds.Width)
+				else if( tempPos.X > bounds.Width )
 					tempPos.X = bounds.Width;
 			}
 			else
 			{
 				// special care for larger particles
-				if (tempPos.Y < bounds.Y + p.Radius)
-					tempPos.Y = 2f * (bounds.Y + p.Radius) - tempPos.Y;
-				if (tempPos.Y > bounds.Height - p.Radius)
-					tempPos.Y = 2f * (bounds.Height - p.Radius) - tempPos.Y;
-				if (tempPos.X > bounds.Width - p.Radius)
-					tempPos.X = 2f * (bounds.Width - p.Radius) - tempPos.X;
-				if (tempPos.X < bounds.X + p.Radius)
-					tempPos.X = 2f * (bounds.X + p.Radius) - tempPos.X;
+				if( tempPos.Y < bounds.Y + p.radius )
+					tempPos.Y = 2f * ( bounds.Y + p.radius ) - tempPos.Y;
+				if( tempPos.Y > bounds.Height - p.radius )
+					tempPos.Y = 2f * ( bounds.Height - p.radius ) - tempPos.Y;
+				if( tempPos.X > bounds.Width - p.radius )
+					tempPos.X = 2f * ( bounds.Width - p.radius ) - tempPos.X;
+				if( tempPos.X < bounds.X + p.radius )
+					tempPos.X = 2f * ( bounds.X + p.radius ) - tempPos.X;
 			}
 
-			p.Position = tempPos;
+			p.position = tempPos;
 		}
 
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void HandleCollisions(Particle p, int collidesWithLayers)
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		void handleCollisions( Particle p, int collidesWithLayers )
 		{
-			var collidedCount = Physics.OverlapCircleAll(p.Position, p.Radius, _colliders, collidesWithLayers);
-			for (var i = 0; i < collidedCount; i++)
+			var collidedCount = Physics.overlapCircleAll( p.position, p.radius, _colliders, collidesWithLayers );
+			for( var i = 0; i < collidedCount; i++ )
 			{
 				var collider = _colliders[i];
-				if (collider.IsTrigger)
+				if( collider.isTrigger )
 					continue;
-
+				
 				CollisionResult collisionResult;
 
 				// if we have a large enough Particle radius use a Circle for the collision check else fall back to a point
-				if (p.Radius < 2)
+				if( p.radius < 2 )
 				{
-					if (collider.Shape.PointCollidesWithShape(p.Position, out collisionResult))
+					if( collider.shape.pointCollidesWithShape( p.position, out collisionResult ) )
 					{
 						// TODO: add a Dictionary of Collider,float that lets Colliders be setup as force volumes. The float can then be
 						// multiplied by the mtv here. It should be very small values, like 0.002f for example.
-						p.Position -= collisionResult.MinimumTranslationVector;
+						p.position -= collisionResult.minimumTranslationVector;
 					}
 				}
 				else
 				{
-					_tempCircle.Radius = p.Radius;
-					_tempCircle.position = p.Position;
+					_tempCircle.radius = p.radius;
+					_tempCircle.position = p.position;
 
-					if (_tempCircle.CollidesWithShape(collider.Shape, out collisionResult))
+					if( _tempCircle.collidesWithShape( collider.shape, out collisionResult ) )
 					{
-						p.Position -= collisionResult.MinimumTranslationVector;
+						p.position -= collisionResult.minimumTranslationVector;
 					}
 				}
 			}
 		}
 
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void UpdateTiming()
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		void updateTiming()
 		{
-			_leftOverTime += Time.DeltaTime;
-			_iterationSteps = Mathf.TruncateToInt(_leftOverTime / _fixedDeltaTime);
-			_leftOverTime -= (float) _iterationSteps * _fixedDeltaTime;
+			_leftOverTime += Time.deltaTime;
+			_iterationSteps = Mathf.truncateToInt( _leftOverTime / _fixedDeltaTime );
+			_leftOverTime -= (float)_iterationSteps * _fixedDeltaTime;
 
-			_iterationSteps = System.Math.Min(_iterationSteps, MaximumStepIterations);
+			_iterationSteps = System.Math.Min( _iterationSteps, maximumStepIterations );
 		}
 
 		#endregion
@@ -196,9 +196,9 @@ namespace Nez.Verlet
 		/// <returns>The composite.</returns>
 		/// <param name="composite">Composite.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T AddComposite<T>(T composite) where T : Composite
+		public T addComposite<T>( T composite ) where T : Composite
 		{
-			_composites.Add(composite);
+			_composites.add( composite );
 			return composite;
 		}
 
@@ -207,30 +207,30 @@ namespace Nez.Verlet
 		/// removes a Composite from the simulation
 		/// </summary>
 		/// <param name="composite">Composite.</param>
-		public void RemoveComposite(Composite composite)
+		public void removeComposite( Composite composite )
 		{
-			_composites.Remove(composite);
+			_composites.remove( composite );
 		}
 
 		#endregion
 
 
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		void HandleDragging()
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		void handleDragging()
 		{
-			if (Input.LeftMouseButtonPressed)
+			if( Input.leftMouseButtonPressed )
 			{
-				_draggedParticle = GetNearestParticle(Input.MousePosition);
+				_draggedParticle = getNearestParticle( Input.mousePosition );
 			}
-			else if (Input.LeftMouseButtonDown)
+			else if( Input.leftMouseButtonDown )
 			{
-				if (_draggedParticle != null)
-					_draggedParticle.Position = Input.MousePosition;
+				if( _draggedParticle != null )
+					_draggedParticle.position = Input.mousePosition;
 			}
-			else if (Input.LeftMouseButtonReleased)
+			else if( Input.leftMouseButtonReleased )
 			{
-				if (_draggedParticle != null)
-					_draggedParticle.Position = Input.MousePosition;
+				if( _draggedParticle != null )
+					_draggedParticle.position = Input.mousePosition;
 				_draggedParticle = null;
 			}
 		}
@@ -241,23 +241,22 @@ namespace Nez.Verlet
 		/// </summary>
 		/// <returns>The nearest particle.</returns>
 		/// <param name="position">Position.</param>
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public Particle GetNearestParticle(Vector2 position)
+		[MethodImpl( MethodImplOptions.AggressiveInlining )]
+		public Particle getNearestParticle( Vector2 position )
 		{
 			// less than 64 and we count it
-			var nearestSquaredDistance = SelectionRadiusSquared;
+			var nearestSquaredDistance = selectionRadiusSquared;
 			Particle particle = null;
 
 			// find nearest point
-			for (var j = 0; j < _composites.Length; j++)
+			for( var j = 0; j < _composites.length; j++ )
 			{
-				var particles = _composites.Buffer[j].Particles;
-				for (var i = 0; i < particles.Length; i++)
+				var particles = _composites.buffer[j].particles;
+				for( var i = 0; i < particles.length; i++ )
 				{
-					var p = particles.Buffer[i];
-					var squaredDistanceToParticle = Vector2.DistanceSquared(p.Position, position);
-					if (squaredDistanceToParticle <= SelectionRadiusSquared &&
-					    (particle == null || squaredDistanceToParticle < nearestSquaredDistance))
+					var p = particles.buffer[i];
+					var squaredDistanceToParticle = Vector2.DistanceSquared( p.position, position );
+					if( squaredDistanceToParticle <= selectionRadiusSquared && ( particle == null || squaredDistanceToParticle < nearestSquaredDistance ) )
 					{
 						particle = p;
 						nearestSquaredDistance = squaredDistanceToParticle;
@@ -269,25 +268,26 @@ namespace Nez.Verlet
 		}
 
 
-		public void DebugRender(Batcher batcher)
+		public void debugRender( Batcher batcher )
 		{
-			for (var i = 0; i < _composites.Length; i++)
-				_composites.Buffer[i].DebugRender(batcher);
+			for( var i = 0; i < _composites.length; i++ )
+				_composites.buffer[i].debugRender( batcher );
 
-			if (AllowDragging)
+			if( allowDragging )
 			{
-				if (_draggedParticle != null)
+				if( _draggedParticle != null )
 				{
-					batcher.DrawCircle(_draggedParticle.Position, 8, Color.White);
+					batcher.drawCircle( _draggedParticle.position, 8, Color.White );
 				}
 				else
 				{
 					// Highlight the nearest particle within the selection radius
-					var particle = GetNearestParticle(Input.MousePosition);
-					if (particle != null)
-						batcher.DrawCircle(particle.Position, 8, Color.White * 0.4f);
+					var particle = getNearestParticle( Input.mousePosition );
+					if( particle != null )
+						batcher.drawCircle( particle.position, 8, Color.White * 0.4f );
 				}
 			}
 		}
+
 	}
 }

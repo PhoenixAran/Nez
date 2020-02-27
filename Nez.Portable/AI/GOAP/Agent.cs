@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Nez.AI.GOAP
@@ -9,7 +10,7 @@ namespace Nez.AI.GOAP
 	/// </summary>
 	public abstract class Agent
 	{
-		public Stack<Action> Actions;
+		public Stack<Action> actions;
 		protected ActionPlanner _planner;
 
 
@@ -19,34 +20,33 @@ namespace Nez.AI.GOAP
 		}
 
 
-		public bool Plan(bool debugPlan = false)
+		public bool plan( bool debugPlan = false )
 		{
 			List<AStarNode> nodes = null;
-			if (debugPlan)
+			if( debugPlan )
 				nodes = new List<AStarNode>();
+			
+			actions = _planner.plan( getWorldState(), getGoalState(), nodes );
 
-			Actions = _planner.Plan(GetWorldState(), GetGoalState(), nodes);
-
-			if (nodes != null && nodes.Count > 0)
+			if( nodes != null && nodes.Count > 0 )
 			{
-				Debug.Log("---- ActionPlanner plan ----");
-				Debug.Log("plan cost = {0}\n", nodes[nodes.Count - 1].CostSoFar);
-				Debug.Log("{0}\t{1}", "start".PadRight(15), GetWorldState().Describe(_planner));
-				for (var i = 0; i < nodes.Count; i++)
+				Debug.log( "---- ActionPlanner plan ----" );
+				Debug.log( "plan cost = {0}\n", nodes[nodes.Count - 1].costSoFar );
+				Debug.log( "{0}\t{1}", "start".PadRight( 15 ), getWorldState().describe( _planner ) );
+				for( var i = 0; i < nodes.Count; i++ )
 				{
-					Debug.Log("{0}: {1}\t{2}", i, nodes[i].Action.GetType().Name.PadRight(15),
-						nodes[i].WorldState.Describe(_planner));
-					Pool<AStarNode>.Free(nodes[i]);
+					Debug.log( "{0}: {1}\t{2}", i, nodes[i].action.GetType().Name.PadRight( 15 ), nodes[i].worldState.describe( _planner ) );
+					Pool<AStarNode>.free( nodes[i] );
 				}
 			}
 
-			return HasActionPlan();
+			return hasActionPlan();
 		}
 
 
-		public bool HasActionPlan()
+		public bool hasActionPlan()
 		{
-			return Actions != null && Actions.Count > 0;
+			return actions != null && actions.Count > 0;
 		}
 
 
@@ -54,13 +54,15 @@ namespace Nez.AI.GOAP
 		/// current WorldState
 		/// </summary>
 		/// <returns>The world state.</returns>
-		abstract public WorldState GetWorldState();
+		abstract public WorldState getWorldState();
 
 
 		/// <summary>
 		/// the goal state that the agent wants to achieve
 		/// </summary>
 		/// <returns>The goal state.</returns>
-		abstract public WorldState GetGoalState();
+		abstract public WorldState getGoalState();
+
 	}
 }
+

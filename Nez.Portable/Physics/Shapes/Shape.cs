@@ -23,22 +23,24 @@ namespace Nez.PhysicsShapes
 		internal RectangleF bounds;
 
 
-		internal abstract void RecalculateBounds(Collider collider);
+		internal abstract void recalculateBounds( Collider collider );
 
-		public abstract bool Overlaps(Shape other);
+		public abstract bool overlaps( Shape other );
 
-		public abstract bool CollidesWithShape(Shape other, out CollisionResult result);
+		public abstract bool collidesWithShape( Shape other, out CollisionResult result );
 
-		public abstract bool CollidesWithLine(Vector2 start, Vector2 end, out RaycastHit hit);
+		public abstract bool collidesWithLine( Vector2 start, Vector2 end, out RaycastHit hit );
 
-		public abstract bool ContainsPoint(Vector2 point);
+		public abstract bool containsPoint( Vector2 point );
 
-		public abstract bool PointCollidesWithShape(Vector2 point, out CollisionResult result);
+		public abstract bool pointCollidesWithShape( Vector2 point, out CollisionResult result );
 
 
-		public virtual Shape Clone()
+		public virtual Shape clone()
 		{
 			return MemberwiseClone() as Shape;
 		}
+
 	}
 }
+

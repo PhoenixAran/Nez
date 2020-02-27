@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics;
 using Microsoft.Xna.Framework.Graphics;
+using System.Reflection;
 
 
 namespace Nez
@@ -9,32 +11,35 @@ namespace Nez
 	/// </summary>
 	public abstract class GraphicsResource : IDisposable
 	{
-		public GraphicsDevice GraphicsDevice
+		public GraphicsDevice graphicsDevice
 		{
-			get => _graphicsDevice;
+			get
+			{
+				return _graphicsDevice;
+			}
 			internal set
 			{
-				Insist.IsTrue(value != null);
+				Assert.isTrue( value != null );
 
-				if (_graphicsDevice == value)
+				if( _graphicsDevice == value )
 					return;
 
 				// VertexDeclaration objects can be bound to multiple GraphicsDevice objects
 				// during their lifetime. But only one GraphicsDevice should retain ownership.
-				if (_graphicsDevice != null)
+				if( _graphicsDevice != null )
 				{
-					UpdateResourceReference(false);
+					updateResourceReference( false );
 					_selfReference = null;
 				}
 
 				_graphicsDevice = value;
 
-				_selfReference = new WeakReference(this);
-				UpdateResourceReference(true);
+				_selfReference = new WeakReference( this );
+				updateResourceReference( true );
 			}
 		}
-
-		public bool IsDisposed { get; private set; }
+			
+		public bool isDisposed { get; private set; }
 
 		// The GraphicsDevice property should only be accessed in Dispose(bool) if the disposing
 		// parameter is true. If disposing is false, the GraphicsDevice may or may not be disposed yet.
@@ -44,24 +49,22 @@ namespace Nez
 
 
 		internal GraphicsResource()
-		{
-		}
+		{}
 
 
 		~GraphicsResource()
 		{
 			// Pass false so the managed objects are not released
-			Dispose(false);
+			Dispose( false );
 		}
 
 
 		public void Dispose()
 		{
 			// Dispose of managed objects as well
-			Dispose(true);
-
+			Dispose( true );
 			// Since we have been manually disposed, do not call the finalizer on this object
-			GC.SuppressFinalize(this);
+			GC.SuppressFinalize( this );
 		}
 
 
@@ -70,31 +73,33 @@ namespace Nez
 		/// </summary>
 		/// <param name="disposing">True if managed objects should be disposed.</param>
 		/// <remarks>Native resources should always be released regardless of the value of the disposing parameter.</remarks>
-		protected virtual void Dispose(bool disposing)
+		protected virtual void Dispose( bool disposing )
 		{
-			if (!IsDisposed)
+			if( !isDisposed )
 			{
-				if (disposing)
+				if( disposing )
 				{
 					// Release managed objects
 				}
-
+					
 				// Remove from the global list of graphics resources
-				if (GraphicsDevice != null)
-					UpdateResourceReference(false);
+				if( graphicsDevice != null )
+					updateResourceReference( false );
 
 				_selfReference = null;
 				_graphicsDevice = null;
-				IsDisposed = true;
+				isDisposed = true;
 			}
 		}
 
 
-		void UpdateResourceReference(bool shouldAdd)
+		void updateResourceReference( bool shouldAdd )
 		{
 			var method = shouldAdd ? "AddResourceReference" : "RemoveResourceReference";
-			var methodInfo = ReflectionUtils.GetMethodInfo(GraphicsDevice, method);
-			methodInfo.Invoke(GraphicsDevice, new object[] {_selfReference});
+			var methodInfo = ReflectionUtils.getMethodInfo( graphicsDevice, method );
+			methodInfo.Invoke( graphicsDevice, new object[] { _selfReference } );
 		}
+
 	}
 }
+

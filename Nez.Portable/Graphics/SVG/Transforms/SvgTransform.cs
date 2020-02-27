@@ -2,6 +2,6 @@
 {
 	public abstract class SvgTransform
 	{
-		public Matrix2D Matrix;
+		public Matrix2D matrix;
 	}
 }

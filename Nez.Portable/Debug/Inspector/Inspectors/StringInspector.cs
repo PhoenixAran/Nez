@@ -9,21 +9,24 @@ namespace Nez
 		TextField _textField;
 
 
-		public override void Initialize(Table table, Skin skin, float leftCellWidth)
+		public override void initialize( Table table, Skin skin, float leftCellWidth )
 		{
-			var label = CreateNameLabel(table, skin, leftCellWidth);
-			_textField = new TextField(GetValue<string>(), skin);
-			_textField.SetTextFieldFilter(new FloatFilter());
-			_textField.OnTextChanged += (field, str) => { SetValue(str); };
+			var label = createNameLabel( table, skin, leftCellWidth );
+			_textField = new TextField( getValue<string>(), skin );
+			_textField.setTextFieldFilter( new FloatFilter() );
+			_textField.onTextChanged += ( field, str ) =>
+			{
+				setValue( str );
+			};
 
-			table.Add(label);
-			table.Add(_textField).SetMaxWidth(70);
+			table.add( label );
+			table.add( _textField ).setMaxWidth( 70 );
 		}
 
 
-		public override void Update()
+		public override void update()
 		{
-			_textField.SetText(GetValue<string>());
+			_textField.setText( getValue<string>() );
 		}
 	}
 }

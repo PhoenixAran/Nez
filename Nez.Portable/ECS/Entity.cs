@@ -8,79 +8,68 @@ namespace Nez
 {
 	public class Entity : IComparable<Entity>
 	{
-		static uint _idGenerator;
-
 		#region properties and fields
 
 		/// <summary>
 		/// the scene this entity belongs to
 		/// </summary>
-		public Scene Scene;
+		public Scene scene;
 
 		/// <summary>
 		/// entity name. useful for doing scene-wide searches for an entity
 		/// </summary>
-		public string Name;
-
-		/// <summary>
-		/// unique identifer for this Entity
-		/// </summary>
-		public readonly uint Id;
+		public string name;
 
 		/// <summary>
 		/// encapsulates the Entity's position/rotation/scale and allows setting up a hieararchy
 		/// </summary>
-		public readonly Transform Transform;
+		public readonly Transform transform;
 
 		/// <summary>
 		/// list of all the components currently attached to this entity
 		/// </summary>
-		public readonly ComponentList Components;
+		public readonly ComponentList components;
 
 		/// <summary>
 		/// use this however you want to. It can later be used to query the scene for all Entities with a specific tag
 		/// </summary>
-		public int Tag
+		public int tag
 		{
-			get => _tag;
-			set => SetTag(value);
+			get { return _tag; }
+			set { setTag( value ); }
 		}
 
 		/// <summary>
 		/// specifies how often this entitys update method should be called. 1 means every frame, 2 is every other, etc
 		/// </summary>
-		public uint UpdateInterval = 1;
+		public uint updateInterval = 1;
 
 		/// <summary>
 		/// enables/disables the Entity. When disabled colliders are removed from the Physics system and components methods will not be called
 		/// </summary>
-		public bool Enabled
+		/// <value><c>true</c> if enabled; otherwise, <c>false</c>.</value>
+		public bool enabled
 		{
-			get => _enabled;
-			set => SetEnabled(value);
+			get { return _enabled; }
+			set { setEnabled( value ); }
 		}
 
 		/// <summary>
 		/// update order of this Entity. updateOrder is also used to sort tag lists on scene.entities
 		/// </summary>
 		/// <value>The order.</value>
-		public int UpdateOrder
+		public int updateOrder
 		{
-			get => _updateOrder;
-			set => SetUpdateOrder(value);
+			get { return _updateOrder; }
+			set { setUpdateOrder( value ); }
 		}
 
-		/// <summary>
-		/// if destroy was called, this will be true until the next time Entitys are processed
-		/// </summary>
-		public bool IsDestroyed => _isDestroyed;
+		internal BitSet componentBits;
 
 		/// <summary>
 		/// flag indicating if destroy was called on this Entity
 		/// </summary>
 		internal bool _isDestroyed;
-
-		internal BitSet componentBits;
 
 		int _tag = 0;
 		bool _enabled = true;
@@ -91,123 +80,128 @@ namespace Nez
 
 		#region Transform passthroughs
 
-		public Transform Parent
+		public Transform parent
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.Parent;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetParent(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.parent; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setParent( value ); }
 		}
 
-		public int ChildCount
+		public int childCount
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.ChildCount;
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.childCount; }
 		}
 
-		public Vector2 Position
+		public Vector2 position
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.Position;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetPosition(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.position; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setPosition( value ); }
 		}
 
-		public Vector2 LocalPosition
+		public Vector2 localPosition
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.LocalPosition;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetLocalPosition(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.localPosition; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setLocalPosition( value ); }
 		}
 
-		public float Rotation
+		public float rotation
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.Rotation;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetRotation(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.rotation; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setRotation( value ); }
 		}
 
-		public float RotationDegrees
+		public float rotationDegrees
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.RotationDegrees;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetRotationDegrees(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.rotationDegrees; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setRotationDegrees( value ); }
 		}
 
-		public float LocalRotation
+		public float localRotation
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.LocalRotation;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetLocalRotation(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.localRotation; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setLocalRotation( value ); }
 		}
 
-		public float LocalRotationDegrees
+		public float localRotationDegrees
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.LocalRotationDegrees;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetLocalRotationDegrees(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.localRotationDegrees; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setLocalRotationDegrees( value ); }
 		}
 
-		public Vector2 Scale
+		public Vector2 scale
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.Scale;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetScale(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.scale; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setScale( value ); }
 		}
 
-		public Vector2 LocalScale
+		public Vector2 localScale
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.LocalScale;
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			set => Transform.SetLocalScale(value);
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.localScale; }
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			set { transform.setLocalScale( value ); }
 		}
 
-		public Matrix2D WorldInverseTransform
+
+		public Matrix2D worldInverseTransform
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.WorldInverseTransform;
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.worldInverseTransform; }
 		}
 
-		public Matrix2D LocalToWorldTransform
+
+		public Matrix2D localToWorldTransform
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.LocalToWorldTransform;
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.localToWorldTransform; }
 		}
 
-		public Matrix2D WorldToLocalTransform
+
+		public Matrix2D worldToLocalTransform
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			get => Transform.WorldToLocalTransform;
+			[MethodImpl( MethodImplOptions.AggressiveInlining )]
+			get { return transform.worldToLocalTransform; }
 		}
 
 		#endregion
 
 
-		public Entity(string name)
+		public Entity()
 		{
-			Components = new ComponentList(this);
-			Transform = new Transform(this);
-			Name = name;
-			Id = _idGenerator++;
+			components = new ComponentList( this );
+			transform = new Transform( this );
 
-			if (Core.entitySystemsEnabled)
+			if( Core.entitySystemsEnabled )
 				componentBits = new BitSet();
 		}
 
-		public Entity() : this(Utils.RandomString(8))
-		{ }
 
-		internal void OnTransformChanged(Transform.Component comp)
+		public Entity( string name ) : this()
+		{
+			this.name = name;
+		}
+
+
+		internal void onTransformChanged( Transform.Component comp )
 		{
 			// notify our children of our changed position
-			Components.OnEntityTransformChanged(comp);
+			components.onEntityTransformChanged( comp );
 		}
 
 
@@ -218,56 +212,58 @@ namespace Nez
 		/// </summary>
 		/// <returns>The tag.</returns>
 		/// <param name="tag">Tag.</param>
-		public Entity SetTag(int tag)
+		public Entity setTag( int tag )
 		{
-			if (_tag != tag)
+			if( _tag != tag )
 			{
 				// we only call through to the entityTagList if we already have a scene. if we dont have a scene yet we will be
 				// added to the entityTagList when we do
-				if (Scene != null)
-					Scene.Entities.RemoveFromTagList(this);
+				if( scene != null )
+					scene.entities.removeFromTagList( this );
 				_tag = tag;
-				if (Scene != null)
-					Scene.Entities.AddToTagList(this);
+				if( scene != null )
+					scene.entities.addToTagList( this );
 			}
 
 			return this;
 		}
+
 
 		/// <summary>
 		/// sets the enabled state of the Entity. When disabled colliders are removed from the Physics system and components methods will not be called
 		/// </summary>
 		/// <returns>The enabled.</returns>
 		/// <param name="isEnabled">If set to <c>true</c> is enabled.</param>
-		public Entity SetEnabled(bool isEnabled)
+		public Entity setEnabled( bool isEnabled )
 		{
-			if (_enabled != isEnabled)
+			if( _enabled != isEnabled )
 			{
 				_enabled = isEnabled;
 
-				if (_enabled)
-					Components.OnEntityEnabled();
+				if( _enabled )
+					components.onEntityEnabled();
 				else
-					Components.OnEntityDisabled();
+					components.onEntityDisabled();
 			}
 
 			return this;
 		}
+
 
 		/// <summary>
 		/// sets the update order of this Entity. updateOrder is also used to sort tag lists on scene.entities
 		/// </summary>
 		/// <returns>The update order.</returns>
 		/// <param name="updateOrder">Update order.</param>
-		public Entity SetUpdateOrder(int updateOrder)
+		public Entity setUpdateOrder( int updateOrder )
 		{
-			if (_updateOrder != updateOrder)
+			if( _updateOrder != updateOrder )
 			{
 				_updateOrder = updateOrder;
-				if (Scene != null)
+				if( scene != null )
 				{
-					Scene.Entities.MarkEntityListUnsorted();
-					Scene.Entities.MarkTagUnsorted(Tag);
+					scene.entities.markEntityListUnsorted();
+					scene.entities.markTagUnsorted( tag );
 				}
 			}
 
@@ -280,92 +276,96 @@ namespace Nez
 		/// <summary>
 		/// removes the Entity from the scene and destroys all children
 		/// </summary>
-		public void Destroy()
+		public void destroy()
 		{
 			_isDestroyed = true;
-			Scene.Entities.Remove(this);
-			Transform.Parent = null;
+			scene.entities.remove( this );
+			transform.parent = null;
 
 			// destroy any children we have
-			for (var i = Transform.ChildCount - 1; i >= 0; i--)
+			for( var i = transform.childCount - 1; i >= 0; i-- )
 			{
-				var child = Transform.GetChild(i);
-				child.Entity.Destroy();
+				var child = transform.getChild( i );
+				child.entity.destroy();
 			}
 		}
 
+
 		/// <summary>
 		/// detaches the Entity from the scene.
-		/// the following lifecycle method will be called on the Entity: OnRemovedFromScene
-		/// the following lifecycle method will be called on the Components: OnRemovedFromEntity
+		/// the following lifecycle method will be called on the Entity: onRemovedFromScene
+		/// the following lifecycle method will be called on the Components: onRemovedFromEntity
 		/// </summary>
-		public void DetachFromScene()
+		public void detachFromScene()
 		{
-			Scene.Entities.Remove(this);
-			Components.DeregisterAllComponents();
+			scene.entities.remove( this );
+			components.deregisterAllComponents();
 
-			for (var i = 0; i < Transform.ChildCount; i++)
-				Transform.GetChild(i).Entity.DetachFromScene();
+			for( var i = 0; i < transform.childCount; i++ )
+				transform.getChild( i ).entity.detachFromScene();
 		}
+
 
 		/// <summary>
 		/// attaches an Entity that was previously detached to a new scene
 		/// </summary>
 		/// <param name="newScene">New scene.</param>
-		public void AttachToScene(Scene newScene)
+		public void attachToScene( Scene newScene )
 		{
-			Scene = newScene;
-			newScene.Entities.Add(this);
-			Components.RegisterAllComponents();
+			scene = newScene;
+			newScene.entities.add( this );
+			components.registerAllComponents();
 
-			for (var i = 0; i < Transform.ChildCount; i++)
-				Transform.GetChild(i).Entity.AttachToScene(newScene);
+			for( var i = 0; i < transform.childCount; i++ )
+				transform.getChild( i ).entity.attachToScene( newScene );
 		}
+
 
 		/// <summary>
 		/// creates a deep clone of this Entity. Subclasses can override this method to copy any custom fields. When overriding,
-		/// the CopyFrom method should be called which will clone all Components, Colliders and Transform children for you. Note
-		/// that the cloned Entity will not be added to any Scene! You must add them yourself!
+		/// the copyFrom method should be called which will clone all Components, Colliders and Transform children for you. Note that cloned
+		/// objects will not be added to any Scene! You must add them yourself!
 		/// </summary>
-		public virtual Entity Clone(Vector2 position = default(Vector2))
+		public virtual Entity clone( Vector2 position = default( Vector2 ) )
 		{
-			var entity = Activator.CreateInstance(GetType()) as Entity;
-			entity.Name = Name + "(clone)";
-			entity.CopyFrom(this);
-			entity.Transform.Position = position;
+			var entity = Activator.CreateInstance( GetType() ) as Entity;
+			entity.name = name + "(clone)";
+			entity.copyFrom( this );
+			entity.transform.position = position;
 
 			return entity;
 		}
+
 
 		/// <summary>
 		/// copies the properties, components and colliders of Entity to this instance
 		/// </summary>
 		/// <param name="entity">Entity.</param>
-		protected void CopyFrom(Entity entity)
+		protected void copyFrom( Entity entity )
 		{
 			// Entity fields
-			Tag = entity.Tag;
-			UpdateInterval = entity.UpdateInterval;
-			UpdateOrder = entity.UpdateOrder;
-			Enabled = entity.Enabled;
+			tag = entity.tag;
+			updateInterval = entity.updateInterval;
+			updateOrder = entity.updateOrder;
+			enabled = entity.enabled;
 
-			Transform.Scale = entity.Transform.Scale;
-			Transform.Rotation = entity.Transform.Rotation;
+			transform.scale = entity.transform.scale;
+			transform.rotation = entity.transform.rotation;
 
 			// clone Components
-			for (var i = 0; i < entity.Components.Count; i++)
-				AddComponent(entity.Components[i].Clone());
-			for (var i = 0; i < entity.Components._componentsToAdd.Count; i++)
-				AddComponent(entity.Components._componentsToAdd[i].Clone());
+			for( var i = 0; i < entity.components.count; i++ )
+				addComponent( entity.components[i].clone() );
+			for( var i = 0; i < entity.components._componentsToAdd.Count; i++ )
+				addComponent( entity.components._componentsToAdd[i].clone() );
 
 			// clone any children of the Entity.transform
-			for (var i = 0; i < entity.Transform.ChildCount; i++)
+			for( var i = 0; i < entity.transform.childCount; i++ )
 			{
-				var child = entity.Transform.GetChild(i).Entity;
+				var child = entity.transform.getChild( i ).entity;
 
-				var childClone = child.Clone();
-				childClone.Transform.CopyFrom(child.Transform);
-				childClone.Transform.Parent = Transform;
+				var childClone = child.clone();
+				childClone.transform.copyFrom( child.transform );
+				childClone.transform.parent = transform;
 			}
 		}
 
@@ -375,29 +375,38 @@ namespace Nez
 		/// <summary>
 		/// Called when this entity is added to a scene after all pending entity changes are committed
 		/// </summary>
-		public virtual void OnAddedToScene()
-		{ }
+		public virtual void onAddedToScene()
+		{}
+
 
 		/// <summary>
 		/// Called when this entity is removed from a scene
 		/// </summary>
-		public virtual void OnRemovedFromScene()
+		public virtual void onRemovedFromScene()
 		{
 			// if we were destroyed, remove our components. If we were just detached we need to keep our components on the Entity.
-			if (_isDestroyed)
-				Components.RemoveAllComponents();
+			if( _isDestroyed )
+				components.removeAllComponents();
 		}
+
 
 		/// <summary>
 		/// called each frame as long as the Entity is enabled
 		/// </summary>
-		public virtual void Update() => Components.Update();
+		public virtual void update()
+		{
+			components.update();
+		}
+
 
 		/// <summary>
 		/// called if Core.debugRenderEnabled is true by the default renderers. Custom renderers can choose to call it or not.
 		/// </summary>
-		/// <param name="batcher">Batcher.</param>
-		public virtual void DebugRender(Batcher batcher) => Components.DebugRender(batcher);
+		/// <param name="graphics">Graphics.</param>
+		public virtual void debugRender( Graphics graphics )
+		{
+			components.debugRender( graphics );
+		}
 
 		#endregion
 
@@ -410,48 +419,55 @@ namespace Nez
 		/// <returns>Scene.</returns>
 		/// <param name="component">Component.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T AddComponent<T>(T component) where T : Component
+		public T addComponent<T>( T component ) where T : Component
 		{
-			component.Entity = this;
-			Components.Add(component);
-			component.Initialize();
+			component.entity = this;
+			components.add( component );
+			component.initialize();
 			return component;
 		}
+
 
 		/// <summary>
 		/// Adds a Component to the components list. Returns the Component.
 		/// </summary>
 		/// <returns>Scene.</returns>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T AddComponent<T>() where T : Component, new()
+		public T addComponent<T>() where T : Component, new()
 		{
 			var component = new T();
-			component.Entity = this;
-			Components.Add(component);
-			component.Initialize();
+			component.entity = this;
+			components.add( component );
+			component.initialize();
 			return component;
 		}
+
 
 		/// <summary>
 		/// Gets the first component of type T and returns it. If no components are found returns null.
 		/// </summary>
 		/// <returns>The component.</returns>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T GetComponent<T>() where T : Component => Components.GetComponent<T>(false);
+		public T getComponent<T>() where T : Component
+		{
+			return components.getComponent<T>( false );
+		}
+
 
 		/// <summary>
 		/// Gets the first Component of type T and returns it. If no Component is found the Component will be created.
 		/// </summary>
 		/// <returns>The component.</returns>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T GetOrCreateComponent<T>() where T : Component, new()
+		public T getOrCreateComponent<T>() where T : Component, new()
 		{
-			var comp = Components.GetComponent<T>(true);
-			if (comp == null)
-				comp = AddComponent<T>();
+			var comp = components.getComponent<T>( true );
+			if( comp == null )
+				comp = addComponent<T>();
 
 			return comp;
 		}
+
 
 		/// <summary>
 		/// Gets the first component of type T and returns it optionally skips checking un-initialized Components (Components who have not yet had their
@@ -460,69 +476,130 @@ namespace Nez
 		/// <returns>The component.</returns>
 		/// <param name="onlyReturnInitializedComponents">If set to <c>true</c> only return initialized components.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public T GetComponent<T>(bool onlyReturnInitializedComponents) where T : Component
+		public T getComponent<T>( bool onlyReturnInitializedComponents ) where T : Component
 		{
-			return Components.GetComponent<T>(onlyReturnInitializedComponents);
+			return components.getComponent<T>( onlyReturnInitializedComponents );
 		}
+
 
 		/// <summary>
 		/// Gets all the components of type T without a List allocation
 		/// </summary>
 		/// <param name="componentList">Component list.</param>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public void GetComponents<T>(List<T> componentList) where T : class => Components.GetComponents(componentList);
+		public void getComponents<T>( List<T> componentList ) where T : class
+		{
+			components.getComponents( componentList );
+		}
+
 
 		/// <summary>
 		/// Gets all the components of type T. The returned List can be put back in the pool via ListPool.free.
 		/// </summary>
 		/// <returns>The component.</returns>
 		/// <typeparam name="T">The 1st type parameter.</typeparam>
-		public List<T> GetComponents<T>() where T : Component => Components.GetComponents<T>();
+		public List<T> getComponents<T>() where T : Component
+		{
+			return components.getComponents<T>();
+		}
+
 
 		/// <summary>
 		/// removes the first Component of type T from the components list
 		/// </summary>
-		public bool RemoveComponent<T>() where T : Component
+		/// <param name="component">The Component to remove</param>
+		public bool removeComponent<T>() where T : Component
 		{
-			var comp = GetComponent<T>();
-			if (comp != null)
+			var comp = getComponent<T>();
+			if( comp != null )
 			{
-				RemoveComponent(comp);
+				removeComponent( comp );
 				return true;
 			}
 
 			return false;
 		}
 
+
 		/// <summary>
 		/// removes a Component from the components list
 		/// </summary>
 		/// <param name="component">The Component to remove</param>
-		public void RemoveComponent(Component component) => Components.Remove(component);
+		public void removeComponent( Component component )
+		{
+			components.remove( component );
+		}
+
 
 		/// <summary>
 		/// removes all Components from the Entity
 		/// </summary>
-		public void RemoveAllComponents()
+		public void removeAllComponents()
 		{
-			for (var i = 0; i < Components.Count; i++)
-				RemoveComponent(Components[i]);
+			for( var i = 0; i < components.count; i++ )
+				removeComponent( components[i] );
 		}
 
 		#endregion
 
 
-		public int CompareTo(Entity other)
+		#region Collider management
+
+		[Obsolete( "Colliders are now Components. Use addComponent instead." )]
+		public T addCollider<T>( T collider ) where T : Collider
 		{
-			var compare = _updateOrder.CompareTo(other._updateOrder);
-			if (compare == 0)
-				compare = Id.CompareTo(other.Id);
-			return compare;
+			return addComponent( collider );
 		}
+
+
+		[Obsolete( "Colliders are now Components. Use removeComponent instead." )]
+		public void removeCollider( Collider collider )
+		{
+			removeComponent( collider );
+		}
+
+
+		[Obsolete( "Colliders are now Components. Use the normal Component methods to manage Colliders." )]
+		public void removeAllColliders()
+		{
+			throw new NotImplementedException();
+		}
+
+
+		[Obsolete( "Colliders are now Components. Use the normal Component methods to manage Colliders." )]
+		public T getCollider<T>( bool onlyReturnInitializedColliders = false ) where T : Collider
+		{
+			return getComponent<T>( onlyReturnInitializedColliders );
+		}
+
+
+		[Obsolete( "Colliders are now Components. Use the normal Component methods to manage Colliders." )]
+		public void getColliders( List<Collider> colliders )
+		{
+			getComponents( colliders );
+		}
+
+
+		[Obsolete( "Colliders are now Components. Use the normal Component methods to manage Colliders." )]
+		public List<Collider> getColliders()
+		{
+			return getComponents<Collider>();
+		}
+
+		#endregion
+
+
+		public int CompareTo( Entity other )
+		{
+			return _updateOrder.CompareTo( other._updateOrder );
+		}
+
 
 		public override string ToString()
 		{
-			return string.Format("[Entity: name: {0}, tag: {1}, enabled: {2}, depth: {3}]", Name, Tag, Enabled, UpdateOrder);
+			return string.Format( "[Entity: name: {0}, tag: {1}, enabled: {2}, depth: {3}]", name, tag, enabled, updateOrder );
 		}
+
 	}
 }
+

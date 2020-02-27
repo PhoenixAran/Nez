@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 
@@ -13,16 +14,16 @@ namespace Nez
 		/// color of the lines. Defaults to red.
 		/// </summary>
 		/// <value>The color of the line.</value>
-		public Color LineColor
+		public Color lineColor
 		{
-			get => new Color(_lineColor);
+			get { return new Color( _lineColor ); }
 			set
 			{
 				var blinkVec = value.ToVector4();
-				if (_lineColor != blinkVec)
+				if( _lineColor != blinkVec )
 				{
 					_lineColor = blinkVec;
-					_lineColorParam.SetValue(_lineColor);
+					_lineColorParam.SetValue( _lineColor );
 				}
 			}
 		}
@@ -31,16 +32,15 @@ namespace Nez
 		/// size of the lines in pixels. Defaults to 5.
 		/// </summary>
 		/// <value>The size of the line.</value>
-		[Range(0, 100)]
-		public float LineSize
+		public float lineSize
 		{
-			get => _lineSize;
+			get { return _lineSize; }
 			set
 			{
-				if (_lineSize != value)
+				if( _lineSize != value )
 				{
 					_lineSize = value;
-					_lineSizeParam.SetValue(_lineSize);
+					_lineSizeParam.SetValue( _lineSize );
 				}
 			}
 		}
@@ -49,12 +49,12 @@ namespace Nez
 		/// toggles vertical/horizontal lines
 		/// </summary>
 		/// <value><c>true</c> if is vertical; otherwise, <c>false</c>.</value>
-		public bool IsVertical
+		public bool isVertical
 		{
-			get => _isVertical;
+			get { return _isVertical; }
 			set
 			{
-				if (_isVertical != value)
+				if( _isVertical != value )
 				{
 					_isVertical = value;
 					CurrentTechnique = _isVertical ? Techniques["VerticalLines"] : Techniques["HorizontalLines"];
@@ -62,7 +62,7 @@ namespace Nez
 			}
 		}
 
-		Vector4 _lineColor = new Vector4(1, 0, 0, 1);
+		Vector4 _lineColor = new Vector4( 1, 0, 0, 1 );
 		float _lineSize = 5f;
 		bool _isVertical = true;
 
@@ -70,13 +70,14 @@ namespace Nez
 		EffectParameter _lineSizeParam;
 
 
-		public SpriteLinesEffect() : base(Core.GraphicsDevice, EffectResource.SpriteLinesEffectBytes)
+		public SpriteLinesEffect() : base( Core.graphicsDevice, EffectResource.spriteLinesEffectBytes )
 		{
 			_lineColorParam = Parameters["_lineColor"];
 			_lineSizeParam = Parameters["_lineSize"];
 
-			_lineColorParam.SetValue(_lineColor);
-			_lineSizeParam.SetValue(_lineSize);
+			_lineColorParam.SetValue( _lineColor );
+			_lineSizeParam.SetValue( _lineSize );
 		}
 	}
 }
+

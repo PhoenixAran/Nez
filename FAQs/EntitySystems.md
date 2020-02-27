@@ -10,38 +10,38 @@ Nez provides a set of basic systems that you can directly use or that you can ex
 
 
 ## EntitySystem
-The base of all systems. It provides an unsorted list of entities matching the components required.
+The base of all systems. It provied an unsorted list of entities matching the components required.
 
 Here's an example of sorting the entities before consuming them for whatever use you might need.
 
 ```cs
-protected override void Process( List<Entity> entities )
+protected override void process( List<Entity> entities )
 {
 	entities.Sort( cooldownSort );
 	foreach( var entity in entities )
 	{
-		DoSomethingWithTheEntity( entity );
+		doSomethingWithTheEntity( entity );
 	}
 }
 ```
 
 
 ## EntityProcessingSystem
-A basic entity processing system. Use this as the base for processing many entities with specific components. All you need to do is override `Process( Entity entity )`. Here's an example of a bullet collision system using EntityProcessingSystem.
+A basic entity processing system. Use this as the base for processing many entities with specific components. All you need to do is override `process( Entity entity )`. Here's an example of a bullet collision system using EntityProcessingSystem.
 
 ```cs
-public override void Process( Entity entity )
+public override void process( Entity entity )
 {
-	var damage = entity.GetComponent<DamageComponent>();
-	var colliders = Physics.BoxcastBroadphase( entity.GetComponent<Collider>.bounds, damage.LayerMask );
+	var damage = entity.getComponent<DamageComponent>();
+	var colliders = Physics.boxcastBroadphase( entity.getComponent<Collider>.bounds, damage.layerMask );
 
 	foreach( var coll in colliders )
 	{
-		if( entity.GetComponent<Collider>.CollidesWith( coll, out collResult ) )
+		if( entity.getComponent<Collider>.collidesWith( coll, out collResult ) )
 		{
-			TriggerDamage( coll.entity, entity );
-			entity.Enabled = false;
-			entity.Scene.RemoveEntity( entity );
+			triggerDamage( coll.entity, entity );
+			entity.enabled = false;
+			entity.scene.removeEntity( entity );
 		}
 	}
 }
@@ -62,18 +62,18 @@ Here's an example of a system in charge of spawning new enemies. That's the comp
 ```cs
 public class SpawnerComponent : Component
 {
-	public float Cooldown = -1;
-	public float MinInterval = 2;
-	public float MaxInterval = 60;
-	public int MinCount = 1;
-	public int MaxCount = 1;
-	public EnemyType EnemyType = EnemyType.Worm;
-	public int NumSpawned = 0;
-	public int NumAlive = 0;
+	public float cooldown = -1;
+	public float minInterval = 2;
+	public float maxInterval = 60;
+	public int minCount = 1;
+	public int maxCount = 1;
+	public EnemyType enemyType = EnemyType.Worm;
+	public int numSpawned = 0;
+	public int numAlive = 0;
 
 	public SpawnerComponent( EnemyType enemyType )
 	{
-		this.EnemyType = enemyType;
+		this.enemyType = enemyType;
 	}
 }
 ```
@@ -87,42 +87,42 @@ public class SpawnerSystem : EntityProcessingSystem
 	{}
 
 
-	public override void Process( Entity entity )
+	public override void process( Entity entity )
 	{
-		var spawner = entity.GetComponent<SpawnerComponent>();
-		if( spawner.NumAlive <= 0 )
-			spawner.Enabled = true;
+		var spawner = entity.getComponent<SpawnerComponent>();
+		if( spawner.numAlive <= 0 )
+			spawner.enabled = true;
 
-		if( !spawner.Enabled )
+		if( !spawner.enabled )
 			return;
 
-		if( spawner.Cooldown == -1 )
+		if( spawner.cooldown == -1 )
 		{
-			ScheduleSpawn( spawner );
-			spawner.Cooldown /= 4;
+			scheduleSpawn( spawner );
+			spawner.cooldown /= 4;
 		}
 
-		spawner.Cooldown -= Time.DeltaTime;
-		if( spawner.Cooldown <= 0 )
+		spawner.cooldown -= Time.deltaTime;
+		if( spawner.cooldown <= 0 )
 		{
-			ScheduleSpawn( spawner );
+			scheduleSpawn( spawner );
 
-			for( var i = 0; i < Nez.Random.Range( spawner.MinCount, spawner.MaxCount ); i++ )
+			for( var i = 0; i < Nez.Random.range( spawner.minCount, spawner.maxCount ); i++ )
 			{
-				EntityFactory.CreateEnemy( entity.Position.X, entity.Position.Y, spawner.EnemyType, entity );
-				spawner.NumSpawned++;
-				spawner.NumAlive++;
+				EntityFactory.createEnemy( entity.position.X, entity.position.Y, spawner.enemyType, entity );
+				spawner.numSpawned++;
+				spawner.numAlive++;
 			}
 
-			if( spawner.NumAlive > 0 )
-				spawner.Enabled = false;
+			if( spawner.numAlive > 0 )
+				spawner.enabled = false;
 		}
 	}
 
 
-	private void ScheduleSpawn( SpawnerComponent spawner )
+	private void scheduleSpawn( SpawnerComponent spawner )
 	{
-		spawner.Cooldown = Nez.Random.Range( spawner.MinInterval, spawner.MaxInterval );
+		spawner.cooldown = Nez.Random.range( spawner.minInterval, spawner.maxInterval );
 	}
 }
 ```
@@ -137,13 +137,13 @@ Matchers are the equivalent of Artemis-odb's Aspects. They match entities based 
 Matchers are passed during creation of an EntitySystem and define what components the system is interested in.
 
 ```cs
-myScene.AddEntityProcessor( new PlayerControlSystem( new Matcher().All( typeof( PlayerControlComponent ) ) ) );
+myScene.addEntityProcessor( new PlayerControlSystem( new Matcher().all( typeof( PlayerControlComponent ) ) ) );
 ```
 
 You can pass an arbitrary number of matchers to the constructor of EntitySystem.
 
 ```cs
-myScene.AddEntityProcessor( new BulletCollisionSystem( new Matcher().All( typeof( DamageComponent ), typeof( BulletComponent ) ) ) );
+myScene.addEntityProcessor( new BulletCollisionSystem( new Matcher().all( typeof( DamageComponent ), typeof( BulletComponent ) ) ) );
 ```
 
 A matcher can either match all entities that have a list of components, or it can match against entities that have at least one of a list of components, or it can match against entites that do not have a certain component.
@@ -153,7 +153,7 @@ A matcher can either match all entities that have a list of components, or it ca
 Match all the entities that have both the BuffComponent AND the DamageComponent.
 
 ```cs
-new Matcher().All( typeof( BuffComponent ), typeof( DamageComponent ) );
+new Matcher().all( typeof( BuffComponent ), typeof( DamageComponent ) );
 ```
 
 
@@ -161,7 +161,7 @@ new Matcher().All( typeof( BuffComponent ), typeof( DamageComponent ) );
 Match all the entities that have at least a BuffComponent or a DamageComponent.
 
 ```cs
-new Matcher().One( typeof( BuffComponent ), typeof( DamageComponent ) );
+new Matcher().one( typeof( BuffComponent ), typeof( DamageComponent ) );
 ```
 
 
@@ -169,5 +169,5 @@ new Matcher().One( typeof( BuffComponent ), typeof( DamageComponent ) );
 Match all the entities that do not have the BuffComponent.
 
 ```cs
-new Matcher().Exclude( typeof( BuffComponent ) );
+new Matcher().exclude( typeof( BuffComponent ) );
 ```

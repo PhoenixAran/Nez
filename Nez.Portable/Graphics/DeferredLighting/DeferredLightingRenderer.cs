@@ -17,43 +17,35 @@ namespace Nez.DeferredLighting
 		/// </summary>
 		/// <value>true</value>
 		/// <c>false</c>
-		public override bool WantsToRenderToSceneRenderTarget => false;
+		public override bool wantsToRenderToSceneRenderTarget { get { return false; } }
 
 		/// <summary>
 		/// the renderLayers this Renderer will render
 		/// </summary>
-		public int[] RenderLayers;
+		public int[] renderLayers;
 
 		/// <summary>
 		/// ambient lighting color. Alpha is ignored
 		/// </summary>
 		/// <value>The color of the ambient.</value>
-		public Color AmbientColor
-		{
-			get => _ambientColor;
-			set => SetAmbientColor(value);
-		}
+		public Color ambientColor { get { return _ambientColor; } }
 
 		/// <summary>
 		/// clear color for the diffuse portion of the gbuffer
 		/// </summary>
 		/// <value>The color of the clear.</value>
-		public Color ClearColor
-		{
-			get => _clearColor;
-			set => SetClearColor(value);
-		}
+		public Color clearColor { get { return _clearColor; } }
 
 		/// <summary>
 		/// single pixel texture of a neutral normal map. This will effectively make the object have only diffuse lighting if applied as the normal map.
 		/// </summary>
 		/// <value>The null normal map texture.</value>
-		public Texture2D NullNormalMapTexture
+		public Texture2D nullNormalMapTexture
 		{
 			get
 			{
-				if (_nullNormalMapTexture == null)
-					_nullNormalMapTexture = Graphics.CreateSingleColorTexture(1, 1, new Color(0.5f, 0.5f, 1f, 0f));
+				if( _nullNormalMapTexture == null )
+					_nullNormalMapTexture = Graphics.createSingleColorTexture( 1, 1, new Color( 0.5f, 0.5f, 1f, 0f ) );
 				return _nullNormalMapTexture;
 			}
 		}
@@ -61,7 +53,7 @@ namespace Nez.DeferredLighting
 		/// <summary>
 		/// if true, all stages of the deferred pipeline are rendered after the final combine
 		/// </summary>
-		public bool EnableDebugBufferRender;
+		public bool enableDebugBufferRender = false;
 
 
 		int _lightLayer;
@@ -69,9 +61,9 @@ namespace Nez.DeferredLighting
 		Color _clearColor;
 		Texture2D _nullNormalMapTexture;
 
-		public RenderTexture DiffuseRT;
-		public RenderTexture NormalRT;
-		public RenderTexture LightRT;
+		public RenderTexture diffuseRT;
+		public RenderTexture normalRT;
+		public RenderTexture lightRT;
 
 		DeferredLightEffect _lightEffect;
 
@@ -81,62 +73,64 @@ namespace Nez.DeferredLighting
 		PolygonMesh _quadPolygonMesh;
 
 
-		public DeferredLightingRenderer(int renderOrder, int lightLayer, params int[] renderLayers) : base(renderOrder)
+		public DeferredLightingRenderer( int renderOrder, int lightLayer, params int[] renderLayers ) : base( renderOrder )
 		{
 			// make sure we have a workable Material for our lighting system
-			Material = new DeferredSpriteMaterial(NullNormalMapTexture);
+			material = new DeferredSpriteMaterial( nullNormalMapTexture );
 
 			_lightLayer = lightLayer;
-			Array.Sort(renderLayers);
-			Array.Reverse(renderLayers);
-			RenderLayers = renderLayers;
+			Array.Sort( renderLayers );
+			Array.Reverse( renderLayers );
+			this.renderLayers = renderLayers;
 
 			_lightEffect = new DeferredLightEffect();
 
 			// meshes used for light volumes
-			_quadMesh = new QuadMesh(Core.GraphicsDevice);
-			_polygonMesh = PolygonMesh.CreateSymmetricalPolygon(10);
-			_quadPolygonMesh = PolygonMesh.CreateRectangle();
+			_quadMesh = new QuadMesh( Core.graphicsDevice );
+			_polygonMesh = PolygonMesh.createSymmetricalPolygon( 10 );
+			_quadPolygonMesh = PolygonMesh.createRectangle();
 
 			// set some sensible defaults
-			SetAmbientColor(new Color(0.2f, 0.2f, 0.2f))
-				.SetClearColor(Color.CornflowerBlue);
+			setAmbientColor( new Color( 0.2f, 0.2f, 0.2f ) )
+				.setClearColor( Color.CornflowerBlue );
 		}
+
 
 		/// <summary>
 		/// we override render completely here so we can do our thing with multiple render targets
 		/// </summary>
 		/// <param name="scene">scene.</param>
-		public override void Render(Scene scene)
+		public override void render( Scene scene )
 		{
-			ClearRenderTargets();
-			RenderSprites(scene);
-			RenderLights(scene);
-			RenderFinalCombine(scene);
+			clearRenderTargets();
+			renderSprites( scene );
+			renderLights( scene );
+			renderFinalCombine( scene );
 
-			if (EnableDebugBufferRender)
-				RenderAllBuffers(scene);
+			if( enableDebugBufferRender )
+				renderAllBuffers( scene );
 		}
 
-		protected override void DebugRender(Scene scene, Camera cam)
+
+		protected override void debugRender( Scene scene, Camera cam )
 		{
-			for (var i = 0; i < RenderLayers.Length; i++)
+			for( var i = 0; i < renderLayers.Length; i++ )
 			{
-				var renderables = scene.RenderableComponents.ComponentsWithRenderLayer(RenderLayers[i]);
-				for (var j = 0; j < renderables.Length; j++)
+				var renderables = scene.renderableComponents.componentsWithRenderLayer( renderLayers[i] );
+				for( var j = 0; j < renderables.length; j++ )
 				{
-					var renderable = renderables.Buffer[j];
-					if (renderable.Enabled && renderable.IsVisibleFromCamera(cam))
-						renderable.DebugRender(Graphics.Instance.Batcher);
+					var renderable = renderables.buffer[j];
+					if( renderable.enabled && renderable.isVisibleFromCamera( cam ) )
+						renderable.debugRender( Graphics.instance );
 				}
 			}
 
-			var lightRenderables = scene.RenderableComponents.ComponentsWithRenderLayer(_lightLayer);
-			for (var j = 0; j < lightRenderables.Length; j++)
+			var lightRenderables = scene.renderableComponents.componentsWithRenderLayer( _lightLayer );
+			for( var j = 0; j < lightRenderables.length; j++ )
 			{
-				var renderable = lightRenderables.Buffer[j];
-				if (renderable.Enabled && renderable.IsVisibleFromCamera(cam))
-					renderable.DebugRender(Graphics.Instance.Batcher);
+				var renderable = lightRenderables.buffer[j];
+				if( renderable.enabled && renderable.isVisibleFromCamera( cam ) )
+					renderable.debugRender( Graphics.instance );
 			}
 		}
 
@@ -148,30 +142,29 @@ namespace Nez.DeferredLighting
 		/// </summary>
 		/// <returns>The ambient color.</returns>
 		/// <param name="color">Color.</param>
-		public DeferredLightingRenderer SetAmbientColor(Color color)
+		public DeferredLightingRenderer setAmbientColor( Color color )
 		{
-			if (_ambientColor != color)
+			if( _ambientColor != color )
 			{
 				_ambientColor = color;
-				_lightEffect.SetAmbientColor(color);
+				_lightEffect.setAmbientColor( color );
 			}
-
 			return this;
 		}
+
 
 		/// <summary>
 		/// clear color for the diffuse portion of the gbuffer
 		/// </summary>
 		/// <returns>The clear color.</returns>
 		/// <param name="color">Color.</param>
-		public DeferredLightingRenderer SetClearColor(Color color)
+		public DeferredLightingRenderer setClearColor( Color color )
 		{
-			if (_clearColor != color)
+			if( _clearColor != color )
 			{
 				_clearColor = color;
-				_lightEffect.SetClearColor(color);
+				_lightEffect.setClearColor( color );
 			}
-
 			return this;
 		}
 
@@ -180,93 +173,96 @@ namespace Nez.DeferredLighting
 
 		#region Rendering
 
-		void ClearRenderTargets()
+		void clearRenderTargets()
 		{
-			Core.GraphicsDevice.SetRenderTargets(DiffuseRT.RenderTarget, NormalRT.RenderTarget);
-			_lightEffect.PrepareClearGBuffer();
-			_quadMesh.Render();
+			Core.graphicsDevice.SetRenderTargets( diffuseRT.renderTarget, normalRT.renderTarget );
+			_lightEffect.prepareClearGBuffer();
+			_quadMesh.render();
 		}
 
-		void RenderSprites(Scene scene)
-		{
-			BeginRender(scene.Camera);
 
-			for (var i = 0; i < RenderLayers.Length; i++)
+		void renderSprites( Scene scene )
+		{
+			beginRender( scene.camera );
+
+			for( var i = 0; i < renderLayers.Length; i++ )
 			{
-				var renderables = scene.RenderableComponents.ComponentsWithRenderLayer(RenderLayers[i]);
-				for (var j = 0; j < renderables.Length; j++)
+				var renderables = scene.renderableComponents.componentsWithRenderLayer( renderLayers[i] );
+				for( var j = 0; j < renderables.length; j++ )
 				{
-					var renderable = renderables.Buffer[j];
-					if (renderable.Enabled && renderable.IsVisibleFromCamera(scene.Camera))
-						RenderAfterStateCheck(renderable, scene.Camera);
+					var renderable = renderables.buffer[j];
+					if( renderable.enabled && renderable.isVisibleFromCamera( scene.camera ) )
+						renderAfterStateCheck( renderable, scene.camera );
 				}
 			}
 
-			if (ShouldDebugRender && Core.DebugRenderEnabled)
-				DebugRender(scene, scene.Camera);
+			if( shouldDebugRender && Core.debugRenderEnabled )
+				debugRender( scene, scene.camera );
 
-			EndRender();
+			endRender();
 		}
 
-		void RenderLights(Scene scene)
+
+		void renderLights( Scene scene )
 		{
 			// bind the normalMap and update the Effect with our camera
-			_lightEffect.SetNormalMap(NormalRT);
-			_lightEffect.UpdateForCamera(scene.Camera);
+			_lightEffect.setNormalMap( normalRT );
+			_lightEffect.updateForCamera( scene.camera );
 
-			Core.GraphicsDevice.SetRenderTarget(LightRT);
-			Core.GraphicsDevice.Clear(Color.Transparent);
-			Core.GraphicsDevice.BlendState = BlendState.Additive;
-			Core.GraphicsDevice.DepthStencilState = DepthStencilState.None;
-			Core.GraphicsDevice.RasterizerState = RasterizerState.CullNone;
+			Core.graphicsDevice.setRenderTarget( lightRT );
+			Core.graphicsDevice.Clear( Color.Transparent );
+			Core.graphicsDevice.BlendState = BlendState.Additive;
+			Core.graphicsDevice.DepthStencilState = DepthStencilState.None;
 
-			var renderables = scene.RenderableComponents.ComponentsWithRenderLayer(_lightLayer);
-			for (var i = 0; i < renderables.Length; i++)
+			var renderables = scene.renderableComponents.componentsWithRenderLayer( _lightLayer );
+			for( var i = 0; i < renderables.length; i++ )
 			{
-				Insist.IsTrue(renderables.Buffer[i] is DeferredLight, "Found a Renderable in the lightLayer that is not a DeferredLight!");
-				var renderable = renderables.Buffer[i];
-				if (renderable.Enabled)
+				Assert.isTrue( renderables.buffer[i] is DeferredLight, "Found a Renderable in the lightLayer that is not a DeferredLight!" );
+				var renderable = renderables.buffer[i];
+				if( renderable.enabled )
 				{
 					var light = renderable as DeferredLight;
-					if (light is DirLight || light.IsVisibleFromCamera(scene.Camera))
-						RenderLight(light);
+					if( light is DirLight || light.isVisibleFromCamera( scene.camera ) )
+						renderLight( light );
 				}
 			}
 		}
 
-		void RenderFinalCombine(Scene scene)
+
+		void renderFinalCombine( Scene scene )
 		{
-			Core.GraphicsDevice.SetRenderTarget(scene.SceneRenderTarget);
-			Core.GraphicsDevice.BlendState = BlendState.Opaque;
-			Core.GraphicsDevice.DepthStencilState = DepthStencilState.None;
+			Core.graphicsDevice.setRenderTarget( scene.sceneRenderTarget );
+			Core.graphicsDevice.BlendState = BlendState.Opaque;
+			Core.graphicsDevice.DepthStencilState = DepthStencilState.None;
 
 			// combine everything. ambient color is set in the shader when the property is set so no need to reset it
-			_lightEffect.PrepareForFinalCombine(DiffuseRT, LightRT, NormalRT);
-			_quadMesh.Render();
+			_lightEffect.prepareForFinalCombine( diffuseRT, lightRT, normalRT );
+			_quadMesh.render();
 		}
 
-		void RenderAllBuffers(Scene scene)
-		{
-			var tempRT = RenderTarget.GetTemporary(scene.SceneRenderTarget.Width, scene.SceneRenderTarget.Height);
 
-			Core.GraphicsDevice.SetRenderTarget(tempRT);
+		void renderAllBuffers( Scene scene )
+		{
+			var tempRT = RenderTarget.getTemporary( scene.sceneRenderTarget.Width, scene.sceneRenderTarget.Height );
+
+			Core.graphicsDevice.setRenderTarget( tempRT );
 
 			var halfWidth = tempRT.Width / 2;
 			var halfHeight = tempRT.Height / 2;
 
-			Graphics.Instance.Batcher.Begin(BlendState.Opaque);
-			Graphics.Instance.Batcher.Draw(LightRT, new Rectangle(0, 0, halfWidth, halfHeight));
-			Graphics.Instance.Batcher.Draw(DiffuseRT, new Rectangle(halfWidth, 0, halfWidth, halfHeight));
-			Graphics.Instance.Batcher.Draw(NormalRT, new Rectangle(0, halfHeight, halfWidth, halfHeight));
-			Graphics.Instance.Batcher.Draw(scene.SceneRenderTarget, new Rectangle(halfWidth, halfHeight, halfWidth, halfHeight));
-			Graphics.Instance.Batcher.End();
+			Graphics.instance.batcher.begin( BlendState.Opaque );
+			Graphics.instance.batcher.draw( lightRT, new Rectangle( 0, 0, halfWidth, halfHeight ) );
+			Graphics.instance.batcher.draw( diffuseRT, new Rectangle( halfWidth, 0, halfWidth, halfHeight ) );
+			Graphics.instance.batcher.draw( normalRT, new Rectangle( 0, halfHeight, halfWidth, halfHeight ) );
+			Graphics.instance.batcher.draw( scene.sceneRenderTarget, new Rectangle( halfWidth, halfHeight, halfWidth, halfHeight ) );
+			Graphics.instance.batcher.end();
 
-			Core.GraphicsDevice.SetRenderTarget(scene.SceneRenderTarget);
-			Graphics.Instance.Batcher.Begin(BlendState.Opaque);
-			Graphics.Instance.Batcher.Draw(tempRT, Vector2.Zero);
-			Graphics.Instance.Batcher.End();
+			Core.graphicsDevice.setRenderTarget( scene.sceneRenderTarget );
+			Graphics.instance.batcher.begin( BlendState.Opaque );
+			Graphics.instance.batcher.draw( tempRT, Vector2.Zero );
+			Graphics.instance.batcher.end();
 
-			RenderTarget.ReleaseTemporary(tempRT);
+			RenderTarget.releaseTemporary( tempRT );
 		}
 
 		#endregion
@@ -274,75 +270,80 @@ namespace Nez.DeferredLighting
 
 		#region Light rendering
 
-		void RenderLight(DeferredLight light)
+		void renderLight( DeferredLight light )
 		{
 			// check SpotLight first because it is a subclass of PointLight!
-			if (light is SpotLight)
-				RenderLight(light as SpotLight);
-			else if (light is PointLight)
-				RenderLight(light as PointLight);
-			else if (light is AreaLight)
-				RenderLight(light as AreaLight);
-			else if (light is DirLight)
-				RenderLight(light as DirLight);
+			if( light is SpotLight )
+				renderLight( light as SpotLight );
+			else if( light is PointLight )
+				renderLight( light as PointLight );
+			else if( light is AreaLight )
+				renderLight( light as AreaLight );
+			else if( light is DirLight )
+				renderLight( light as DirLight );
 		}
 
-		void RenderLight(DirLight light)
+
+		void renderLight( DirLight light )
 		{
-			_lightEffect.UpdateForLight(light);
-			_quadMesh.Render();
+			_lightEffect.updateForLight( light );
+			_quadMesh.render();
 		}
 
-		void RenderLight(PointLight light)
+
+		void renderLight( PointLight light )
 		{
-			_lightEffect.UpdateForLight(light);
-			_polygonMesh.Render();
+			_lightEffect.updateForLight( light );
+			_polygonMesh.render();
 		}
 
-		void RenderLight(SpotLight light)
+
+		void renderLight( SpotLight light )
 		{
-			_lightEffect.UpdateForLight(light);
-			_polygonMesh.Render();
+			_lightEffect.updateForLight( light );
+			_polygonMesh.render();
 		}
 
-		void RenderLight(AreaLight light)
+
+		void renderLight( AreaLight light )
 		{
-			_lightEffect.UpdateForLight(light);
-			_quadPolygonMesh.Render();
+			_lightEffect.updateForLight( light );
+			_quadPolygonMesh.render();
 		}
 
 		#endregion
 
 
-		public override void OnSceneBackBufferSizeChanged(int newWidth, int newHeight)
+		public override void onSceneBackBufferSizeChanged( int newWidth, int newHeight )
 		{
 			// create our RenderTextures if we havent and resize them if we have
-			if (DiffuseRT == null)
+			if( diffuseRT == null )
 			{
-				DiffuseRT = new RenderTexture(newWidth, newHeight, SurfaceFormat.Color, DepthFormat.None);
-				NormalRT = new RenderTexture(newWidth, newHeight, SurfaceFormat.Color, DepthFormat.None);
-				LightRT = new RenderTexture(newWidth, newHeight, SurfaceFormat.Color, DepthFormat.None);
+				diffuseRT = new RenderTexture( newWidth, newHeight, SurfaceFormat.Color, DepthFormat.None );
+				normalRT = new RenderTexture( newWidth, newHeight, SurfaceFormat.Color, DepthFormat.None );
+				lightRT = new RenderTexture( newWidth, newHeight, SurfaceFormat.Color, DepthFormat.None );
 			}
 			else
 			{
-				DiffuseRT.OnSceneBackBufferSizeChanged(newWidth, newHeight);
-				NormalRT.OnSceneBackBufferSizeChanged(newWidth, newHeight);
-				LightRT.OnSceneBackBufferSizeChanged(newWidth, newHeight);
+				diffuseRT.onSceneBackBufferSizeChanged( newWidth, newHeight );
+				normalRT.onSceneBackBufferSizeChanged( newWidth, newHeight );
+				lightRT.onSceneBackBufferSizeChanged( newWidth, newHeight );
 			}
 		}
 
-		public override void Unload()
+
+		public override void unload()
 		{
 			_lightEffect.Dispose();
 
-			DiffuseRT.Dispose();
-			NormalRT.Dispose();
-			LightRT.Dispose();
+			diffuseRT.Dispose();
+			normalRT.Dispose();
+			lightRT.Dispose();
 
-			if (_nullNormalMapTexture != null)
+			if( _nullNormalMapTexture != null )
 				_nullNormalMapTexture.Dispose();
-
-			base.Unload();
 		}
+
 	}
 }
+

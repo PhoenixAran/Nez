@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	public enum TaskStatus
 	{
@@ -8,3 +11,4 @@
 		Running
 	}
 }
+

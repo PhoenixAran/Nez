@@ -1,4 +1,7 @@
-﻿namespace Nez
+﻿using System;
+
+
+namespace Nez
 {
 	/// <summary>
 	/// when added to a Component, whenever a Collider on the Entity overlaps/exits another Component these methods will be called.
@@ -13,13 +16,14 @@
 		/// </summary>
 		/// <param name="remote">Remote.</param>
 		/// <param name="local">Local.</param>
-		void OnTriggerEnter(Collider other, Collider local);
+		void onTriggerEnter( Collider other, Collider local );
 
 		/// <summary>
 		/// called when another collider leaves a trigger collider.
 		/// </summary>
 		/// <param name="remote">Remote.</param>
 		/// <param name="local">Local.</param>
-		void OnTriggerExit(Collider other, Collider local);
+		void onTriggerExit( Collider other, Collider local );
 	}
 }
+

@@ -16,7 +16,7 @@ enum SomeEnum
 
 public class YourClass : SimpleStateMachine<SomeEnum>()
 {
-    void OnAddedToEntity()
+    void onAddedToEntity()
     {
         initialState = SomeEnum.Idle;
     }
@@ -45,14 +45,14 @@ Here is a simple example showing the usage (with the State subclasses omitted fo
 var machine = new SKStateMachine<SomeClass>( someClass, new PatrollingState() );
 
 // we can now add any additional states
-machine.AddState( new AttackState() );
-machine.AddState( new ChaseState() );
+machine.addState( new AttackState() );
+machine.addState( new ChaseState() );
 
 // this method would typically be called in an update of an object
-machine.Update( Time.deltaTime );
+machine.update( Time.deltaTime );
 
 // change states. the state machine will automatically create and cache an instance of the class (in this case ChasingState)
-machine.ChangeState<ChasingState>();
+machine.changeState<ChasingState>();
 ```
 
 
@@ -118,7 +118,7 @@ Actions define a list of pre conditions that they require and a list of post con
 
 
 ## Agent
-Agent is a helper class that encapsulates an AI agent. It keeps a list of available Actions and a reference to the ActionPlanner. Agent is abstract and requires you to define the `GetWorldState` and `GetGoalState` methods. With those in place getting a plan is as simple as calling `agent.Plan()`.
+Agent is a helper class that encapsulates an AI agent. It keeps a list of available Actions and a reference to the ActionPlanner. Agent is abstract and requires you to define the `getWorldState` and `getGoalState` methods. With those in place getting a plan is as simple as calling `agent.plan()`.
 
 
 

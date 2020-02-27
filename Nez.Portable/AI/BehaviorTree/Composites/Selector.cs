@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	/// <summary>
 	/// The selector task is similar to an "or" operation. It will return success as soon as one of its child tasks return success. If a
@@ -6,29 +9,29 @@
 	/// </summary>
 	public class Selector<T> : Composite<T>
 	{
-		public Selector(AbortTypes abortType = AbortTypes.None)
+		public Selector( AbortTypes abortType = AbortTypes.None )
 		{
-			AbortType = abortType;
+			this.abortType = abortType;
 		}
 
 
-		public override TaskStatus Update(T context)
+		public override TaskStatus update( T context )
 		{
 			// first, we handle conditinoal aborts if we are not already on the first child
-			if (_currentChildIndex != 0)
-				HandleConditionalAborts(context);
-
+			if( _currentChildIndex != 0 )
+				handleConditionalAborts( context );
+			
 			var current = _children[_currentChildIndex];
-			var status = current.Tick(context);
+			var status = current.tick( context );
 
 			// if the child succeeds or is still running, early return.
-			if (status != TaskStatus.Failure)
+			if( status != TaskStatus.Failure )
 				return status;
-
+			
 			_currentChildIndex++;
 
 			// if the end of the children is hit, that means the whole thing fails.
-			if (_currentChildIndex == _children.Count)
+			if( _currentChildIndex == _children.Count )
 			{
 				// reset index otherwise it will crash on next run through
 				_currentChildIndex = 0;
@@ -39,14 +42,15 @@
 		}
 
 
-		void HandleConditionalAborts(T context)
+		void handleConditionalAborts( T context )
 		{
 			// check any lower priority tasks to see if they changed to a success
-			if (_hasLowerPriorityConditionalAbort)
-				UpdateLowerPriorityAbortConditional(context, TaskStatus.Failure);
+			if( _hasLowerPriorityConditionalAbort )
+				updateLowerPriorityAbortConditional( context, TaskStatus.Failure );
 
-			if (AbortType.Has(AbortTypes.Self))
-				UpdateSelfAbortConditional(context, TaskStatus.Failure);
+			if( abortType.has( AbortTypes.Self ) )
+				updateSelfAbortConditional( context, TaskStatus.Failure );
 		}
 	}
 }
+

@@ -12,55 +12,56 @@ namespace Nez
 		/// <summary>
 		/// the renderLayers this Renderer will render
 		/// </summary>
-		public int[] RenderLayers;
+		public int[] renderLayers;
 
 
-		public RenderLayerRenderer(int renderOrder, params int[] renderLayers) : base(renderOrder, null)
+		public RenderLayerRenderer( int renderOrder, params int[] renderLayers ) : base( renderOrder, null )
 		{
-			Array.Sort(renderLayers);
-			Array.Reverse(renderLayers);
-			RenderLayers = renderLayers;
+			Array.Sort( renderLayers );
+			Array.Reverse( renderLayers );
+			this.renderLayers = renderLayers;
 		}
 
-		public override void Render(Scene scene)
-		{
-			var cam = Camera ?? scene.Camera;
-			BeginRender(cam);
 
-			for (var i = 0; i < RenderLayers.Length; i++)
+		public override void render( Scene scene )
+		{
+			var cam = camera ?? scene.camera;
+			beginRender( cam );
+
+			for( var i = 0; i < renderLayers.Length; i++ )
 			{
-				var renderables = scene.RenderableComponents.ComponentsWithRenderLayer(RenderLayers[i]);
-				for (var j = 0; j < renderables.Length; j++)
+				var renderables = scene.renderableComponents.componentsWithRenderLayer( renderLayers[i] );
+				for( var j = 0; j < renderables.length; j++ )
 				{
-					var renderable = renderables.Buffer[j];
-					if (renderable.Enabled && renderable.IsVisibleFromCamera(cam))
-						RenderAfterStateCheck(renderable, cam);
+					var renderable = renderables.buffer[j];
+					if( renderable.enabled && renderable.isVisibleFromCamera( cam ) )
+						renderAfterStateCheck( renderable, cam );
 				}
 			}
 
-			if (ShouldDebugRender && Core.DebugRenderEnabled)
-				DebugRender(scene, cam);
+			if( shouldDebugRender && Core.debugRenderEnabled )
+				debugRender( scene, cam );
 
-			EndRender();
+			endRender();
 		}
 
-		protected override void DebugRender(Scene scene, Camera cam)
-		{
-			Graphics.Instance.Batcher.End();
-			Graphics.Instance.Batcher.Begin(cam.TransformMatrix);
 
-			for (var i = 0; i < RenderLayers.Length; i++)
+		protected override void debugRender( Scene scene, Camera cam )
+		{
+			base.debugRender( scene, cam );
+
+			for( var i = 0; i < renderLayers.Length; i++ )
 			{
-				var renderables = scene.RenderableComponents.ComponentsWithRenderLayer(RenderLayers[i]);
-				for (var j = 0; j < renderables.Length; j++)
+				var renderables = scene.renderableComponents.componentsWithRenderLayer( renderLayers[i] );
+				for( var j = 0; j < renderables.length; j++ )
 				{
-					var renderable = renderables.Buffer[j];
-					if (renderable.Enabled && renderable.IsVisibleFromCamera(cam))
-						renderable.DebugRender(Graphics.Instance.Batcher);
+					var renderable = renderables.buffer[j];
+					if( renderable.enabled && renderable.isVisibleFromCamera( cam ) )
+						renderable.debugRender( Graphics.instance );
 				}
 			}
-
-			base.DebugRender(scene, cam);
 		}
+
 	}
 }
+

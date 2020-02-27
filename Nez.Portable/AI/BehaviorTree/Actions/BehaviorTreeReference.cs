@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	/// <summary>
 	/// runs an entire BehaviorTree as a child and returns success
@@ -8,16 +11,17 @@
 		BehaviorTree<T> _childTree;
 
 
-		public BehaviorTreeReference(BehaviorTree<T> tree)
+		public BehaviorTreeReference( BehaviorTree<T> tree )
 		{
 			_childTree = tree;
 		}
 
 
-		public override TaskStatus Update(T context)
+		public override TaskStatus update( T context )
 		{
-			_childTree.Tick();
+			_childTree.tick();
 			return TaskStatus.Success;
 		}
 	}
 }
+

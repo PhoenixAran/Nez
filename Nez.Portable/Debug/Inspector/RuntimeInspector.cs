@@ -28,7 +28,7 @@ namespace Nez
 		/// </summary>
 		public RuntimeInspector()
 		{
-			Initialize();
+			initialize();
 		}
 
 
@@ -36,62 +36,62 @@ namespace Nez
 		/// creates an Entity inspector
 		/// </summary>
 		/// <param name="entity">Entity.</param>
-		public RuntimeInspector(Entity entity)
+		public RuntimeInspector( Entity entity )
 		{
 			_entity = entity;
-			Initialize();
-			CacheTransformInspector();
+			initialize();
+			cacheTransformInspector();
 		}
 
 
-		void Initialize()
+		void initialize()
 		{
-			PrepCanvas();
+			prepCanvas();
 			_camera = new ScreenSpaceCamera();
-			Core.Emitter.AddObserver(CoreEvents.GraphicsDeviceReset, OnGraphicsDeviceReset);
-			Core.Emitter.AddObserver(CoreEvents.SceneChanged, OnSceneChanged);
+			Core.emitter.addObserver( CoreEvents.GraphicsDeviceReset, onGraphicsDeviceReset );
+			Core.emitter.addObserver( CoreEvents.SceneChanged, onSceneChanged );
 		}
 
 
-		void OnGraphicsDeviceReset()
+		void onGraphicsDeviceReset()
 		{
-			_scrollPane.SetHeight(Screen.Height);
+			_scrollPane.setHeight( Screen.height );
 		}
 
 
-		void OnSceneChanged()
+		void onSceneChanged()
 		{
-			Console.DebugConsole.Instance._runtimeInspector = null;
+			Console.DebugConsole.instance._runtimeInspector = null;
 			Dispose();
 		}
 
 
-		public void Update()
+		public void update()
 		{
 			// if we have an Entity this is an Entity inspector else it is a PostProcessor inspector
-			if (_entity != null)
+			if( _entity != null )
 			{
 				// update transform, which has a null Component
-				GetOrCreateInspectorList((Component) null).Update();
+				getOrCreateInspectorList( (Component)null ).update();
 
-				for (var i = 0; i < _entity.Components.Count; i++)
-					GetOrCreateInspectorList(_entity.Components[i]).Update();
+				for( var i = 0; i < _entity.components.count; i++ )
+					getOrCreateInspectorList( _entity.components[i] ).update();
 			}
 			else
 			{
-				for (var i = 0; i < Core.Scene._postProcessors.Length; i++)
-					GetOrCreateInspectorList(Core.Scene._postProcessors.Buffer[i]).Update();
+				for( var i = 0; i < Core.scene._postProcessors.length; i++ )
+					getOrCreateInspectorList( Core.scene._postProcessors.buffer[i] ).update();
 			}
 		}
 
 
-		public void Render()
+		public void render()
 		{
 			// manually start a fresh batch and call the UICanvas Component lifecycle methods since it isnt attached to the Scene
-			Graphics.Instance.Batcher.Begin();
-			(ui as IUpdatable).Update();
-			ui.Render(Graphics.Instance.Batcher, _camera);
-			Graphics.Instance.Batcher.End();
+			Graphics.instance.batcher.begin();
+			( ui as IUpdatable ).update();
+			ui.render( Graphics.instance, _camera );
+			Graphics.instance.batcher.end();
 		}
 
 
@@ -100,60 +100,59 @@ namespace Nez
 		/// </summary>
 		/// <returns>The or create inspector list.</returns>
 		/// <param name="comp">Comp.</param>
-		InspectorList GetOrCreateInspectorList(object comp)
+		InspectorList getOrCreateInspectorList( object comp )
 		{
-			var inspector = _inspectors.FirstOrDefault(i => i.Target == comp);
-			if (inspector == null)
+			var inspector = _inspectors.Where( i => i.target == comp ).FirstOrDefault();
+			if( inspector == null )
 			{
-				inspector = new InspectorList(comp);
-				inspector.Initialize(_table, _skin, kLeftCellWidth);
-				_inspectors.Add(inspector);
+				inspector = new InspectorList( comp );
+				inspector.initialize( _table, _skin, kLeftCellWidth );
+				_inspectors.Add( inspector );
 			}
 
 			return inspector;
 		}
 
 
-		void CacheTransformInspector()
+		void cacheTransformInspector()
 		{
 			// add Transform separately
-			var transformInspector = new InspectorList(_entity.Transform);
-			transformInspector.Initialize(_table, _skin, kLeftCellWidth);
-			_inspectors.Add(transformInspector);
+			var transformInspector = new InspectorList( _entity.transform );
+			transformInspector.initialize( _table, _skin, kLeftCellWidth );
+			_inspectors.Add( transformInspector );
 		}
 
 
-		void PrepCanvas()
+		void prepCanvas()
 		{
-			_skin = Skin.CreateDefaultSkin();
+			_skin = Skin.createDefaultSkin();
 
 			// modify some of the default styles to better suit our needs
-			var tfs = _skin.Get<TextFieldStyle>();
-			tfs.Background.LeftWidth = tfs.Background.RightWidth = 4;
-			tfs.Background.BottomHeight = 0;
-			tfs.Background.TopHeight = 3;
+			var tfs = _skin.get<TextFieldStyle>();
+			tfs.background.leftWidth = tfs.background.rightWidth = 4;
+			tfs.background.bottomHeight = 0;
+			tfs.background.topHeight = 3;
 
-			var checkbox = _skin.Get<CheckBoxStyle>();
-			checkbox.CheckboxOn.MinWidth = checkbox.CheckboxOn.MinHeight = 15;
-			checkbox.CheckboxOff.MinWidth = checkbox.CheckboxOff.MinHeight = 15;
-			checkbox.CheckboxOver.MinWidth = checkbox.CheckboxOver.MinHeight = 15;
+			var checkbox = _skin.get<CheckBoxStyle>();
+			checkbox.checkboxOn.minWidth = checkbox.checkboxOn.minHeight = 15;
+			checkbox.checkboxOff.minWidth = checkbox.checkboxOff.minHeight = 15;
+			checkbox.checkboxOver.minWidth = checkbox.checkboxOver.minHeight = 15;
 
 			// since we arent using this as a Component on an Entity we'll fake it here
 			ui = new UICanvas();
-			ui.OnAddedToEntity();
-			ui.Stage.IsFullScreen = true;
+			ui.onAddedToEntity();
+			ui.stage.isFullScreen = true;
 
 			_table = new Table();
-			_table.Top().Left();
-			_table.Defaults().SetPadTop(4).SetPadLeft(4).SetPadRight(0).SetAlign(Align.Left);
-			_table.SetBackground(new PrimitiveDrawable(new Color(40, 40, 40)));
+			_table.top().left();
+			_table.defaults().setPadTop( 4 ).setPadLeft( 4 ).setPadRight( 0 ).setAlign( Align.left );
+			_table.setBackground( new PrimitiveDrawable( new Color( 40, 40, 40 ) ) );
 
 			// wrap up the table in a ScrollPane
-			_scrollPane = ui.Stage.AddElement(new ScrollPane(_table, _skin));
-
+			_scrollPane = ui.stage.addElement( new ScrollPane( _table, _skin ) );
 			// force a validate which will layout the ScrollPane and populate the proper scrollBarWidth
-			_scrollPane.Validate();
-			_scrollPane.SetSize(295 + _scrollPane.GetScrollBarWidth(), Screen.Height);
+			_scrollPane.validate();
+			_scrollPane.setSize( 295 + _scrollPane.getScrollBarWidth(), Screen.height );
 		}
 
 
@@ -161,12 +160,12 @@ namespace Nez
 
 		bool _disposedValue = false;
 
-		void Dispose(bool disposing)
+		void Dispose( bool disposing )
 		{
-			if (!_disposedValue)
+			if( !_disposedValue )
 			{
-				Core.Emitter.RemoveObserver(CoreEvents.GraphicsDeviceReset, OnGraphicsDeviceReset);
-				Core.Emitter.RemoveObserver(CoreEvents.SceneChanged, OnSceneChanged);
+				Core.emitter.removeObserver( CoreEvents.GraphicsDeviceReset, onGraphicsDeviceReset );
+				Core.emitter.removeObserver( CoreEvents.SceneChanged, onSceneChanged );
 				_entity = null;
 				_disposedValue = true;
 			}
@@ -175,10 +174,11 @@ namespace Nez
 
 		public void Dispose()
 		{
-			Dispose(true);
+			Dispose( true );
 		}
 
 		#endregion
+
 	}
 }
 #endif

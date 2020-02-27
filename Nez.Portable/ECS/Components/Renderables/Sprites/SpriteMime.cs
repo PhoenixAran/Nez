@@ -7,34 +7,34 @@
 	/// </summary>
 	public class SpriteMime : RenderableComponent
 	{
-		public override float Width => _spriteToMime.Width;
-		public override float Height => _spriteToMime.Height;
-		public override RectangleF Bounds => _spriteToMime.Bounds;
+		public override float width { get { return _spriteToMime.width; } }
+		public override float height { get { return _spriteToMime.height; } }
+		public override RectangleF bounds { get { return _spriteToMime.bounds; } }
 
-		SpriteRenderer _spriteToMime;
+		Sprite _spriteToMime;
 
 
 		public SpriteMime()
-		{
-			Enabled = false;
-		}
+		{}
 
-		public SpriteMime(SpriteRenderer spriteToMime)
+
+		public SpriteMime( Sprite spriteToMime )
 		{
 			_spriteToMime = spriteToMime;
 		}
 
-		public override void OnAddedToEntity()
+
+		public override void onAddedToEntity()
 		{
-			if (_spriteToMime == null)
-				_spriteToMime = this.GetComponent<SpriteRenderer>();
+			if( _spriteToMime == null )
+				_spriteToMime = this.getComponent<Sprite>();
 		}
 
-		public override void Render(Batcher batcher, Camera camera)
+
+		public override void render( Graphics graphics, Camera camera )
 		{
-			batcher.Draw(_spriteToMime.Sprite, Entity.Transform.Position + _localOffset, Color,
-				Entity.Transform.Rotation, _spriteToMime.Origin, Entity.Transform.Scale, _spriteToMime.SpriteEffects,
-				_layerDepth);
+			graphics.batcher.draw( _spriteToMime.subtexture, entity.transform.position + _localOffset, color, entity.transform.rotation, _spriteToMime.origin, entity.transform.scale, _spriteToMime.spriteEffects, _layerDepth );
 		}
 	}
 }
+

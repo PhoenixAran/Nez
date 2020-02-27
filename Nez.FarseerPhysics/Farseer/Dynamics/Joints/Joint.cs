@@ -34,7 +34,6 @@ namespace FarseerPhysics.Dynamics.Joints
 		Prismatic,
 		Distance,
 		Pulley,
-
 		//Mouse, <- We have fixed mouse
 		Gear,
 		Wheel,
@@ -68,22 +67,22 @@ namespace FarseerPhysics.Dynamics.Joints
 		/// <summary>
 		/// The joint.
 		/// </summary>
-		public Joint Joint;
+		public Joint joint;
 
 		/// <summary>
 		/// The next joint edge in the body's joint list.
 		/// </summary>
-		public JointEdge Next;
+		public JointEdge next;
 
 		/// <summary>
 		/// Provides quick access to the other body attached.
 		/// </summary>
-		public Body Other;
+		public Body other;
 
 		/// <summary>
 		/// The previous joint edge in the body's joint list.
 		/// </summary>
-		public JointEdge Prev;
+		public JointEdge prev;
 	}
 
 
@@ -95,54 +94,54 @@ namespace FarseerPhysics.Dynamics.Joints
 		/// Indicate if this join is enabled or not. Disabling a joint
 		/// means it is still in the simulation, but inactive.
 		/// </summary>
-		public bool Enabled = true;
+		public bool enabled = true;
 
 		/// <summary>
 		/// Gets or sets the type of the joint.
 		/// </summary>
 		/// <value>The type of the joint.</value>
-		public JointType JointType { get; protected set; }
+		public JointType jointType { get; protected set; }
 
 		/// <summary>
 		/// Get the first body attached to this joint.
 		/// </summary>
-		public Body BodyA { get; internal set; }
+		public Body bodyA { get; internal set; }
 
 		/// <summary>
 		/// Get the second body attached to this joint.
 		/// </summary>
-		public Body BodyB { get; internal set; }
+		public Body bodyB { get; internal set; }
 
 		/// <summary>
 		/// Get the anchor point on bodyA in world coordinates.
 		/// On some joints, this value indicate the anchor point within the world.
 		/// </summary>
-		public abstract Vector2 WorldAnchorA { get; set; }
+		public abstract Vector2 worldAnchorA { get; set; }
 
 		/// <summary>
 		/// Get the anchor point on bodyB in world coordinates.
 		/// On some joints, this value indicate the anchor point within the world.
 		/// </summary>
-		public abstract Vector2 WorldAnchorB { get; set; }
+		public abstract Vector2 worldAnchorB { get; set; }
 
 		/// <summary>
 		/// Set the user data pointer.
 		/// </summary>
 		/// <value>The data.</value>
-		public object UserData;
+		public object userData;
 
 		/// <summary>
 		/// Set this flag to true if the attached bodies should collide.
 		/// </summary>
-		public bool CollideConnected;
+		public bool collideConnected;
 
 		/// <summary>
 		/// The Breakpoint simply indicates the maximum Value the JointError can be before it breaks.
 		/// The default value is float.MaxValue, which means it never breaks.
 		/// </summary>
-		public float Breakpoint
+		public float breakpoint
 		{
-			get => _breakpoint;
+			get { return _breakpoint; }
 			set
 			{
 				_breakpoint = value;
@@ -153,7 +152,7 @@ namespace FarseerPhysics.Dynamics.Joints
 		/// <summary>
 		/// Fires when the joint is broken.
 		/// </summary>
-		public event Action<Joint, float> OnJointBroke;
+		public event Action<Joint, float> onJointBroke;
 
 		float _breakpoint;
 		double _breakpointSquared;
@@ -167,83 +166,84 @@ namespace FarseerPhysics.Dynamics.Joints
 
 		protected Joint()
 		{
-			Breakpoint = float.MaxValue;
+			breakpoint = float.MaxValue;
 
 			//Connected bodies should not collide by default
-			CollideConnected = false;
+			collideConnected = false;
 		}
 
-		protected Joint(Body bodyA, Body bodyB) : this()
+		protected Joint( Body bodyA, Body bodyB ) : this()
 		{
 			//Can't connect a joint to the same body twice.
-			Debug.Assert(bodyA != bodyB);
+			Debug.Assert( bodyA != bodyB );
 
-			this.BodyA = bodyA;
-			this.BodyB = bodyB;
+			this.bodyA = bodyA;
+			this.bodyB = bodyB;
 		}
 
 		/// <summary>
 		/// Constructor for fixed joint
 		/// </summary>
-		protected Joint(Body body) : this()
+		protected Joint( Body body ) : this()
 		{
-			BodyA = body;
+			bodyA = body;
 		}
 
 		/// <summary>
 		/// Get the reaction force on body at the joint anchor in Newtons.
 		/// </summary>
 		/// <param name="invDt">The inverse delta time.</param>
-		public abstract Vector2 GetReactionForce(float invDt);
+		public abstract Vector2 getReactionForce( float invDt );
 
 		/// <summary>
 		/// Get the reaction torque on the body at the joint anchor in N*m.
 		/// </summary>
 		/// <param name="invDt">The inverse delta time.</param>
-		public abstract float GetReactionTorque(float invDt);
+		public abstract float getReactionTorque( float invDt );
 
-		protected void WakeBodies()
+		protected void wakeBodies()
 		{
-			if (BodyA != null)
-				BodyA.IsAwake = true;
+			if( bodyA != null )
+				bodyA.isAwake = true;
 
-			if (BodyB != null)
-				BodyB.IsAwake = true;
+			if( bodyB != null )
+				bodyB.isAwake = true;
 		}
 
 		/// <summary>
 		/// Return true if the joint is a fixed type.
 		/// </summary>
-		public bool IsFixedType()
+		public bool isFixedType()
 		{
-			return JointType == JointType.FixedMouse || BodyA.IsStatic || BodyB.IsStatic;
+			return jointType == JointType.FixedMouse || bodyA.isStatic || bodyB.isStatic;
 		}
 
-		internal abstract void InitVelocityConstraints(ref SolverData data);
+		internal abstract void initVelocityConstraints( ref SolverData data );
 
-		internal void Validate(float invDt)
+		internal void validate( float invDt )
 		{
-			if (!Enabled)
+			if( !enabled )
 				return;
 
-			float jointErrorSquared = GetReactionForce(invDt).LengthSquared();
+			float jointErrorSquared = getReactionForce( invDt ).LengthSquared();
 
-			if (Math.Abs(jointErrorSquared) <= _breakpointSquared)
+			if( Math.Abs( jointErrorSquared ) <= _breakpointSquared )
 				return;
 
-			Enabled = false;
+			enabled = false;
 
-			if (OnJointBroke != null)
-				OnJointBroke(this, (float) Math.Sqrt(jointErrorSquared));
+			if( onJointBroke != null )
+				onJointBroke( this, (float)Math.Sqrt( jointErrorSquared ) );
 		}
 
-		internal abstract void SolveVelocityConstraints(ref SolverData data);
+		internal abstract void solveVelocityConstraints( ref SolverData data );
 
 		/// <summary>
 		/// Solves the position constraints.
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns>returns true if the position errors are within tolerance.</returns>
-		internal abstract bool SolvePositionConstraints(ref SolverData data);
+		internal abstract bool solvePositionConstraints( ref SolverData data );
+	
 	}
 }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Nez.AI.UtilityAI
@@ -8,18 +9,19 @@ namespace Nez.AI.UtilityAI
 	/// </summary>
 	public class SumOfChildrenConsideration<T> : IConsideration<T>
 	{
-		public IAction<T> Action { get; set; }
+		public IAction<T> action { get; set; }
 
 		List<IAppraisal<T>> _appraisals = new List<IAppraisal<T>>();
 
 
-		float IConsideration<T>.GetScore(T context)
+		float IConsideration<T>.getScore( T context )
 		{
 			var score = 0f;
-			for (var i = 0; i < _appraisals.Count; i++)
-				score += _appraisals[i].GetScore(context);
+			for( var i = 0; i < _appraisals.Count; i++ )
+				score += _appraisals[i].getScore( context );
 
 			return score;
 		}
 	}
 }
+

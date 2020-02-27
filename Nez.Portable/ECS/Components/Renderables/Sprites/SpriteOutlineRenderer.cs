@@ -10,49 +10,51 @@ namespace Nez
 	/// </summary>
 	public class SpriteOutlineRenderer : RenderableComponent
 	{
-		public override float Width => _sprite.Width + OutlineWidth * 2;
-		public override float Height => _sprite.Height + OutlineWidth * 2;
+		public override float width { get { return _sprite.width + outlineWidth * 2; } }
+		public override float height { get { return _sprite.height + outlineWidth * 2; } }
 
-		public override RectangleF Bounds => _sprite.Bounds;
+		public override RectangleF bounds { get { return _sprite.bounds; } }
 
 		/// <summary>
 		/// the width of the outline
 		/// </summary>
-		public int OutlineWidth = 3;
+		public int outlineWidth = 3;
 
 		/// <summary>
 		/// the color the sprite will be tinted when it is rendered
 		/// </summary>
-		public Color OutlineColor = Color.Black;
+		public Color outlineColor = Color.Black;
 
-		SpriteRenderer _sprite;
+		Sprite _sprite;
 
 
 		/// <summary>
 		/// the Sprite passed in will be disabled. The SpriteOutlineRenderer will handle manually calling its render method.
 		/// </summary>
 		/// <param name="sprite">Sprite.</param>
-		public SpriteOutlineRenderer(SpriteRenderer sprite)
+		public SpriteOutlineRenderer( Sprite sprite )
 		{
 			_sprite = sprite;
-
 			// RenderableComponent doesnt have an origin so we copy over the Sprite.origin to our localOffset
-			_localOffset = sprite.Origin;
-			_sprite.Enabled = false;
+			_localOffset = sprite.origin;
+			_sprite.enabled = false;
 		}
 
-		public override void OnEntityTransformChanged(Transform.Component comp)
+
+		public override void onEntityTransformChanged( Transform.Component comp )
 		{
-			base.OnEntityTransformChanged(comp);
+			base.onEntityTransformChanged( comp );
 
 			// our sprite is disabled so we need to forward the call over to it so it can update its bounds for rendering
-			_sprite.OnEntityTransformChanged(comp);
+			_sprite.onEntityTransformChanged( comp );
 		}
 
-		public override void Render(Batcher batcher, Camera camera)
+
+		public override void render( Graphics graphics, Camera camera )
 		{
-			_sprite.DrawOutline(batcher, camera, OutlineColor, OutlineWidth);
-			_sprite.Render(batcher, camera);
+			_sprite.drawOutline( graphics, camera, outlineColor, outlineWidth );
+			_sprite.render( graphics, camera );
 		}
 	}
 }
+

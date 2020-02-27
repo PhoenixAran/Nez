@@ -15,23 +15,23 @@ namespace FarseerPhysics.Controllers
 		/// Controls the rotational drag that the fluid exerts on the bodies within it. Use higher values will simulate thick fluid, like honey, lower values to
 		/// simulate water-like fluids. 
 		/// </summary>
-		public float AngularDragCoefficient;
+		public float angularDragCoefficient;
 
 		/// <summary>
 		/// Density of the fluid. Higher values will make things more buoyant, lower values will cause things to sink.
 		/// </summary>
-		public float Density;
+		public float density;
 
 		/// <summary>
 		/// Controls the linear drag that the fluid exerts on the bodies within it. Use higher values will simulate thick fluid, like honey, lower values to
 		/// simulate water-like fluids.
 		/// </summary>
-		public float LinearDragCoefficient;
+		public float linearDragCoefficient;
 
 		/// <summary>
 		/// Acts like waterflow. Defaults to 0,0.
 		/// </summary>
-		public Vector2 Velocity;
+		public Vector2 velocity;
 
 		AABB _container;
 
@@ -51,43 +51,42 @@ namespace FarseerPhysics.Controllers
 		/// <param name="linearDragCoefficient">Linear drag coefficient of the fluid</param>
 		/// <param name="rotationalDragCoefficient">Rotational drag coefficient of the fluid</param>
 		/// <param name="gravity">The direction gravity acts. Buoyancy force will act in opposite direction of gravity.</param>
-		public BuoyancyController(AABB container, float density, float linearDragCoefficient,
-		                          float rotationalDragCoefficient, Vector2 gravity)
-			: base(ControllerType.BuoyancyController)
+		public BuoyancyController( AABB container, float density, float linearDragCoefficient, float rotationalDragCoefficient, Vector2 gravity )
+			: base( ControllerType.BuoyancyController )
 		{
-			this.Container = container;
-			_normal = new Vector2(0, 1);
-			this.Density = density;
-			this.LinearDragCoefficient = linearDragCoefficient;
-			AngularDragCoefficient = rotationalDragCoefficient;
+			this.container = container;
+			_normal = new Vector2( 0, 1 );
+			this.density = density;
+			this.linearDragCoefficient = linearDragCoefficient;
+			angularDragCoefficient = rotationalDragCoefficient;
 			_gravity = gravity;
 		}
 
-		public AABB Container
+		public AABB container
 		{
-			get => _container;
+			get { return _container; }
 			set
 			{
 				_container = value;
-				_offset = _container.UpperBound.Y;
+				_offset = _container.upperBound.Y;
 			}
 		}
 
-		public override void Update(float dt)
+		public override void update( float dt )
 		{
 			_uniqueBodies.Clear();
-			World.QueryAABB(fixture =>
-			{
-				if (fixture.Body.IsStatic || !fixture.Body.IsAwake)
-					return true;
+			world.queryAABB( fixture =>
+								 {
+									 if( fixture.body.isStatic || !fixture.body.isAwake )
+										 return true;
 
-				if (!_uniqueBodies.ContainsKey(fixture.Body.BodyId))
-					_uniqueBodies.Add(fixture.Body.BodyId, fixture.Body);
+									 if( !_uniqueBodies.ContainsKey( fixture.body.bodyId ) )
+										 _uniqueBodies.Add( fixture.body.bodyId, fixture.body );
 
-				return true;
-			}, ref _container);
+									 return true;
+								 }, ref _container );
 
-			foreach (KeyValuePair<int, Body> kv in _uniqueBodies)
+			foreach( KeyValuePair<int, Body> kv in _uniqueBodies )
 			{
 				Body body = kv.Value;
 
@@ -96,24 +95,24 @@ namespace FarseerPhysics.Controllers
 				float area = 0;
 				float mass = 0;
 
-				for (int j = 0; j < body.FixtureList.Count; j++)
+				for( int j = 0; j < body.fixtureList.Count; j++ )
 				{
-					Fixture fixture = body.FixtureList[j];
+					Fixture fixture = body.fixtureList[j];
 
-					if (fixture.Shape.ShapeType != ShapeType.Polygon && fixture.Shape.ShapeType != ShapeType.Circle)
+					if( fixture.shape.shapeType != ShapeType.Polygon && fixture.shape.shapeType != ShapeType.Circle )
 						continue;
 
-					Shape shape = fixture.Shape;
+					Shape shape = fixture.shape;
 
 					Vector2 sc;
-					float sarea = shape.ComputeSubmergedArea(ref _normal, _offset, ref body._xf, out sc);
+					float sarea = shape.computeSubmergedArea( ref _normal, _offset, ref body._xf, out sc );
 					area += sarea;
 					areac.X += sarea * sc.X;
 					areac.Y += sarea * sc.Y;
 
-					mass += sarea * shape.Density;
-					massc.X += sarea * sc.X * shape.Density;
-					massc.Y += sarea * sc.Y * shape.Density;
+					mass += sarea * shape.density;
+					massc.X += sarea * sc.X * shape.density;
+					massc.Y += sarea * sc.Y * shape.density;
 				}
 
 				areac.X /= area;
@@ -121,21 +120,22 @@ namespace FarseerPhysics.Controllers
 				massc.X /= mass;
 				massc.Y /= mass;
 
-				if (area < Settings.Epsilon)
+				if( area < Settings.epsilon )
 					continue;
 
 				//Buoyancy
-				var buoyancyForce = -Density * area * _gravity;
-				body.ApplyForce(buoyancyForce, massc);
+				var buoyancyForce = -density * area * _gravity;
+				body.applyForce( buoyancyForce, massc );
 
 				//Linear drag
-				var dragForce = body.GetLinearVelocityFromWorldPoint(areac) - Velocity;
-				dragForce *= -LinearDragCoefficient * area;
-				body.ApplyForce(dragForce, areac);
+				var dragForce = body.getLinearVelocityFromWorldPoint( areac ) - velocity;
+				dragForce *= -linearDragCoefficient * area;
+				body.applyForce( dragForce, areac );
 
 				//Angular drag
-				body.ApplyTorque(-body.Inertia / body.Mass * area * body.AngularVelocity * AngularDragCoefficient);
+				body.applyTorque( -body.inertia / body.mass * area * body.angularVelocity * angularDragCoefficient );
 			}
 		}
+	
 	}
 }

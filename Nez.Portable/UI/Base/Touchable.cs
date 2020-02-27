@@ -1,4 +1,7 @@
-﻿namespace Nez.UI
+﻿using System;
+
+
+namespace Nez.UI
 {
 	public enum Touchable
 	{
@@ -19,3 +22,4 @@
 		ChildrenOnly
 	}
 }
+

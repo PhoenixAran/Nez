@@ -10,95 +10,96 @@ namespace Nez.Farseer
 
 		#region Configuration
 
-		public FSPrismaticJoint SetOwnerBodyAnchor(Vector2 ownerBodyAnchor)
+		public FSPrismaticJoint setOwnerBodyAnchor( Vector2 ownerBodyAnchor )
 		{
-			_jointDef.OwnerBodyAnchor = ownerBodyAnchor;
-			RecreateJoint();
+			_jointDef.ownerBodyAnchor = ownerBodyAnchor;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetOtherBodyAnchor(Vector2 otherBodyAnchor)
+		public FSPrismaticJoint setOtherBodyAnchor( Vector2 otherBodyAnchor )
 		{
-			_jointDef.OtherBodyAnchor = otherBodyAnchor;
-			RecreateJoint();
+			_jointDef.otherBodyAnchor = otherBodyAnchor;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetAxis(Vector2 axis)
+		public FSPrismaticJoint setAxis( Vector2 axis )
 		{
-			_jointDef.Axis = axis;
-			RecreateJoint();
+			_jointDef.axis = axis;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetLimitEnabled(bool limitEnabled)
+		public FSPrismaticJoint setLimitEnabled( bool limitEnabled )
 		{
-			_jointDef.LimitEnabled = limitEnabled;
-			RecreateJoint();
+			_jointDef.limitEnabled = limitEnabled;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetLowerLimit(float lowerLimit)
+		public FSPrismaticJoint setLowerLimit( float lowerLimit )
 		{
-			_jointDef.LowerLimit = lowerLimit;
-			RecreateJoint();
+			_jointDef.lowerLimit = lowerLimit;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetUpperLimit(float upperLimit)
+		public FSPrismaticJoint setUpperLimit( float upperLimit )
 		{
-			_jointDef.UpperLimit = upperLimit;
-			RecreateJoint();
+			_jointDef.upperLimit = upperLimit;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetMotorEnabled(bool motorEnabled)
+		public FSPrismaticJoint setMotorEnabled( bool motorEnabled )
 		{
-			_jointDef.MotorEnabled = motorEnabled;
-			RecreateJoint();
+			_jointDef.motorEnabled = motorEnabled;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetMotorSpeed(float motorSpeed)
+		public FSPrismaticJoint setMotorSpeed( float motorSpeed )
 		{
-			_jointDef.MotorSpeed = motorSpeed;
-			RecreateJoint();
+			_jointDef.motorSpeed = motorSpeed;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetMaxMotorForce(float maxMotorForce)
+		public FSPrismaticJoint setMaxMotorForce( float maxMotorForce )
 		{
-			_jointDef.MaxMotorForce = maxMotorForce;
-			RecreateJoint();
+			_jointDef.maxMotorForce = maxMotorForce;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSPrismaticJoint SetMotorImpulse(float motorImpulse)
+		public FSPrismaticJoint setMotorImpulse( float motorImpulse )
 		{
-			_jointDef.MotorImpulse = motorImpulse;
-			RecreateJoint();
+			_jointDef.motorImpulse = motorImpulse;
+			recreateJoint();
 			return this;
 		}
 
 		#endregion
 
 
-		internal override FSJointDef GetJointDef()
+		internal override FSJointDef getJointDef()
 		{
-			InitializeJointDef(_jointDef);
-			if (_jointDef.BodyA == null || _jointDef.BodyB == null)
+			initializeJointDef( _jointDef );
+			if( _jointDef.bodyA == null || _jointDef.bodyB == null )
 				return null;
 
 			return _jointDef;
 		}
+
 	}
 }

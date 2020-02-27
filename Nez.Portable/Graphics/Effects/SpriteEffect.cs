@@ -9,15 +9,17 @@ namespace Nez
 		EffectParameter _matrixTransformParam;
 
 
-		public SpriteEffect() : base(Core.GraphicsDevice, EffectResource.SpriteEffectBytes)
+		public SpriteEffect() : base( Core.graphicsDevice, EffectResource.spriteEffectBytes )
 		{
 			_matrixTransformParam = Parameters["MatrixTransform"];
 		}
 
 
-		public void SetMatrixTransform(ref Matrix matrixTransform)
+		public void setMatrixTransform( ref Matrix matrixTransform )
 		{
-			_matrixTransformParam.SetValue(matrixTransform);
+			_matrixTransformParam.SetValue( matrixTransform );
 		}
+
 	}
 }
+

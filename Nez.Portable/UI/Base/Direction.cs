@@ -1,4 +1,7 @@
-﻿namespace Nez.UI
+﻿using System;
+
+
+namespace Nez.UI
 {
 	public enum Direction
 	{
@@ -9,3 +12,4 @@
 		Right
 	}
 }
+

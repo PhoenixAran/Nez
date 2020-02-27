@@ -15,27 +15,27 @@ namespace Nez
 		/// <summary>
 		/// the color we will fade to/from
 		/// </summary>
-		public Color FadeToColor = Color.Black;
+		public Color fadeToColor = Color.Black;
 
 		/// <summary>
 		/// duration to fade to fadeToColor
 		/// </summary>
-		public float FadeOutDuration = 0.4f;
+		public float fadeOutDuration = 0.6f;
 
 		/// <summary>
 		/// delay to start fading out
 		/// </summary>
-		public float DelayBeforeFadeInDuration = 0.1f;
+		public float delayBeforeFadeInDuration = 0.2f;
 
 		/// <summary>
 		/// duration to fade from fadeToColor to the new Scene
 		/// </summary>
-		public float FadeInDuration = 0.6f;
+		public float fadeInDuration = 0.8f;
 
 		/// <summary>
 		/// ease equation to use for the fade
 		/// </summary>
-		public EaseType FadeEaseType = EaseType.QuartOut;
+		public EaseType fadeEaseType = EaseType.QuartOut;
 
 		Color _fromColor = Color.White;
 		Color _toColor = Color.Transparent;
@@ -45,62 +45,66 @@ namespace Nez
 		Rectangle _destinationRect;
 
 
-		public FadeTransition(Func<Scene> sceneLoadAction) : base(sceneLoadAction, true)
+		public FadeTransition( Func<Scene> sceneLoadAction ) : base( sceneLoadAction, true )
 		{
-			_destinationRect = PreviousSceneRender.Bounds;
+			_destinationRect = previousSceneRender.Bounds;
 		}
 
-		public FadeTransition() : this(null)
-		{ }
 
-		public override IEnumerator OnBeginTransition()
+		public FadeTransition() : this( null )
+		{}
+
+
+		public override IEnumerator onBeginTransition()
 		{
 			// create a single pixel texture of our fadeToColor
-			_overlayTexture = Graphics.CreateSingleColorTexture(1, 1, FadeToColor);
+			_overlayTexture = Graphics.createSingleColorTexture( 1, 1, fadeToColor );
 
 			var elapsed = 0f;
-			while (elapsed < FadeOutDuration)
+			while( elapsed < fadeOutDuration )
 			{
-				elapsed += Time.DeltaTime;
-				_color = Lerps.Ease(FadeEaseType, ref _toColor, ref _fromColor, elapsed, FadeOutDuration);
+				elapsed += Time.deltaTime;
+				_color = Lerps.ease( fadeEaseType, ref _toColor, ref _fromColor, elapsed, fadeOutDuration );
 
 				yield return null;
 			}
 
 			// load up the new Scene
-			yield return Core.StartCoroutine(LoadNextScene());
+			yield return Core.startCoroutine( loadNextScene() );
 
 			// dispose of our previousSceneRender. We dont need it anymore.
-			PreviousSceneRender.Dispose();
-			PreviousSceneRender = null;
+			previousSceneRender.Dispose();
+			previousSceneRender = null;
 
-			yield return Coroutine.WaitForSeconds(DelayBeforeFadeInDuration);
+			yield return Coroutine.waitForSeconds( delayBeforeFadeInDuration );
 
 			elapsed = 0f;
-			while (elapsed < FadeInDuration)
+			while( elapsed < fadeInDuration )
 			{
-				elapsed += Time.DeltaTime;
-				_color = Lerps.Ease(EaseHelper.OppositeEaseType(FadeEaseType), ref _fromColor, ref _toColor, elapsed, FadeInDuration);
+				elapsed += Time.deltaTime;
+				_color = Lerps.ease( EaseHelper.oppositeEaseType( fadeEaseType ), ref _fromColor, ref _toColor, elapsed, fadeInDuration );
 
 				yield return null;
 			}
 
-			TransitionComplete();
+			transitionComplete();
 			_overlayTexture.Dispose();
 		}
 
-		public override void Render(Batcher batcher)
+
+		public override void render( Graphics graphics )
 		{
-			Core.GraphicsDevice.SetRenderTarget(null);
-			batcher.Begin(BlendState.NonPremultiplied, Core.DefaultSamplerState, DepthStencilState.None, null);
+			Core.graphicsDevice.setRenderTarget( null );
+			graphics.batcher.begin( BlendState.NonPremultiplied, Core.defaultSamplerState, DepthStencilState.None, null );
 
 			// we only render the previousSceneRender while fading to _color. It will be null after that.
-			if (!_isNewSceneLoaded)
-				batcher.Draw(PreviousSceneRender, _destinationRect, Color.White);
-
-			batcher.Draw(_overlayTexture, new Rectangle(0, 0, Screen.Width, Screen.Height), _color);
-
-			batcher.End();
+			if( !_isNewSceneLoaded )
+				graphics.batcher.draw( previousSceneRender, _destinationRect, Color.White );
+			
+			graphics.batcher.draw( _overlayTexture, new Rectangle( 0, 0, Screen.width, Screen.height ), _color );
+			
+			graphics.batcher.end();
 		}
 	}
 }
+

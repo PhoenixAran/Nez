@@ -1,4 +1,5 @@
-﻿using Nez.BitmapFonts;
+﻿using System;
+using Nez.BitmapFonts;
 using Microsoft.Xna.Framework;
 
 
@@ -14,29 +15,27 @@ namespace Nez.UI
 		private CheckBoxStyle style;
 
 
-		public CheckBox(string text, CheckBoxStyle style) : base(text, style)
+		public CheckBox( string text, CheckBoxStyle style ) : base( text, style )
 		{
-			ClearChildren();
-			var label = GetLabel();
-			imageCell = Add(image = new Image(style.CheckboxOff));
-			Add(label);
-			label.SetAlignment(UI.Align.Left);
-			GetLabelCell().SetPadLeft(10);
-			SetSize(PreferredWidth, PreferredHeight);
+			clearChildren();
+			var label = getLabel();
+			imageCell = add( image = new Image( style.checkboxOff ) );
+			add( label );
+			label.setAlignment( Align.left );
+			getLabelCell().setPadLeft( 10 );
+			setSize( preferredWidth, preferredHeight );
 		}
 
 
-		public CheckBox(string text, Skin skin, string styleName = null) : this(text,
-			skin.Get<CheckBoxStyle>(styleName))
-		{
-		}
+		public CheckBox( string text, Skin skin, string styleName = null ) : this( text, skin.get<CheckBoxStyle>( styleName ) )
+		{}
 
 
-		public override void SetStyle(ButtonStyle style)
+		public override void setStyle( ButtonStyle style )
 		{
-			Insist.IsTrue(style is CheckBoxStyle, "style must be a CheckBoxStyle");
-			base.SetStyle(style);
-			this.style = (CheckBoxStyle) style;
+			Assert.isTrue( style is CheckBoxStyle, "style must be a CheckBoxStyle" );
+			base.setStyle( style );
+			this.style = (CheckBoxStyle)style;
 		}
 
 
@@ -44,48 +43,49 @@ namespace Nez.UI
 		/// Returns the checkbox's style. Modifying the returned style may not have an effect until {@link #setStyle(ButtonStyle)} is called
 		/// </summary>
 		/// <returns>The style.</returns>
-		public new CheckBoxStyle GetStyle()
+		public new CheckBoxStyle getStyle()
 		{
 			return style;
 		}
 
 
-		public override void Draw(Batcher batcher, float parentAlpha)
+		public override void draw( Graphics graphics, float parentAlpha )
 		{
 			IDrawable checkbox = null;
-			if (_isDisabled)
+			if( _isDisabled )
 			{
-				if (IsChecked && style.CheckboxOnDisabled != null)
-					checkbox = style.CheckboxOnDisabled;
+				if( isChecked && style.checkboxOnDisabled != null )
+					checkbox = style.checkboxOnDisabled;
 				else
-					checkbox = style.CheckboxOffDisabled;
+					checkbox = style.checkboxOffDisabled;
 			}
 
-			if (checkbox == null)
+			if( checkbox == null )
 			{
-				if (IsChecked && style.CheckboxOn != null)
-					checkbox = style.CheckboxOn;
-				else if (_mouseOver && style.CheckboxOver != null && !_isDisabled)
-					checkbox = style.CheckboxOver;
+				if( isChecked && style.checkboxOn != null )
+					checkbox = style.checkboxOn;
+				else if( _mouseOver && style.checkboxOver != null && !_isDisabled )
+					checkbox = style.checkboxOver;
 				else
-					checkbox = style.CheckboxOff;
+					checkbox = style.checkboxOff;
 			}
 
-			image.SetDrawable(checkbox);
-			base.Draw(batcher, parentAlpha);
+			image.setDrawable( checkbox );
+			base.draw( graphics, parentAlpha );
 		}
 
 
-		public Image GetImage()
+		public Image getImage()
 		{
 			return image;
 		}
 
 
-		public Cell GetImageCell()
+		public Cell getImageCell()
 		{
 			return imageCell;
 		}
+	
 	}
 
 
@@ -94,24 +94,24 @@ namespace Nez.UI
 	/// </summary>
 	public class CheckBoxStyle : TextButtonStyle
 	{
-		public IDrawable CheckboxOn, CheckboxOff;
-
+		public IDrawable checkboxOn, checkboxOff;
 		/** Optional. */
-		public IDrawable CheckboxOver, CheckboxOnDisabled, CheckboxOffDisabled;
+		public IDrawable checkboxOver, checkboxOnDisabled, checkboxOffDisabled;
 
 
 		public CheckBoxStyle()
 		{
-			Font = Graphics.Instance.BitmapFont;
+			font = Graphics.instance.bitmapFont;
 		}
 
 
-		public CheckBoxStyle(IDrawable checkboxOff, IDrawable checkboxOn, BitmapFont font, Color fontColor)
+		public CheckBoxStyle( IDrawable checkboxOff, IDrawable checkboxOn, BitmapFont font, Color fontColor )
 		{
-			CheckboxOff = checkboxOff;
-			CheckboxOn = checkboxOn;
-			Font = font ?? Graphics.Instance.BitmapFont;
-			FontColor = fontColor;
+			this.checkboxOff = checkboxOff;
+			this.checkboxOn = checkboxOn;
+			this.font = font ?? Graphics.instance.bitmapFont;
+			this.fontColor = fontColor;
 		}
 	}
 }
+

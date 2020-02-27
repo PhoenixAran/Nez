@@ -14,18 +14,18 @@ namespace Nez.Farseer
 
 		#region Configuration
 
-		public FSJoint SetOtherBody(FSRigidBody otherBody)
+		public FSJoint setOtherBody( FSRigidBody otherBody )
 		{
 			_otherBody = otherBody;
-			RecreateJoint();
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSJoint SetCollideConnected(bool collideConnected)
+		public FSJoint setCollideConnected( bool collideConnected )
 		{
 			_collideConnected = collideConnected;
-			RecreateJoint();
+			recreateJoint();
 			return this;
 		}
 
@@ -34,90 +34,91 @@ namespace Nez.Farseer
 
 		#region Component lifecycle
 
-		public override void OnAddedToEntity()
+		public override void onAddedToEntity()
 		{
-			_ownerBody = this.GetComponent<FSRigidBody>();
-			Insist.IsNotNull(_ownerBody, "Joint added to an Entity with no RigidBody!");
-			CreateJoint();
+			_ownerBody = this.getComponent<FSRigidBody>();
+			Assert.isNotNull( _ownerBody, "Joint added to an Entity with no RigidBody!" );
+			createJoint();
 		}
 
 
-		public override void OnRemovedFromEntity()
+		public override void onRemovedFromEntity()
 		{
-			DestroyJoint();
+			destroyJoint();
 		}
 
 
-		public override void OnEnabled()
+		public override void onEnabled()
 		{
-			CreateJoint();
+			createJoint();
 
 			// HACK: if we still dont have a Joint after onEnabled is called delay the call to createJoint one frame. This will allow the otherBody
 			// to be initialized and have the Body created.
-			if (_joint == null)
-				Core.Schedule(0, this, t => (t.Context as FSJoint).CreateJoint());
+			if( _joint == null )
+				Core.schedule( 0, this, t => ( t.context as FSJoint ).createJoint() );
 		}
 
 
-		public override void OnDisabled()
+		public override void onDisabled()
 		{
-			DestroyJoint();
+			destroyJoint();
 		}
 
 		#endregion
 
 
-		internal void InitializeJointDef(FSJointDef jointDef)
+		internal void initializeJointDef( FSJointDef jointDef )
 		{
-			jointDef.BodyA = _ownerBody?.Body;
-			jointDef.BodyB = _otherBody?.Body;
-			jointDef.CollideConnected = _collideConnected;
+			jointDef.bodyA = _ownerBody?.body;
+			jointDef.bodyB = _otherBody?.body;
+			jointDef.collideConnected = _collideConnected;
 		}
 
 
-		internal abstract FSJointDef GetJointDef();
+		internal abstract FSJointDef getJointDef();
 
 
-		protected void RecreateJoint()
+		protected void recreateJoint()
 		{
-			if (_attachedJoint != null)
-				_attachedJoint.DestroyJoint();
+			if( _attachedJoint != null )
+				_attachedJoint.destroyJoint();
+			
+			destroyJoint();
+			createJoint();
 
-			DestroyJoint();
-			CreateJoint();
-
-			if (_attachedJoint != null)
-				_attachedJoint.CreateJoint();
+			if( _attachedJoint != null )
+				_attachedJoint.createJoint();
 		}
 
 
-		internal void CreateJoint()
+		internal void createJoint()
 		{
-			if (_joint != null)
+			if( _joint != null )
 				return;
 
-			var jointDef = GetJointDef();
-			if (jointDef == null)
+			var jointDef = getJointDef();
+			if( jointDef == null )
 				return;
 
-			_joint = jointDef.CreateJoint();
-			jointDef.BodyA.World.AddJoint(_joint);
+			_joint = jointDef.createJoint();
+			jointDef.bodyA.world.addJoint( _joint );
 		}
 
 
-		internal void DestroyJoint()
+		internal void destroyJoint()
 		{
-			if (_joint == null)
+			if( _joint == null )
 				return;
 
-			if (_ownerBody != null)
-				_ownerBody._joints.Remove(this);
+			if( _ownerBody != null )
+				_ownerBody._joints.Remove( this );
 
-			if (_otherBody != null)
-				_otherBody._joints.Remove(this);
+			if( _otherBody != null )
+				_otherBody._joints.Remove( this );
 
-			_joint.BodyA.World.RemoveJoint(_joint);
+			_joint.bodyA.world.removeJoint( _joint );
 			_joint = null;
 		}
+
 	}
 }

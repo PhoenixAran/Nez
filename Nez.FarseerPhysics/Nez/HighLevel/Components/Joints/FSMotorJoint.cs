@@ -10,44 +10,44 @@ namespace Nez.Farseer
 
 		#region Configuration
 
-		public FSMotorJoint SetLinearOffset(Vector2 linearOffset)
+		public FSMotorJoint setLinearOffset( Vector2 linearOffset )
 		{
-			_jointDef.LinearOffset = linearOffset;
-			RecreateJoint();
+			_jointDef.linearOffset = linearOffset;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSMotorJoint SetMaxForce(float maxForce)
+		public FSMotorJoint setMaxForce( float maxForce )
 		{
-			_jointDef.MaxForce = maxForce;
-			RecreateJoint();
+			_jointDef.maxForce = maxForce;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSMotorJoint SetMaxTorque(float maxTorque)
+		public FSMotorJoint setMaxTorque( float maxTorque )
 		{
-			_jointDef.MaxTorque = maxTorque;
-			RecreateJoint();
+			_jointDef.maxTorque = maxTorque;
+			recreateJoint();
 			return this;
 		}
 
 
-		public FSMotorJoint SetAngularOffset(float angularOffset)
+		public FSMotorJoint setAngularOffset( float angularOffset )
 		{
-			_jointDef.AngularOffset = angularOffset;
-			RecreateJoint();
+			_jointDef.angularOffset = angularOffset;
+			recreateJoint();
 			return this;
 		}
 
 		#endregion
 
 
-		internal override FSJointDef GetJointDef()
+		internal override FSJointDef getJointDef()
 		{
-			InitializeJointDef(_jointDef);
-			if (_jointDef.BodyA == null || _jointDef.BodyB == null)
+			initializeJointDef( _jointDef );
+			if( _jointDef.bodyA == null || _jointDef.bodyB == null )
 				return null;
 
 			return _jointDef;

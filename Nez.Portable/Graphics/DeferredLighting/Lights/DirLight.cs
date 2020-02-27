@@ -10,59 +10,59 @@ namespace Nez.DeferredLighting
 	public class DirLight : DeferredLight
 	{
 		// dir lights are infinite so bounds should be as well
-		public override RectangleF Bounds => _bounds;
+		public override RectangleF bounds { get { return _bounds; } }
 
 		/// <summary>
 		/// direction of the light
 		/// </summary>
-		public Vector3 Direction = new Vector3(50, 20, 100);
+		public Vector3 direction = new Vector3( 50, 20, 100 );
 
 		/// <summary>
 		/// specular intensity. 0 - 1 range
 		/// </summary>
-		public float SpecularIntensity = 0.5f;
+		public float specularIntensity = 0.5f;
 
 		/// <summary>
 		/// specular power. this is the exponent passed to pow() of the projection from 0,0,-1 to the light-to-normal
 		/// </summary>
-		public float SpecularPower = 2;
+		public float specularPower = 2;
 
 
 		public DirLight()
 		{
-			_bounds = RectangleF.MaxRect;
+			_bounds = RectangleF.maxRect;
 		}
 
 
-		public DirLight(Color color) : this()
+		public DirLight( Color color ) : this()
 		{
-			Color = color;
+			this.color = color;
 		}
 
 
-		public DirLight(Color color, Vector3 lightDirection) : this(color)
+		public DirLight( Color color, Vector3 lightDirection ) : this( color )
 		{
-			Direction = lightDirection;
+			this.direction = lightDirection;
 		}
 
 
-		public DirLight SetDirection(Vector3 direction)
+		public DirLight setDirection( Vector3 direction )
 		{
-			Direction = direction;
+			this.direction = direction;
 			return this;
 		}
 
 
-		public DirLight SetSpecularIntensity(float specularIntensity)
+		public DirLight setSpecularIntensity( float specularIntensity )
 		{
-			SpecularIntensity = specularIntensity;
+			this.specularIntensity = specularIntensity;
 			return this;
 		}
 
 
-		public DirLight SetSpecularPower(float specularPower)
+		public DirLight setSpecularPower( float specularPower )
 		{
-			SpecularPower = specularPower;
+			this.specularPower = specularPower;
 			return this;
 		}
 
@@ -70,23 +70,24 @@ namespace Nez.DeferredLighting
 		/// <summary>
 		/// we dont want to render our bounds so we just render a direction
 		/// </summary>
-		/// <param name="batcher">Batcher.</param>
-		public override void DebugRender(Batcher batcher)
+		/// <param name="graphics">Graphics.</param>
+		public override void debugRender( Graphics graphics )
 		{
 			// figure out a starting corner for the line
 			var root = Vector2.Zero;
-			if (Direction.Y > 0)
+			if( direction.Y > 0 )
 				root.Y = 10f;
 			else
-				root.Y = Screen.Height - 10;
+				root.Y = Screen.height - 10;
 
-			if (Direction.X > 0)
+			if( direction.X > 0 )
 				root.X = 10;
 			else
-				root.X = Screen.Width - 10;
-
-			var angle = Mathf.Atan2(Direction.Y, Direction.X);
-			batcher.DrawLineAngle(root, angle, 100, Color.Red, 3);
+				root.X = Screen.width - 10;
+			
+			var angle = Mathf.atan2( direction.Y, direction.X );
+			graphics.batcher.drawLineAngle( root, angle, 100, Color.Red, 3 );
 		}
 	}
 }
+

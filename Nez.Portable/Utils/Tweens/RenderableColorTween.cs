@@ -8,33 +8,34 @@ namespace Nez.Tweens
 		RenderableComponent _renderable;
 
 
-		public void SetTweenedValue(Color value)
+		public void setTweenedValue( Color value )
 		{
-			_renderable.Color = value;
+			_renderable.color = value;
 		}
 
 
-		public Color GetTweenedValue()
+		public Color getTweenedValue()
 		{
-			return _renderable.Color;
+			return _renderable.color;
 		}
 
 
-		public new object GetTargetObject()
+		public new object getTargetObject()
 		{
 			return _renderable;
 		}
 
 
-		protected override void UpdateValue()
+		protected override void updateValue()
 		{
-			SetTweenedValue(Lerps.Ease(_easeType, _fromValue, _toValue, _elapsedTime, _duration));
+			setTweenedValue( Lerps.ease( _easeType, _fromValue, _toValue, _elapsedTime, _duration ) );
 		}
 
 
-		public void SetTarget(RenderableComponent renderable)
+		public void setTarget( RenderableComponent renderable )
 		{
 			_renderable = renderable;
 		}
+
 	}
 }

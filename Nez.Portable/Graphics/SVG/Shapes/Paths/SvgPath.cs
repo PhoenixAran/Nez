@@ -15,14 +15,14 @@ namespace Nez.Svg
 	/// </summary>
 	public class SvgPath : SvgElement
 	{
-		[XmlAttribute("d")]
-		public string D
+		[XmlAttribute( "d" )]
+		public string d
 		{
-			get => null;
-			set => Segments = SvgPathParser.Parse(value);
+			get { return null; }
+			set { segments = SvgPathParser.parse( value ); }
 		}
 
-		public List<SvgPathSegment> Segments;
+		public List<SvgPathSegment> segments;
 
 
 		/// <summary>
@@ -36,11 +36,11 @@ namespace Nez.Svg
 		/// <returns>The transformed drawing points.</returns>
 		/// <param name="pathBuilder">Path builder.</param>
 		/// <param name="flatness">Flatness.</param>
-		public Vector2[] GetTransformedDrawingPoints(ISvgPathBuilder pathBuilder, float flatness = 3)
+		public Vector2[] getTransformedDrawingPoints( ISvgPathBuilder pathBuilder, float flatness = 3 )
 		{
-			var pts = pathBuilder.GetDrawingPoints(Segments, flatness);
-			var mat = GetCombinedMatrix();
-			Vector2Ext.Transform(pts, ref mat, pts);
+			var pts = pathBuilder.getDrawingPoints( segments, flatness );
+			var mat = getCombinedMatrix();
+			Vector2Ext.transform( pts, ref mat, pts );
 
 			return pts;
 		}
@@ -50,11 +50,11 @@ namespace Nez.Svg
 		/// returns true if all the segments are cubic curves
 		/// </summary>
 		/// <returns><c>true</c>, if path bezier was ised, <c>false</c> otherwise.</returns>
-		public bool IsPathCubicBezier()
+		public bool isPathCubicBezier()
 		{
-			for (var i = 1; i < Segments.Count; i++)
+			for( var i = 1; i < segments.Count; i++ )
 			{
-				if (!(Segments[i] is SvgCubicCurveSegment))
+				if( !( segments[i] is SvgCubicCurveSegment ) )
 					return false;
 			}
 
@@ -66,15 +66,15 @@ namespace Nez.Svg
 		/// gets a BezierSpline for the SvgPath
 		/// </summary>
 		/// <returns>The bezier spline for path.</returns>
-		public BezierSpline GetBezierSplineForPath()
+		public BezierSpline getBezierSplineForPath()
 		{
-			Insist.IsTrue(IsPathCubicBezier(), "SvgPath is not a cubic bezier");
+			Assert.isTrue( isPathCubicBezier(), "SvgPath is not a cubic bezier" );
 
 			var bezier = new BezierSpline();
-			for (var i = 1; i < Segments.Count; i++)
+			for( var i = 1; i < segments.Count; i++ )
 			{
-				var cub = Segments[i] as SvgCubicCurveSegment;
-				bezier.AddCurve(cub.Start, cub.FirstCtrlPoint, cub.SecondCtrlPoint, cub.End);
+				var cub = segments[i] as SvgCubicCurveSegment;
+				bezier.addCurve( cub.start, cub.firstCtrlPoint, cub.secondCtrlPoint, cub.end );
 			}
 
 			return bezier;
@@ -86,22 +86,21 @@ namespace Nez.Svg
 		/// </summary>
 		/// <returns>The optimized drawing points.</returns>
 		/// <param name="distanceTolerance">Distance tolerance.</param>
-		public List<Vector2> GetOptimizedDrawingPoints(float distanceTolerance = 2f)
+		public List<Vector2> getOptimizedDrawingPoints( float distanceTolerance = 2f )
 		{
-			Insist.IsTrue(IsPathCubicBezier(), "SvgPath is not a cubic bezier");
+			Assert.isTrue( isPathCubicBezier(), "SvgPath is not a cubic bezier" );
 
-			var points = ListPool<Vector2>.Obtain();
-			for (var i = 1; i < Segments.Count; i++)
+			var points = ListPool<Vector2>.obtain();
+			for( var i = 1; i < segments.Count; i++ )
 			{
-				var cub = Segments[i] as SvgCubicCurveSegment;
-				var pts = Bezier.GetOptimizedDrawingPoints(cub.Start, cub.FirstCtrlPoint, cub.SecondCtrlPoint, cub.End,
-					distanceTolerance);
+				var cub = segments[i] as SvgCubicCurveSegment;
+				var pts = Bezier.getOptimizedDrawingPoints( cub.start, cub.firstCtrlPoint, cub.secondCtrlPoint, cub.end, distanceTolerance );
 
 				// as long as this isnt the first segment, we can remove the first drawing point since it will be identical to the last one
-				if (i != 1)
-					pts.RemoveAt(0);
-				points.AddRange(pts);
-				ListPool<Vector2>.Free(pts);
+				if( i != 1 )
+					pts.RemoveAt( 0 );
+				points.AddRange( pts );
+				ListPool<Vector2>.free( pts );
 			}
 
 			return points;
@@ -113,16 +112,17 @@ namespace Nez.Svg
 		/// </summary>
 		/// <returns>The optimized drawing points.</returns>
 		/// <param name="distanceTolerance">Distance tolerance.</param>
-		public Vector2[] GetOptimizedTransformedDrawingPoints(float distanceTolerance = 2f)
+		public Vector2[] getOptimizedTransformedDrawingPoints( float distanceTolerance = 2f )
 		{
-			var pointList = GetOptimizedDrawingPoints(distanceTolerance);
+			var pointList = getOptimizedDrawingPoints( distanceTolerance );
 			var points = pointList.ToArray();
-			ListPool<Vector2>.Free(pointList);
+			ListPool<Vector2>.free( pointList );
 
-			var mat = GetCombinedMatrix();
-			Vector2Ext.Transform(points, ref mat, points);
+			var mat = getCombinedMatrix();
+			Vector2Ext.transform( points, ref mat, points );
 
 			return points;
 		}
+
 	}
 }

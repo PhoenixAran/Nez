@@ -1,34 +1,35 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 
 
 namespace Nez
 {
 	public class ScanlinesEffect : Effect
 	{
-		[Range(0.001f, 1f, 0.001f)]
-		public float Attenuation
+		[Range( 0.001f, 1f, 0.001f )]
+		public float attenuation
 		{
-			get => _attenuation;
+			get { return _attenuation; }
 			set
 			{
-				if (_attenuation != value)
+				if( _attenuation != value )
 				{
 					_attenuation = value;
-					_attenuationParam.SetValue(_attenuation);
+					_attenuationParam.SetValue( _attenuation );
 				}
 			}
 		}
 
-		[Range(10, 1000, 1)]
-		public float LinesFactor
+		[Range( 10, 1000, 1 )]
+		public float linesFactor
 		{
-			get => _linesFactor;
+			get { return _linesFactor; }
 			set
 			{
-				if (_linesFactor != value)
+				if( _linesFactor != value )
 				{
 					_linesFactor = value;
-					_linesFactorParam.SetValue(_linesFactor);
+					_linesFactorParam.SetValue( _linesFactor );
 				}
 			}
 		}
@@ -40,14 +41,15 @@ namespace Nez
 		EffectParameter _attenuationParam;
 		EffectParameter _linesFactorParam;
 
-
-		public ScanlinesEffect() : base(Core.GraphicsDevice, EffectResource.ScanlinesBytes)
+		
+		public ScanlinesEffect() : base( Core.graphicsDevice, EffectResource.scanlinesBytes )
 		{
 			_attenuationParam = Parameters["_attenuation"];
 			_linesFactorParam = Parameters["_linesFactor"];
 
-			_attenuationParam.SetValue(_attenuation);
-			_linesFactorParam.SetValue(_linesFactor);
+			_attenuationParam.SetValue( _attenuation );
+			_linesFactorParam.SetValue( _linesFactor );
 		}
 	}
 }
+

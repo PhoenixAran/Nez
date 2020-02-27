@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Microsoft.Xna.Framework.Graphics;
 
 
 namespace Nez
@@ -9,20 +10,19 @@ namespace Nez
 		/// size in pixels of the crosshatch. Should be an even number because the half size is also required. Defaults to 16.
 		/// </summary>
 		/// <value>The size of the cross hatch.</value>
-		[Range(8, 80, false)]
-		public int CrosshatchSize
+		public int crosshatchSize
 		{
-			get => _crosshatchSize;
+			get { return _crosshatchSize; }
 			set
 			{
 				// ensure we have an even number
-				if (!Mathf.IsEven(value))
+				if( !Mathf.isEven( value ) )
 					value += 1;
-
-				if (_crosshatchSize != value)
+				
+				if( _crosshatchSize != value )
 				{
 					_crosshatchSize = value;
-					_crosshatchSizeParam.SetValue(_crosshatchSize);
+					_crosshatchSizeParam.SetValue( _crosshatchSize );
 				}
 			}
 		}
@@ -30,11 +30,12 @@ namespace Nez
 		int _crosshatchSize = 16;
 		EffectParameter _crosshatchSizeParam;
 
-
-		public CrosshatchEffect() : base(Core.GraphicsDevice, EffectResource.CrosshatchBytes)
+		
+		public CrosshatchEffect() : base( Core.graphicsDevice, EffectResource.crosshatchBytes )
 		{
 			_crosshatchSizeParam = Parameters["crossHatchSize"];
-			_crosshatchSizeParam.SetValue(_crosshatchSize);
+			_crosshatchSizeParam.SetValue( _crosshatchSize );
 		}
 	}
 }
+

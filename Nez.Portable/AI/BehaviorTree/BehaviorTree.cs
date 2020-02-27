@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	/// <summary>
 	/// root class used to control a BehaviorTree. Handles storing the context
@@ -8,8 +11,8 @@
 		/// <summary>
 		/// how often the behavior tree should update. An updatePeriod of 0.2 will make the tree update 5 times a second.
 		/// </summary>
-		public float UpdatePeriod;
-
+		public float updatePeriod;
+		
 		/// <summary>
 		/// The context should contain all the data needed to run the tree
 		/// </summary>
@@ -23,34 +26,35 @@
 		float _elapsedTime;
 
 
-		public BehaviorTree(T context, Behavior<T> rootNode, float updatePeriod = 0.2f)
+		public BehaviorTree( T context, Behavior<T> rootNode, float updatePeriod = 0.2f )
 		{
 			_context = context;
 			_root = rootNode;
 
-			UpdatePeriod = _elapsedTime = updatePeriod;
+			this.updatePeriod = _elapsedTime = updatePeriod;
 		}
 
 
-		public void Tick()
+		public void tick()
 		{
 			// updatePeriod less than or equal to 0 will tick every frame
-			if (UpdatePeriod > 0)
+			if( updatePeriod > 0 )
 			{
-				_elapsedTime -= Time.DeltaTime;
-				if (_elapsedTime <= 0)
+				_elapsedTime -= Time.deltaTime;
+				if( _elapsedTime <= 0 )
 				{
 					// ensure we only tick once for long frames
-					while (_elapsedTime <= 0)
-						_elapsedTime += UpdatePeriod;
-
-					_root.Tick(_context);
+					while( _elapsedTime <= 0 )
+						_elapsedTime += updatePeriod;
+					
+					_root.tick( _context );
 				}
 			}
 			else
 			{
-				_root.Tick(_context);
+				_root.tick( _context );
 			}
 		}
+	
 	}
 }

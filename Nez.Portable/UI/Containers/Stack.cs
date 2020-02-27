@@ -13,62 +13,62 @@ namespace Nez.UI
 	{
 		#region ILayout
 
-		public override float MinWidth
+		public override float minWidth
 		{
 			get
 			{
-				if (sizeInvalid)
-					ComputeSize();
+				if( sizeInvalid )
+					computeSize();
 				return _minWidth;
 			}
 		}
 
-		public override float MinHeight
+		public override float minHeight
 		{
 			get
 			{
-				if (sizeInvalid)
-					ComputeSize();
+				if( sizeInvalid )
+					computeSize();
 				return _minHeight;
 			}
 		}
 
-		public override float PreferredWidth
+		public override float preferredWidth
 		{
 			get
 			{
-				if (sizeInvalid)
-					ComputeSize();
+				if( sizeInvalid )
+					computeSize();
 				return _prefWidth;
 			}
 		}
 
-		public override float PreferredHeight
+		public override float preferredHeight
 		{
 			get
 			{
-				if (sizeInvalid)
-					ComputeSize();
+				if( sizeInvalid )
+					computeSize();
 				return _prefHeight;
 			}
 		}
 
-		public override float MaxWidth
+		public override float maxWidth
 		{
 			get
 			{
-				if (sizeInvalid)
-					ComputeSize();
+				if( sizeInvalid )
+					computeSize();
 				return _maxWidth;
 			}
 		}
 
-		public override float MaxHeight
+		public override float maxHeight
 		{
 			get
 			{
-				if (sizeInvalid)
-					ComputeSize();
+				if( sizeInvalid )
+					computeSize();
 				return _maxHeight;
 			}
 		}
@@ -83,19 +83,19 @@ namespace Nez.UI
 		public Stack()
 		{
 			transform = false;
-			SetSize(150, 150);
+			setSize( 150, 150 );
 			touchable = Touchable.ChildrenOnly;
 		}
 
 
-		public override void Invalidate()
+		public override void invalidate()
 		{
-			base.Invalidate();
+			base.invalidate();
 			sizeInvalid = true;
 		}
 
 
-		private void ComputeSize()
+		private void computeSize()
 		{
 			sizeInvalid = false;
 			_prefWidth = 0;
@@ -105,56 +105,58 @@ namespace Nez.UI
 			_maxWidth = 0;
 			_maxHeight = 0;
 
-			for (int i = 0, n = children.Count; i < n; i++)
+			for( int i = 0, n = children.Count; i < n; i++ )
 			{
 				var child = children[i];
 				float childMaxWidth, childMaxHeight;
-				if (child is ILayout)
+				if( child is ILayout )
 				{
-					var layout = (ILayout) child;
-					_prefWidth = Math.Max(_prefWidth, layout.PreferredWidth);
-					_prefHeight = Math.Max(_prefHeight, layout.PreferredHeight);
-					_minWidth = Math.Max(_minWidth, layout.MinWidth);
-					_minHeight = Math.Max(_minHeight, layout.MinHeight);
-					childMaxWidth = layout.MaxWidth;
-					childMaxHeight = layout.MaxHeight;
+					var layout = (ILayout)child;
+					_prefWidth = Math.Max( _prefWidth, layout.preferredWidth );
+					_prefHeight = Math.Max( _prefHeight, layout.preferredHeight );
+					_minWidth = Math.Max( _minWidth, layout.minWidth );
+					_minHeight = Math.Max( _minHeight, layout.minHeight );
+					childMaxWidth = layout.maxWidth;
+					childMaxHeight = layout.maxHeight;
 				}
 				else
 				{
-					_prefWidth = Math.Max(_prefWidth, child.width);
-					_prefHeight = Math.Max(_prefHeight, child.height);
-					_minWidth = Math.Max(_minWidth, child.width);
-					_minHeight = Math.Max(_minHeight, child.height);
+					_prefWidth = Math.Max( _prefWidth, child.width );
+					_prefHeight = Math.Max( _prefHeight, child.height );
+					_minWidth = Math.Max( _minWidth, child.width );
+					_minHeight = Math.Max( _minHeight, child.height );
 					childMaxWidth = 0;
 					childMaxHeight = 0;
 				}
 
-				if (childMaxWidth > 0)
-					_maxWidth = _maxWidth == 0 ? childMaxWidth : Math.Min(_maxWidth, childMaxWidth);
-				if (childMaxHeight > 0)
-					_maxHeight = _maxHeight == 0 ? childMaxHeight : Math.Min(_maxHeight, childMaxHeight);
+				if( childMaxWidth > 0 )
+					_maxWidth = _maxWidth == 0 ? childMaxWidth : Math.Min( _maxWidth, childMaxWidth );
+				if( childMaxHeight > 0 )
+					_maxHeight = _maxHeight == 0 ? childMaxHeight : Math.Min( _maxHeight, childMaxHeight );
 			}
 		}
 
 
-		public T Add<T>(T element) where T : Element
+		public T add<T>( T element ) where T : Element
 		{
-			return AddElement(element);
+			return addElement( element );
 		}
 
 
-		public override void Layout()
+		public override void layout()
 		{
-			if (sizeInvalid)
-				ComputeSize();
-
-			for (int i = 0, n = children.Count; i < n; i++)
+			if( sizeInvalid )
+				computeSize();
+			
+			for( int i = 0, n = children.Count; i < n; i++ )
 			{
 				Element child = children[i];
-				child.SetBounds(0, 0, width, height);
-				if (child is ILayout)
-					((ILayout) child).Validate();
+				child.setBounds( 0, 0, width, height );
+				if( child is ILayout )
+					( (ILayout)child ).validate();
 			}
 		}
+
 	}
 }
+

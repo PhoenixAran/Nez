@@ -22,10 +22,10 @@ namespace Nez.Audio
 		/// <returns>The pitch range.</returns>
 		/// <param name="min">Minimum.</param>
 		/// <param name="max">Max.</param>
-		public AudioSource SetPitchRange(float min, float max)
+		public AudioSource setPitchRange( float min, float max )
 		{
-			_pitchMin = Mathf.Clamp(min, -1, 1);
-			_pitchMax = Mathf.Clamp(max, -1, 1);
+			_pitchMin = Mathf.clamp( min, -1, 1 );
+			_pitchMax = Mathf.clamp( max, -1, 1 );
 			_useRandomPitch = _pitchMin != 0 || _pitchMax != 0;
 
 			return this;
@@ -38,10 +38,10 @@ namespace Nez.Audio
 		/// <returns>The pan range.</returns>
 		/// <param name="min">Minimum.</param>
 		/// <param name="max">Max.</param>
-		public AudioSource SetPanRange(float min, float max)
+		public AudioSource setPanRange( float min, float max )
 		{
-			_panMin = Mathf.Clamp(min, -1, 1);
-			_panMax = Mathf.Clamp(max, -1, 1);
+			_panMin = Mathf.clamp( min, -1, 1 );
+			_panMax = Mathf.clamp( max, -1, 1 );
 			_useRandomPan = _panMin != 0 || _panMax != 0;
 
 			return this;
@@ -53,32 +53,33 @@ namespace Nez.Audio
 		/// </summary>
 		/// <returns>The sound effect.</returns>
 		/// <param name="effect">Effect.</param>
-		public AudioSource AddSoundEffect(SoundEffect effect)
+		public AudioSource addSoundEffect( SoundEffect effect )
 		{
-			_soundEffects.Add(effect);
+			_soundEffects.Add( effect );
 			return this;
 		}
 
 
-		public bool Play()
+		public bool play()
 		{
-			if (_useRandomPitch || _useRandomPan)
-				return _soundEffects.RandomItem()
-					.Play(1, Random.Range(_pitchMin, _pitchMax), Random.Range(_panMin, _panMax));
+			if( _useRandomPitch || _useRandomPan )
+				return _soundEffects.randomItem().Play( 1, Random.range( _pitchMin, _pitchMax ), Random.range( _panMin, _panMax ) );
 			else
-				return _soundEffects.RandomItem().Play();
+				return _soundEffects.randomItem().Play();
 		}
 
 
-		public void Play(float volume, float pitch, float pan = 0)
+		public void play( float volume, float pitch, float pan = 0 )
 		{
-			_soundEffects.RandomItem().Play(volume, pitch, pan);
+			_soundEffects.randomItem().Play( volume, pitch, pan );
 		}
 
 
-		public SoundEffectInstance CreateInstance()
+		public SoundEffectInstance createInstance()
 		{
-			return _soundEffects.RandomItem().CreateInstance();
+			return _soundEffects.randomItem().CreateInstance();
 		}
+
 	}
 }
+

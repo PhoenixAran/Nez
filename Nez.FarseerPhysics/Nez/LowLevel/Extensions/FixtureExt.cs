@@ -1,4 +1,5 @@
-﻿using FarseerPhysics.Collision;
+﻿using System.Collections.Generic;
+using FarseerPhysics.Collision;
 using FarseerPhysics.Dynamics;
 using Microsoft.Xna.Framework;
 using FSTransform = FarseerPhysics.Common.Transform;
@@ -17,38 +18,38 @@ namespace Nez.Farseer
 		/// <param name="self">Fixture a.</param>
 		/// <param name="motion">the delta movement in Nez pixel coordinates</param>
 		/// <param name="result">Result.</param>
-		public static bool CollidesWithAnyFixtures(this Fixture self, ref Vector2 motion, out FSCollisionResult result)
+		public static bool collidesWithAnyFixtures( this Fixture self, ref Vector2 motion, out FSCollisionResult result )
 		{
 			result = new FSCollisionResult();
-			motion *= FSConvert.DisplayToSim;
+			motion *= FSConvert.displayToSim;
 			AABB aabb;
 			FSTransform xf;
 			var didCollide = false;
 
-			self.Body.GetTransform(out xf);
-			xf.P += motion;
-			self.Shape.ComputeAABB(out aabb, ref xf, 0);
+			self.body.getTransform( out xf );
+			xf.p += motion;
+			self.shape.computeAABB( out aabb, ref xf, 0 );
 
-			var neighbors = ListPool<Fixture>.Obtain();
-			self.Body.World.QueryAABB(ref aabb, neighbors);
-			if (neighbors.Count > 1)
+			var neighbors = ListPool<Fixture>.obtain();
+			self.body.world.queryAABB( ref aabb, neighbors );
+			if( neighbors.Count > 1 )
 			{
 				// handle collisions with all but ourself
-				for (var i = 0; i < neighbors.Count; i++)
+				for( var i = 0; i < neighbors.Count; i++ )
 				{
-					if (neighbors[i].FixtureId == self.FixtureId)
+					if( neighbors[i].fixtureId == self.fixtureId )
 						continue;
 
-					if (FSCollisions.CollideFixtures(self, ref motion, neighbors[i], out result))
+					if( FSCollisions.collideFixtures( self, ref motion, neighbors[i], out result ) )
 					{
 						// if we have a collision, adjust the transform to account for it
-						xf.P += result.MinimumTranslationVector;
+						xf.p += result.minimumTranslationVector;
 					}
 				}
 			}
 
-			ListPool<Fixture>.Free(neighbors);
-			motion *= FSConvert.SimToDisplay;
+			ListPool<Fixture>.free( neighbors );
+			motion *= FSConvert.simToDisplay;
 
 			return didCollide;
 		}
@@ -62,9 +63,10 @@ namespace Nez.Farseer
 		/// <param name="self">Self.</param>
 		/// <param name="fixtureB">Fixture b.</param>
 		/// <param name="result">Result.</param>
-		public static bool CollideFixtures(this Fixture self, Fixture fixtureB, out FSCollisionResult result)
+		public static bool collideFixtures( this Fixture self, Fixture fixtureB, out FSCollisionResult result )
 		{
-			return FSCollisions.CollideFixtures(self, fixtureB, out result);
+			return FSCollisions.collideFixtures( self, fixtureB, out result );
 		}
+
 	}
 }

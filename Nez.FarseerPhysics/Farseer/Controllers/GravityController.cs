@@ -15,96 +15,95 @@ namespace FarseerPhysics.Controllers
 
 	public class GravityController : Controller
 	{
-		public float MinRadius;
-		public float MaxRadius;
-		public float Strength;
-		public GravityType GravityType = GravityType.DistanceSquared;
-		public List<Body> Bodies = new List<Body>();
-		public List<Vector2> Points = new List<Vector2>();
+		public float minRadius;
+		public float maxRadius;
+		public float strength;
+		public GravityType gravityType = GravityType.DistanceSquared;
+		public List<Body> bodies = new List<Body>();
+		public List<Vector2> points = new List<Vector2>();
 
 
-		public GravityController(float strength) : base(ControllerType.GravityController)
+		public GravityController( float strength ) : base( ControllerType.GravityController )
 		{
-			this.Strength = strength;
-			MaxRadius = float.MaxValue;
+			this.strength = strength;
+			maxRadius = float.MaxValue;
 		}
 
-		public GravityController(float strength, float maxRadius, float minRadius) : base(ControllerType
-			.GravityController)
+		public GravityController( float strength, float maxRadius, float minRadius ) : base( ControllerType.GravityController )
 		{
-			this.MinRadius = minRadius;
-			this.MaxRadius = maxRadius;
-			this.Strength = strength;
-			this.GravityType = GravityType.DistanceSquared;
-			this.Points = new List<Vector2>();
-			this.Bodies = new List<Body>();
+			this.minRadius = minRadius;
+			this.maxRadius = maxRadius;
+			this.strength = strength;
+			this.gravityType = GravityType.DistanceSquared;
+			this.points = new List<Vector2>();
+			this.bodies = new List<Body>();
 		}
 
-		public override void Update(float dt)
+		public override void update( float dt )
 		{
 			var f = Vector2.Zero;
 
-			foreach (var worldBody in World.BodyList)
+			foreach( var worldBody in world.bodyList )
 			{
-				if (!IsActiveOn(worldBody))
+				if( !isActiveOn( worldBody ) )
 					continue;
 
-				foreach (Body controllerBody in Bodies)
+				foreach( Body controllerBody in bodies )
 				{
-					if (worldBody == controllerBody || (worldBody.IsStatic && controllerBody.IsStatic) ||
-					    !controllerBody.Enabled)
+					if( worldBody == controllerBody || ( worldBody.isStatic && controllerBody.isStatic ) || !controllerBody.enabled )
 						continue;
 
-					var d = controllerBody.Position - worldBody.Position;
+					var d = controllerBody.position - worldBody.position;
 					var r2 = d.LengthSquared();
 
-					if (r2 <= Settings.Epsilon || r2 > MaxRadius * MaxRadius || r2 < MinRadius * MinRadius)
+					if( r2 <= Settings.epsilon || r2 > maxRadius * maxRadius || r2 < minRadius * minRadius )
 						continue;
 
-					switch (GravityType)
+					switch( gravityType )
 					{
 						case GravityType.DistanceSquared:
-							f = Strength / r2 * worldBody.Mass * controllerBody.Mass * d;
+							f = strength / r2 * worldBody.mass * controllerBody.mass * d;
 							break;
 						case GravityType.Linear:
-							f = Strength / (float) Math.Sqrt(r2) * worldBody.Mass * controllerBody.Mass * d;
+							f = strength / (float)Math.Sqrt( r2 ) * worldBody.mass * controllerBody.mass * d;
 							break;
 					}
 
-					worldBody.ApplyForce(ref f);
+					worldBody.applyForce( ref f );
 				}
 
-				foreach (Vector2 point in Points)
+				foreach( Vector2 point in points )
 				{
-					var d = point - worldBody.Position;
+					var d = point - worldBody.position;
 					var r2 = d.LengthSquared();
 
-					if (r2 <= Settings.Epsilon || r2 > MaxRadius * MaxRadius || r2 < MinRadius * MinRadius)
+					if( r2 <= Settings.epsilon || r2 > maxRadius * maxRadius || r2 < minRadius * minRadius )
 						continue;
 
-					switch (GravityType)
+					switch( gravityType )
 					{
 						case GravityType.DistanceSquared:
-							f = Strength / r2 * worldBody.Mass * d;
+							f = strength / r2 * worldBody.mass * d;
 							break;
 						case GravityType.Linear:
-							f = Strength / (float) Math.Sqrt(r2) * worldBody.Mass * d;
+							f = strength / (float)Math.Sqrt( r2 ) * worldBody.mass * d;
 							break;
 					}
 
-					worldBody.ApplyForce(ref f);
+					worldBody.applyForce( ref f );
 				}
 			}
 		}
 
-		public void AddBody(Body body)
+		public void addBody( Body body )
 		{
-			Bodies.Add(body);
+			bodies.Add( body );
 		}
 
-		public void AddPoint(Vector2 point)
+		public void addPoint( Vector2 point )
 		{
-			Points.Add(point);
+			points.Add( point );
 		}
+
 	}
 }

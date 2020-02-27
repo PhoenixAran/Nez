@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 
 namespace Nez.AI.Pathfinding
@@ -13,6 +14,7 @@ namespace Nez.AI.Pathfinding
 		/// </summary>
 		/// <returns>The neighbors.</returns>
 		/// <param name="node">Node.</param>
-		IEnumerable<T> GetNeighbors(T node);
+		IEnumerable<T> getNeighbors( T node );
 	}
 }
+

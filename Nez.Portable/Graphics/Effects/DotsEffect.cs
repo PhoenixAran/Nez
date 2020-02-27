@@ -5,28 +5,28 @@ namespace Nez
 {
 	public class DotsEffect : Effect
 	{
-		public float Scale
+		public float scale
 		{
-			get => _scale;
+			get { return _scale; }
 			set
 			{
-				if (_scale != value)
+				if( _scale != value )
 				{
 					_scale = value;
-					_scaleParam.SetValue(_scale);
+					_scaleParam.SetValue( _scale );
 				}
 			}
 		}
 
-		public float Angle
+		public float angle
 		{
-			get => _angle;
+			get { return _angle; }
 			set
 			{
-				if (_angle != value)
+				if( _angle != value )
 				{
 					_angle = value;
-					_angleParam.SetValue(_angle);
+					_angleParam.SetValue( _angle );
 				}
 			}
 		}
@@ -38,13 +38,14 @@ namespace Nez
 		EffectParameter _angleParam;
 
 
-		public DotsEffect() : base(Core.GraphicsDevice, EffectResource.DotsBytes)
+		public DotsEffect() : base( Core.graphicsDevice, EffectResource.dotsBytes )
 		{
 			_scaleParam = Parameters["scale"];
 			_angleParam = Parameters["angle"];
 
-			_scaleParam.SetValue(_scale);
-			_angleParam.SetValue(_angle);
+			_scaleParam.SetValue( _scale );
+			_angleParam.SetValue( _angle );
 		}
 	}
 }
+

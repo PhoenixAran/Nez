@@ -14,83 +14,84 @@ namespace Nez.Farseer
 
 		public FSCollisionChain()
 		{
-			_fixtureDef.Shape = new ChainShape();
+			_fixtureDef.shape = new ChainShape();
 		}
 
 
-		public FSCollisionChain(List<Vector2> verts) : this()
+		public FSCollisionChain( List<Vector2> verts ) : this()
 		{
 			_verts = verts;
 		}
 
 
-		public FSCollisionChain(Vector2[] verts) : this()
+		public FSCollisionChain( Vector2[] verts ) : this()
 		{
-			_verts = new List<Vector2>(verts);
+			_verts = new List<Vector2>( verts );
 		}
 
 
 		#region Configuration
 
-		public FSCollisionChain SetLoop(bool loop)
+		public FSCollisionChain setLoop( bool loop )
 		{
 			_loop = loop;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionChain SetVertices(Vertices verts)
+		public FSCollisionChain setVertices( Vertices verts )
 		{
 			_verts = verts;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionChain SetVertices(List<Vector2> verts)
+		public FSCollisionChain setVertices( List<Vector2> verts )
 		{
 			_verts = verts;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionChain SetVertices(Vector2[] verts)
+		public FSCollisionChain setVertices( Vector2[] verts )
 		{
-			if (_verts == null)
+			if( _verts == null )
 				_verts = new List<Vector2>();
 
 			_verts.Clear();
-			_verts.AddRange(verts);
-			RecreateFixture();
+			_verts.AddRange( verts );
+			recreateFixture();
 			return this;
 		}
 
 		#endregion
 
 
-		public override void OnEntityTransformChanged(Transform.Component comp)
+		public override void onEntityTransformChanged( Transform.Component comp )
 		{
-			if (comp == Transform.Component.Scale)
-				RecreateFixture();
+			if( comp == Transform.Component.Scale )
+				recreateFixture();
 		}
 
 
-		void RecreateFixture()
+		void recreateFixture()
 		{
-			Insist.IsNotNull(_verts, "verts cannot be null!");
+			Assert.isNotNull( _verts, "verts cannot be null!" );
 
-			DestroyFixture();
+			destroyFixture();
 
 			// scale our verts and convert them to sim units
-			var verts = new Vertices(_verts);
-			verts.Scale(Transform.Scale * FSConvert.DisplayToSim);
+			var verts = new Vertices( _verts );
+			verts.scale( transform.scale * FSConvert.displayToSim );
 
-			var chainShape = _fixtureDef.Shape as ChainShape;
-			chainShape.SetVertices(verts, _loop);
+			var chainShape = _fixtureDef.shape as ChainShape;
+			chainShape.setVertices( verts, _loop );
 
-			CreateFixture();
+			createFixture();
 		}
+
 	}
 }

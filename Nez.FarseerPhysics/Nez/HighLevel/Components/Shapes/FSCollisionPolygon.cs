@@ -12,109 +12,108 @@ namespace Nez.Farseer
 		/// verts are stored in sim units
 		/// </summary>
 		protected Vertices _verts;
-
 		Vector2 _center;
 		protected bool _areVertsDirty = true;
 
 
 		public FSCollisionPolygon()
 		{
-			_fixtureDef.Shape = new PolygonShape();
+			_fixtureDef.shape = new PolygonShape();
 		}
 
 
-		public FSCollisionPolygon(List<Vector2> vertices) : this()
+		public FSCollisionPolygon( List<Vector2> vertices ) : this()
 		{
-			_verts = new Vertices(vertices);
-			_verts.Scale(new Vector2(FSConvert.DisplayToSim));
+			_verts = new Vertices( vertices );
+			_verts.scale( new Vector2( FSConvert.displayToSim ) );
 		}
 
 
-		public FSCollisionPolygon(Vector2[] vertices) : this()
+		public FSCollisionPolygon( Vector2[] vertices ) : this()
 		{
-			_verts = new Vertices(vertices);
-			_verts.Scale(new Vector2(FSConvert.DisplayToSim));
+			_verts = new Vertices( vertices );
+			_verts.scale( new Vector2( FSConvert.displayToSim ) );
 		}
 
 
 		#region Configuration
 
-		public FSCollisionPolygon SetVertices(Vertices vertices)
+		public FSCollisionPolygon setVertices( Vertices vertices )
 		{
-			_verts = new Vertices(vertices);
+			_verts = new Vertices( vertices );
 			_areVertsDirty = true;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionPolygon SetVertices(List<Vector2> vertices)
+		public FSCollisionPolygon setVertices( List<Vector2> vertices )
 		{
-			_verts = new Vertices(vertices);
+			_verts = new Vertices( vertices );
 			_areVertsDirty = true;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionPolygon SetCenter(Vector2 center)
+		public FSCollisionPolygon setCenter( Vector2 center )
 		{
 			_center = center;
 			_areVertsDirty = true;
-			RecreateFixture();
+			recreateFixture();
 			return this;
 		}
 
 		#endregion
 
 
-		public override void OnAddedToEntity()
+		public override void onAddedToEntity()
 		{
-			UpdateVerts();
-			CreateFixture();
+			updateVerts();
+			createFixture();
 		}
 
 
-		public override void OnEntityTransformChanged(Transform.Component comp)
+		public override void onEntityTransformChanged( Transform.Component comp )
 		{
-			if (comp == Transform.Component.Scale)
-				RecreateFixture();
+			if( comp == Transform.Component.Scale )
+				recreateFixture();
 		}
 
 
-		internal override void CreateFixture()
+		internal override void createFixture()
 		{
-			UpdateVerts();
-			base.CreateFixture();
+			updateVerts();
+			base.createFixture();
 		}
 
 
-		protected void RecreateFixture()
+		protected void recreateFixture()
 		{
-			DestroyFixture();
-			UpdateVerts();
-			CreateFixture();
+			destroyFixture();
+			updateVerts();
+			createFixture();
 		}
 
 
-		protected void UpdateVerts()
+		protected void updateVerts()
 		{
-			Insist.IsNotNull(_verts, "verts cannot be null!");
+			Assert.isNotNull( _verts, "verts cannot be null!" );
 
-			if (!_areVertsDirty)
+			if( !_areVertsDirty )
 				return;
-
 			_areVertsDirty = false;
 
-			var shapeVerts = (_fixtureDef.Shape as PolygonShape).Vertices;
+			var shapeVerts = ( _fixtureDef.shape as PolygonShape ).vertices;
 			shapeVerts.attachedToBody = false;
 
 			shapeVerts.Clear();
-			shapeVerts.AddRange(_verts);
-			shapeVerts.Scale(Transform.Scale);
-			shapeVerts.Translate(ref _center);
+			shapeVerts.AddRange( _verts );
+			shapeVerts.scale( transform.scale );
+			shapeVerts.translate( ref _center );
 
-			(_fixtureDef.Shape as PolygonShape).SetVerticesNoCopy(shapeVerts);
+			( _fixtureDef.shape as PolygonShape ).setVerticesNoCopy( shapeVerts );
 		}
+
 	}
 }

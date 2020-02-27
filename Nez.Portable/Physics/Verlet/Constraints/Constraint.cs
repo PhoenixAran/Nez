@@ -1,3 +1,5 @@
+
+
 namespace Nez.Verlet
 {
 	public abstract class Constraint
@@ -11,26 +13,25 @@ namespace Nez.Verlet
 		/// if true, the Constraint will check for collisions with standard Nez Colliders. Inner Constraints do not need to have this set to
 		/// true.
 		/// </summary>
-		public bool CollidesWithColliders = true;
+		public bool collidesWithColliders = true;
 
 		/// <summary>
 		/// solves the Constraint
 		/// </summary>
-		public abstract void Solve();
+		public abstract void solve();
 
 		/// <summary>
 		/// if collidesWithColliders is true this will be called
 		/// </summary>
-		public virtual void HandleCollisions(int collidesWithLayers)
-		{
-		}
+		public virtual void handleCollisions( int collidesWithLayers )
+		{}
 
 		/// <summary>
 		/// debug renders the Constraint
 		/// </summary>
 		/// <param name="batcher">Batcher.</param>
-		public virtual void DebugRender(Batcher batcher)
-		{
-		}
+		public virtual void debugRender( Batcher batcher )
+		{}
+
 	}
 }

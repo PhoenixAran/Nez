@@ -9,10 +9,10 @@ namespace Nez
 	/// </summary>
 	public interface IUpdatable
 	{
-		bool Enabled { get; }
-		int UpdateOrder { get; }
+		bool enabled { get; }
+		int updateOrder { get; }
 
-		void Update();
+		void update();
 	}
 
 
@@ -21,9 +21,10 @@ namespace Nez
 	/// </summary>
 	public class IUpdatableComparer : IComparer<IUpdatable>
 	{
-		public int Compare(IUpdatable a, IUpdatable b)
+		public int Compare( IUpdatable a, IUpdatable b )
 		{
-			return a.UpdateOrder.CompareTo(b.UpdateOrder);
+			return a.updateOrder.CompareTo( b.updateOrder );
 		}
 	}
 }
+

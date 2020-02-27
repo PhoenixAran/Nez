@@ -8,57 +8,51 @@ namespace Nez.Farseer
 	{
 		float _xRadius = 0.1f;
 		float _yRadius = 0.1f;
-		int _edgeCount = Settings.MaxPolygonVertices;
+		int _edgeCount = Settings.maxPolygonVertices;
 
 
 		public FSCollisionEllipse()
+		{}
+
+
+		public FSCollisionEllipse( float xRadius, float yRadius ) : this( xRadius, yRadius, Settings.maxPolygonVertices )
+		{}
+
+
+		public FSCollisionEllipse( float xRadius, float yRadius, int edgeCount )
 		{
-		}
-
-
-		public FSCollisionEllipse(float xRadius, float yRadius) : this(xRadius, yRadius, Settings.MaxPolygonVertices)
-		{
-		}
-
-
-		public FSCollisionEllipse(float xRadius, float yRadius, int edgeCount)
-		{
-			Insist.IsFalse(edgeCount > Settings.MaxPolygonVertices,
-				"edgeCount must be less than Settings.maxPolygonVertices");
+			Assert.isFalse( edgeCount > Settings.maxPolygonVertices, "edgeCount must be less than Settings.maxPolygonVertices" );
 
 			_xRadius = xRadius;
 			_yRadius = yRadius;
 			_edgeCount = edgeCount;
-			_verts = PolygonTools.CreateEllipse(_xRadius * FSConvert.DisplayToSim, _yRadius * FSConvert.DisplayToSim,
-				_edgeCount);
+			_verts = PolygonTools.createEllipse( _xRadius * FSConvert.displayToSim, _yRadius * FSConvert.displayToSim, _edgeCount );
 		}
 
 
 		#region Configuration
 
-		public FSCollisionEllipse SetRadii(float xRadius, float yRadius)
+		public FSCollisionEllipse setRadii( float xRadius, float yRadius )
 		{
 			_xRadius = xRadius;
 			_yRadius = yRadius;
-			_verts = PolygonTools.CreateEllipse(_xRadius * FSConvert.DisplayToSim, _yRadius * FSConvert.DisplayToSim,
-				_edgeCount);
-			RecreateFixture();
+			_verts = PolygonTools.createEllipse( _xRadius * FSConvert.displayToSim, _yRadius * FSConvert.displayToSim, _edgeCount );
+			recreateFixture();
 			return this;
 		}
 
 
-		public FSCollisionEllipse SetEdgeCount(int edgeCount)
+		public FSCollisionEllipse setEdgeCount( int edgeCount )
 		{
-			Insist.IsFalse(edgeCount > Settings.MaxPolygonVertices,
-				"edgeCount must be less than Settings.maxPolygonVertices");
+			Assert.isFalse( edgeCount > Settings.maxPolygonVertices, "edgeCount must be less than Settings.maxPolygonVertices" );
 
 			_edgeCount = edgeCount;
-			_verts = PolygonTools.CreateEllipse(_xRadius * FSConvert.DisplayToSim, _yRadius * FSConvert.DisplayToSim,
-				_edgeCount);
-			RecreateFixture();
+			_verts = PolygonTools.createEllipse( _xRadius * FSConvert.displayToSim, _yRadius * FSConvert.displayToSim, _edgeCount );
+			recreateFixture();
 			return this;
 		}
 
 		#endregion
+
 	}
 }

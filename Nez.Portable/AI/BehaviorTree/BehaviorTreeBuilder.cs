@@ -23,30 +23,30 @@ namespace Nez.AI.BehaviorTrees
 		Stack<Behavior<T>> _parentNodeStack = new Stack<Behavior<T>>();
 
 
-		public BehaviorTreeBuilder(T context)
+		public BehaviorTreeBuilder( T context )
 		{
 			_context = context;
 		}
 
 
-		public static BehaviorTreeBuilder<T> Begin(T context)
+		public static BehaviorTreeBuilder<T> begin( T context )
 		{
-			return new BehaviorTreeBuilder<T>(context);
+			return new BehaviorTreeBuilder<T>( context );
 		}
 
 
-		BehaviorTreeBuilder<T> SetChildOnParent(Behavior<T> child)
+		BehaviorTreeBuilder<T> setChildOnParent( Behavior<T> child )
 		{
 			var parent = _parentNodeStack.Peek();
-			if (parent is Composite<T>)
+			if( parent is Composite<T> )
 			{
-				(parent as Composite<T>).AddChild(child);
+				( parent as Composite<T> ).addChild( child );
 			}
-			else if (parent is Decorator<T>)
+			else if( parent is Decorator<T> )
 			{
 				// Decorators have just one child so end it automatically
-				(parent as Decorator<T>).Child = child;
-				EndDecorator();
+				( parent as Decorator<T> ).child = child;
+				endDecorator();
 			}
 
 			return this;
@@ -58,17 +58,17 @@ namespace Nez.AI.BehaviorTrees
 		/// </summary>
 		/// <returns>The parent node.</returns>
 		/// <param name="composite">Composite.</param>
-		BehaviorTreeBuilder<T> PushParentNode(Behavior<T> composite)
+		BehaviorTreeBuilder<T> pushParentNode( Behavior<T> composite )
 		{
-			if (_parentNodeStack.Count > 0)
-				SetChildOnParent(composite);
+			if( _parentNodeStack.Count > 0 )
+				setChildOnParent( composite );
 
-			_parentNodeStack.Push(composite);
+			_parentNodeStack.Push( composite );
 			return this;
 		}
 
 
-		BehaviorTreeBuilder<T> EndDecorator()
+		BehaviorTreeBuilder<T> endDecorator()
 		{
 			_currentNode = _parentNodeStack.Pop();
 			return this;
@@ -77,64 +77,59 @@ namespace Nez.AI.BehaviorTrees
 
 		#region Leaf Nodes (actions and sub trees)
 
-		public BehaviorTreeBuilder<T> Action(Func<T, TaskStatus> func)
+		public BehaviorTreeBuilder<T> action( Func<T,TaskStatus> func )
 		{
-			Insist.IsFalse(_parentNodeStack.Count == 0,
-				"Can't create an unnested Action node. It must be a leaf node.");
-			return SetChildOnParent(new ExecuteAction<T>(func));
+			Assert.isFalse( _parentNodeStack.Count == 0, "Can't create an unnested Action node. It must be a leaf node." );
+			return setChildOnParent( new ExecuteAction<T>( func ) );
 		}
 
 
 		/// <summary>
 		/// Like an action node but the function can return true/false and is mapped to success/failure.
 		/// </summary>
-		public BehaviorTreeBuilder<T> Action(Func<T, bool> func)
+		public BehaviorTreeBuilder<T> action( Func<T,bool> func )
 		{
-			return Action(t => func(t) ? TaskStatus.Success : TaskStatus.Failure);
+			return action( t => func( t ) ? TaskStatus.Success : TaskStatus.Failure );
 		}
 
 
-		public BehaviorTreeBuilder<T> Conditional(Func<T, TaskStatus> func)
+		public BehaviorTreeBuilder<T> conditional( Func<T,TaskStatus> func )
 		{
-			Insist.IsFalse(_parentNodeStack.Count == 0,
-				"Can't create an unnested Conditional node. It must be a leaf node.");
-			return SetChildOnParent(new ExecuteActionConditional<T>(func));
+			Assert.isFalse( _parentNodeStack.Count == 0, "Can't create an unnested Conditional node. It must be a leaf node." );
+			return setChildOnParent( new ExecuteActionConditional<T>( func ) );
 		}
 
 
 		/// <summary>
 		/// Like a conditional node but the function can return true/false and is mapped to success/failure.
 		/// </summary>
-		public BehaviorTreeBuilder<T> Conditional(Func<T, bool> func)
+		public BehaviorTreeBuilder<T> conditional( Func<T,bool> func )
 		{
-			return Conditional(t => func(t) ? TaskStatus.Success : TaskStatus.Failure);
+			return conditional( t => func( t ) ? TaskStatus.Success : TaskStatus.Failure );
 		}
 
 
-		public BehaviorTreeBuilder<T> LogAction(string text)
+		public BehaviorTreeBuilder<T> logAction( string text )
 		{
-			Insist.IsFalse(_parentNodeStack.Count == 0,
-				"Can't create an unnested Action node. It must be a leaf node.");
-			return SetChildOnParent(new LogAction<T>(text));
+			Assert.isFalse( _parentNodeStack.Count == 0, "Can't create an unnested Action node. It must be a leaf node." );
+			return setChildOnParent( new LogAction<T>( text ) );
 		}
 
 
-		public BehaviorTreeBuilder<T> WaitAction(float waitTime)
+		public BehaviorTreeBuilder<T> waitAction( float waitTime )
 		{
-			Insist.IsFalse(_parentNodeStack.Count == 0,
-				"Can't create an unnested Action node. It must be a leaf node.");
-			return SetChildOnParent(new WaitAction<T>(waitTime));
+			Assert.isFalse( _parentNodeStack.Count == 0, "Can't create an unnested Action node. It must be a leaf node." );
+			return setChildOnParent( new WaitAction<T>( waitTime ) );
 		}
 
 
 		/// <summary>
 		/// Splice a sub tree into the parent tree.
 		/// </summary>
-		public BehaviorTreeBuilder<T> SubTree(BehaviorTree<T> subTree)
+		public BehaviorTreeBuilder<T> subTree( BehaviorTree<T> subTree )
 		{
-			Insist.IsFalse(_parentNodeStack.Count == 0,
-				"Can't splice an unnested sub tree, there must be a parent tree.");
-			return SetChildOnParent(new BehaviorTreeReference<T>(subTree));
+			Assert.isFalse( _parentNodeStack.Count == 0, "Can't splice an unnested sub tree, there must be a parent tree." );
+			return setChildOnParent( new BehaviorTreeReference<T>( subTree ) );
 		}
 
 		#endregion
@@ -142,55 +137,55 @@ namespace Nez.AI.BehaviorTrees
 
 		#region Decorators
 
-		public BehaviorTreeBuilder<T> ConditionalDecorator(Func<T, TaskStatus> func, bool shouldReevaluate = true)
+		public BehaviorTreeBuilder<T> conditionalDecorator( Func<T,TaskStatus> func, bool shouldReevaluate = true )
 		{
-			var conditional = new ExecuteActionConditional<T>(func);
-			return PushParentNode(new ConditionalDecorator<T>(conditional, shouldReevaluate));
+			var conditional = new ExecuteActionConditional<T>( func );
+			return pushParentNode( new ConditionalDecorator<T>( conditional, shouldReevaluate ) );
 		}
 
 
 		/// <summary>
 		/// Like a conditional decorator node but the function can return true/false and is mapped to success/failure.
 		/// </summary>
-		public BehaviorTreeBuilder<T> ConditionalDecorator(Func<T, bool> func, bool shouldReevaluate = true)
+		public BehaviorTreeBuilder<T> conditionalDecorator( Func<T,bool> func, bool shouldReevaluate = true )
 		{
-			return ConditionalDecorator(t => func(t) ? TaskStatus.Success : TaskStatus.Failure, shouldReevaluate);
+			return conditionalDecorator( t => func( t ) ? TaskStatus.Success : TaskStatus.Failure, shouldReevaluate );
 		}
 
 
-		public BehaviorTreeBuilder<T> AlwaysFail()
+		public BehaviorTreeBuilder<T> alwaysFail()
 		{
-			return PushParentNode(new AlwaysFail<T>());
+			return pushParentNode( new AlwaysFail<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> AlwaysSucceed()
+		public BehaviorTreeBuilder<T> alwaysSucceed()
 		{
-			return PushParentNode(new AlwaysSucceed<T>());
+			return pushParentNode( new AlwaysSucceed<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> Inverter()
+		public BehaviorTreeBuilder<T> inverter()
 		{
-			return PushParentNode(new Inverter<T>());
+			return pushParentNode( new Inverter<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> Repeater(int count)
+		public BehaviorTreeBuilder<T> repeater( int count )
 		{
-			return PushParentNode(new Repeater<T>(count));
+			return pushParentNode( new Repeater<T>( count ) );
 		}
 
 
-		public BehaviorTreeBuilder<T> UntilFail()
+		public BehaviorTreeBuilder<T> untilFail()
 		{
-			return PushParentNode(new UntilFail<T>());
+			return pushParentNode( new UntilFail<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> UntilSuccess()
+		public BehaviorTreeBuilder<T> untilSuccess()
 		{
-			return PushParentNode(new UntilSuccess<T>());
+			return pushParentNode( new UntilSuccess<T>() );
 		}
 
 		#endregion
@@ -198,46 +193,45 @@ namespace Nez.AI.BehaviorTrees
 
 		#region Composites
 
-		public BehaviorTreeBuilder<T> Parallel()
+		public BehaviorTreeBuilder<T> parallel()
 		{
-			return PushParentNode(new Parallel<T>());
+			return pushParentNode( new Parallel<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> ParallelSelector()
+		public BehaviorTreeBuilder<T> parallelSelector()
 		{
-			return PushParentNode(new ParallelSelector<T>());
+			return pushParentNode( new ParallelSelector<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> Selector(AbortTypes abortType = AbortTypes.None)
+		public BehaviorTreeBuilder<T> selector( AbortTypes abortType = AbortTypes.None )
 		{
-			return PushParentNode(new Selector<T>(abortType));
+			return pushParentNode( new Selector<T>( abortType ) );
 		}
 
 
-		public BehaviorTreeBuilder<T> RandomSelector()
+		public BehaviorTreeBuilder<T> randomSelector()
 		{
-			return PushParentNode(new RandomSelector<T>());
+			return pushParentNode( new RandomSelector<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> Sequence(AbortTypes abortType = AbortTypes.None)
+		public BehaviorTreeBuilder<T> sequence( AbortTypes abortType = AbortTypes.None )
 		{
-			return PushParentNode(new Sequence<T>(abortType));
+			return pushParentNode( new Sequence<T>( abortType ) );
 		}
 
 
-		public BehaviorTreeBuilder<T> RandomSequence()
+		public BehaviorTreeBuilder<T> randomSequence()
 		{
-			return PushParentNode(new RandomSequence<T>());
+			return pushParentNode( new RandomSequence<T>() );
 		}
 
 
-		public BehaviorTreeBuilder<T> EndComposite()
+		public BehaviorTreeBuilder<T> endComposite()
 		{
-			Insist.IsTrue(_parentNodeStack.Peek() is Composite<T>,
-				"attempting to end a composite but the top node is a decorator");
+			Assert.isTrue( _parentNodeStack.Peek() is Composite<T>, "attempting to end a composite but the top node is a decorator" );
 			_currentNode = _parentNodeStack.Pop();
 			return this;
 		}
@@ -245,10 +239,12 @@ namespace Nez.AI.BehaviorTrees
 		#endregion
 
 
-		public BehaviorTree<T> Build(float updatePeriod = 0.2f)
+		public BehaviorTree<T> build( float updatePeriod = 0.2f )
 		{
-			Insist.IsNotNull(_currentNode, "Can't create a behaviour tree with zero nodes");
-			return new BehaviorTree<T>(_context, _currentNode, updatePeriod);
+			Assert.isNotNull( _currentNode, "Can't create a behaviour tree with zero nodes" );
+			return new BehaviorTree<T>( _context, _currentNode, updatePeriod );
 		}
+
 	}
 }
+

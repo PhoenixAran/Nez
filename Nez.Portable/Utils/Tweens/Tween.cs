@@ -48,19 +48,20 @@ namespace Nez.Tweens
 		bool _isRunningInReverse;
 
 
+
 		#region ITweenT implementation
 
-		public object Context { get; protected set; }
+		public object context { get; protected set; }
 
 
-		public ITween<T> SetEaseType(EaseType easeType)
+		public ITween<T> setEaseType( EaseType easeType )
 		{
 			_easeType = easeType;
 			return this;
 		}
 
 
-		public ITween<T> SetDelay(float delay)
+		public ITween<T> setDelay( float delay )
 		{
 			_delay = delay;
 			_elapsedTime = -_delay;
@@ -68,41 +69,41 @@ namespace Nez.Tweens
 		}
 
 
-		public ITween<T> SetDuration(float duration)
+		public ITween<T> setDuration( float duration )
 		{
 			_duration = duration;
 			return this;
 		}
 
 
-		public ITween<T> SetTimeScale(float timeScale)
+		public ITween<T> setTimeScale( float timeScale )
 		{
 			_timeScale = timeScale;
 			return this;
 		}
 
 
-		public ITween<T> SetIsTimeScaleIndependent()
+		public ITween<T> setIsTimeScaleIndependent()
 		{
 			_isTimeScaleIndependent = true;
 			return this;
 		}
 
 
-		public ITween<T> SetCompletionHandler(Action<ITween<T>> completionHandler)
+		public ITween<T> setCompletionHandler( Action<ITween<T>> completionHandler )
 		{
 			_completionHandler = completionHandler;
 			return this;
 		}
 
 
-		public ITween<T> SetLoops(LoopType loopType, int loops = 1, float delayBetweenLoops = 0f)
+		public ITween<T> setLoops( LoopType loopType, int loops = 1, float delayBetweenLoops = 0f )
 		{
 			_loopType = loopType;
 			_delayBetweenLoops = delayBetweenLoops;
 
 			// double the loop count for ping-pong
-			if (loopType == LoopType.PingPong)
+			if( loopType == LoopType.PingPong )
 				loops = loops * 2;
 			_loops = loops;
 
@@ -110,14 +111,14 @@ namespace Nez.Tweens
 		}
 
 
-		public ITween<T> SetLoopCompletionHandler(Action<ITween<T>> loopCompleteHandler)
+		public ITween<T> setLoopCompletionHandler( Action<ITween<T>> loopCompleteHandler )
 		{
 			_loopCompleteHandler = loopCompleteHandler;
 			return this;
 		}
 
 
-		public ITween<T> SetFrom(T from)
+		public ITween<T> setFrom( T from )
 		{
 			_isFromValueOverridden = true;
 			_fromValue = from;
@@ -125,31 +126,31 @@ namespace Nez.Tweens
 		}
 
 
-		public ITween<T> PrepareForReuse(T from, T to, float duration)
+		public ITween<T> prepareForReuse( T from, T to, float duration )
 		{
-			Initialize(_target, to, duration);
+			initialize( _target, to, duration );
 			return this;
 		}
 
 
-		public ITween<T> SetRecycleTween(bool shouldRecycleTween)
+		public ITween<T> setRecycleTween( bool shouldRecycleTween )
 		{
 			_shouldRecycleTween = shouldRecycleTween;
 			return this;
 		}
 
 
-		abstract public ITween<T> SetIsRelative();
+		abstract public ITween<T> setIsRelative();
 
 
-		public ITween<T> SetContext(object context)
+		public ITween<T> setContext( object context )
 		{
-			Context = context;
+			this.context = context;
 			return this;
 		}
 
 
-		public ITween<T> SetNextTween(ITweenable nextTween)
+		public ITween<T> setNextTween( ITweenable nextTween )
 		{
 			_nextTween = nextTween;
 			return this;
@@ -160,20 +161,20 @@ namespace Nez.Tweens
 
 		#region ITweenable
 
-		public bool Tick()
+		public bool tick()
 		{
-			if (_tweenState == TweenState.Paused)
+			if( _tweenState == TweenState.Paused )
 				return false;
 
 			// when we loop we clamp values between 0 and duration. this will hold the excess that we clamped off so it can be reapplied
 			var elapsedTimeExcess = 0f;
-			if (!_isRunningInReverse && _elapsedTime >= _duration)
+			if( !_isRunningInReverse && _elapsedTime >= _duration )
 			{
 				elapsedTimeExcess = _elapsedTime - _duration;
 				_elapsedTime = _duration;
 				_tweenState = TweenState.Complete;
 			}
-			else if (_isRunningInReverse && _elapsedTime <= 0)
+			else if( _isRunningInReverse && _elapsedTime <= 0 )
 			{
 				elapsedTimeExcess = 0 - _elapsedTime;
 				_elapsedTime = 0f;
@@ -181,33 +182,33 @@ namespace Nez.Tweens
 			}
 
 			// elapsed time will be negative while we are delaying the start of the tween so dont update the value
-			if (_elapsedTime >= 0 && _elapsedTime <= _duration)
-				UpdateValue();
+			if( _elapsedTime >= 0 && _elapsedTime <= _duration )
+				updateValue();
 
 			// if we have a loopType and we are Complete (meaning we reached 0 or duration) handle the loop.
 			// handleLooping will take any excess elapsedTime and factor it in and call udpateValue if necessary to keep
 			// the tween perfectly accurate.
-			if (_loopType != LoopType.None && _tweenState == TweenState.Complete && _loops > 0)
-				HandleLooping(elapsedTimeExcess);
+			if( _loopType != LoopType.None && _tweenState == TweenState.Complete && _loops > 0 )
+				handleLooping( elapsedTimeExcess );
 
-			var deltaTime = _isTimeScaleIndependent ? Time.UnscaledDeltaTime : Time.DeltaTime;
+			var deltaTime = _isTimeScaleIndependent ? Time.unscaledDeltaTime : Time.deltaTime;
 			deltaTime *= _timeScale;
 
 			// running in reverse? then we need to subtract deltaTime
-			if (_isRunningInReverse)
+			if( _isRunningInReverse )
 				_elapsedTime -= deltaTime;
 			else
 				_elapsedTime += deltaTime;
 
-			if (_tweenState == TweenState.Complete)
+			if( _tweenState == TweenState.Complete )
 			{
-				if (_completionHandler != null)
-					_completionHandler(this);
+				if( _completionHandler != null )
+					_completionHandler( this );
 
 				// if we have a nextTween add it to TweenManager so that it can start running
-				if (_nextTween != null)
+				if( _nextTween != null )
 				{
-					_nextTween.Start();
+					_nextTween.start();
 					_nextTween = null;
 				}
 
@@ -218,9 +219,9 @@ namespace Nez.Tweens
 		}
 
 
-		public virtual void RecycleSelf()
+		public virtual void recycleSelf()
 		{
-			if (_shouldRecycleTween)
+			if( _shouldRecycleTween )
 			{
 				_target = null;
 				_nextTween = null;
@@ -228,42 +229,42 @@ namespace Nez.Tweens
 		}
 
 
-		public bool IsRunning()
+		public bool isRunning()
 		{
 			return _tweenState == TweenState.Running;
 		}
 
 
-		public virtual void Start()
+		public virtual void start()
 		{
-			if (!_isFromValueOverridden)
-				_fromValue = _target.GetTweenedValue();
+			if( !_isFromValueOverridden )
+				_fromValue = _target.getTweenedValue();
 
-			if (_tweenState == TweenState.Complete)
+			if( _tweenState == TweenState.Complete )
 			{
 				_tweenState = TweenState.Running;
-				TweenManager.AddTween(this);
+				TweenManager.addTween( this );
 			}
 		}
 
 
-		public void Pause()
+		public void pause()
 		{
 			_tweenState = TweenState.Paused;
 		}
 
 
-		public void Resume()
+		public void resume()
 		{
 			_tweenState = TweenState.Running;
 		}
 
 
-		public void Stop(bool bringToCompletion = false)
+		public void stop( bool bringToCompletion = false )
 		{
 			_tweenState = TweenState.Complete;
 
-			if (bringToCompletion)
+			if( bringToCompletion )
 			{
 				// if we are running in reverse we finish up at 0 else we go to duration
 				_elapsedTime = _isRunningInReverse ? 0f : _duration;
@@ -274,7 +275,7 @@ namespace Nez.Tweens
 			}
 			else
 			{
-				TweenManager.RemoveTween(this);
+				TweenManager.removeTween( this );
 			}
 		}
 
@@ -283,17 +284,17 @@ namespace Nez.Tweens
 
 		#region ITweenControl
 
-		public void JumpToElapsedTime(float elapsedTime)
+		public void jumpToElapsedTime( float elapsedTime )
 		{
-			_elapsedTime = Mathf.Clamp(elapsedTime, 0f, _duration);
-			UpdateValue();
+			_elapsedTime = Mathf.clamp( elapsedTime, 0f, _duration );
+			updateValue();
 		}
 
 
 		/// <summary>
 		/// reverses the current tween. if it was going forward it will be going backwards and vice versa.
 		/// </summary>
-		public void ReverseTween()
+		public void reverseTween()
 		{
 			_isRunningInReverse = !_isRunningInReverse;
 		}
@@ -303,37 +304,36 @@ namespace Nez.Tweens
 		/// when called via StartCoroutine this will continue until the tween completes
 		/// </summary>
 		/// <returns>The for completion.</returns>
-		public IEnumerator WaitForCompletion()
+		public IEnumerator waitForCompletion()
 		{
-			while (_tweenState != TweenState.Complete)
+			while( _tweenState != TweenState.Complete )
 				yield return null;
 		}
 
 
-		public object GetTargetObject()
+		public object getTargetObject()
 		{
-			return _target.GetTargetObject();
+			return _target.getTargetObject();
 		}
 
 		#endregion
 
 
-		void ResetState()
+		void resetState()
 		{
-			Context = null;
+			context = null;
 			_completionHandler = _loopCompleteHandler = null;
 			_isFromValueOverridden = false;
 			_isTimeScaleIndependent = false;
 			_tweenState = TweenState.Complete;
-
 			// TODO: I don't think we should ever flip the flag from _shouldRecycleTween = false without the user's consent. Needs research and some thought
 			//_shouldRecycleTween = true;
 			_isRelative = false;
-			_easeType = TweenManager.DefaultEaseType;
+			_easeType = TweenManager.defaultEaseType;
 
-			if (_nextTween != null)
+			if( _nextTween != null )
 			{
-				_nextTween.RecycleSelf();
+				_nextTween.recycleSelf();
 				_nextTween = null;
 			}
 
@@ -356,10 +356,10 @@ namespace Nez.Tweens
 		/// <param name="target">Target.</param>
 		/// <param name="to">To.</param>
 		/// <param name="duration">Duration.</param>
-		public void Initialize(ITweenTarget<T> target, T to, float duration)
+		public void initialize( ITweenTarget<T> target, T to, float duration )
 		{
 			// reset state in case we were recycled
-			ResetState();
+			resetState();
 
 			_target = target;
 			_toValue = to;
@@ -370,45 +370,49 @@ namespace Nez.Tweens
 		/// <summary>
 		/// handles loop logic
 		/// </summary>
-		void HandleLooping(float elapsedTimeExcess)
+		void handleLooping( float elapsedTimeExcess )
 		{
 			_loops--;
-			if (_loopType == LoopType.PingPong)
+			if( _loopType == LoopType.PingPong )
 			{
-				ReverseTween();
+				reverseTween();
 			}
 
-			if (_loopType == LoopType.RestartFromBeginning || _loops % 2 == 0)
+			if( _loopType == LoopType.RestartFromBeginning || _loops % 2 == 0 )
 			{
-				if (_loopCompleteHandler != null)
-					_loopCompleteHandler(this);
+				if( _loopCompleteHandler != null )
+					_loopCompleteHandler( this );
 			}
 
 			// if we have loops left to process reset our state back to Running so we can continue processing them
-			if (_loops > 0)
+			if( _loops > 0 )
 			{
 				_tweenState = TweenState.Running;
 
 				// now we need to set our elapsed time and factor in our elapsedTimeExcess
-				if (_loopType == LoopType.RestartFromBeginning)
+				if( _loopType == LoopType.RestartFromBeginning )
 				{
 					_elapsedTime = elapsedTimeExcess - _delayBetweenLoops;
 				}
 				else
 				{
-					if (_isRunningInReverse)
+					if( _isRunningInReverse )
 						_elapsedTime += _delayBetweenLoops - elapsedTimeExcess;
 					else
 						_elapsedTime = elapsedTimeExcess - _delayBetweenLoops;
 				}
 
 				// if we had an elapsedTimeExcess and no delayBetweenLoops update the value
-				if (_delayBetweenLoops == 0f && elapsedTimeExcess > 0f)
-					UpdateValue();
+				if( _delayBetweenLoops == 0f && elapsedTimeExcess > 0f )
+					updateValue();
 			}
+
+
 		}
 
 
-		abstract protected void UpdateValue();
+		abstract protected void updateValue();
+
 	}
+
 }

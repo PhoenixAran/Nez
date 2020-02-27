@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	/// <summary>
 	/// will repeat execution of its child task until the child task has been run a specified number of times. It has the option of
@@ -9,59 +12,60 @@
 		/// <summary>
 		/// The number of times to repeat the execution of its child task
 		/// </summary>
-		public int Count;
+		public int count;
 
 		/// <summary>
 		/// Allows the repeater to repeat forever
 		/// </summary>
-		public bool RepeatForever;
+		public bool repeatForever;
 
 		/// <summary>
 		/// Should the task return if the child task returns a failure
 		/// </summary>
-		public bool EndOnFailure;
+		public bool endOnFailure;
 
 		int _iterationCount;
 
 
-		public Repeater(int count, bool endOnFailure = false)
+		public Repeater( int count, bool endOnFailure = false )
 		{
-			Count = count;
-			EndOnFailure = endOnFailure;
+			this.count = count;
+			this.endOnFailure = endOnFailure;
 		}
 
 
-		public Repeater(bool repeatForever, bool endOnFailure = false)
+		public Repeater( bool repeatForever, bool endOnFailure = false )
 		{
-			RepeatForever = repeatForever;
-			EndOnFailure = endOnFailure;
+			this.repeatForever = repeatForever;
+			this.endOnFailure = endOnFailure;
 		}
 
 
-		public override void OnStart()
+		public override void onStart()
 		{
 			_iterationCount = 0;
 		}
+	
 
-
-		public override TaskStatus Update(T context)
+		public override TaskStatus update( T context )
 		{
-			Insist.IsNotNull(Child, "child must not be null");
+			Assert.isNotNull( child, "child must not be null" );
 
 			// early out if we are done. we check here and after running just in case the count is 0
-			if (!RepeatForever && _iterationCount == Count)
+			if( !repeatForever && _iterationCount == count )
 				return TaskStatus.Success;
-
-			var status = Child.Tick(context);
+			
+			var status = child.tick( context );
 			_iterationCount++;
 
-			if (EndOnFailure && status == TaskStatus.Failure)
+			if( endOnFailure && status == TaskStatus.Failure )
 				return TaskStatus.Success;
 
-			if (!RepeatForever && _iterationCount == Count)
+			if( !repeatForever && _iterationCount == count )
 				return TaskStatus.Success;
 
 			return TaskStatus.Running;
 		}
 	}
 }
+

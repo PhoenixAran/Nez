@@ -1,4 +1,5 @@
-﻿using Nez.Textures;
+﻿using System;
+using Nez.Textures;
 using Microsoft.Xna.Framework;
 
 
@@ -15,31 +16,33 @@ namespace Nez
 	/// </summary>
 	public class ReflectionRenderer : RenderLayerRenderer
 	{
-		ReflectionRenderer(int renderOrder, params int[] reflectableObjectRenderLayers) : base(renderOrder,
-			reflectableObjectRenderLayers)
-		{
-		}
+		ReflectionRenderer( int renderOrder, params int[] reflectableObjectRenderLayers ) : base( renderOrder, reflectableObjectRenderLayers )
+		{}
 
-		public static ReflectionRenderer CreateAndSetupScene(Scene scene, int renderOrder, params int[] renderLayers)
+
+		public static ReflectionRenderer createAndSetupScene( Scene scene, int renderOrder, params int[] renderLayers )
 		{
-			var reflectionRenderer = scene.AddRenderer(new ReflectionRenderer(-1, renderLayers));
-			reflectionRenderer.RenderTargetClearColor = Color.Transparent;
-			reflectionRenderer.RenderTexture = new RenderTexture(1, 1);
+			var reflectionRenderer = scene.addRenderer( new ReflectionRenderer( -1, renderLayers ) );
+			reflectionRenderer.renderTargetClearColor = Color.Transparent;
+			reflectionRenderer.renderTexture = new RenderTexture( 1, 1 );
 
 			// create a Camera and parent it to the Scene's Camera
-			var cameraEntity = scene.CreateEntity("reflection-camera");
-			cameraEntity.Transform.SetParent(scene.Camera.Entity.Transform);
-			reflectionRenderer.Camera = cameraEntity.AddComponent<Camera>();
+			var cameraEntity = scene.createEntity( "reflection-camera" );
+			cameraEntity.transform.setParent( scene.camera.entity.transform );
+			reflectionRenderer.camera = cameraEntity.addComponent<Camera>();
 
 			return reflectionRenderer;
 		}
 
-		public override void OnSceneBackBufferSizeChanged(int newWidth, int newHeight)
+
+		public override void onSceneBackBufferSizeChanged( int newWidth, int newHeight )
 		{
-			base.OnSceneBackBufferSizeChanged(newWidth, newHeight);
+			base.onSceneBackBufferSizeChanged( newWidth, newHeight );
 
 			// keep our Camera in sync with the normal Scene Camera. This will ensure the origin is updated with screen size changes.
-			Camera.Origin = new Vector2(newWidth / 2f, newHeight / 2f);
+			camera.origin = new Vector2( newWidth / 2f, newHeight / 2f );
 		}
+
 	}
 }
+

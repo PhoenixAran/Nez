@@ -1,4 +1,6 @@
-﻿namespace Nez.Tweens
+﻿
+
+namespace Nez.Tweens
 {
 	/// <summary>
 	/// AbstractTweenable serves as a base for any custom classes you might want to make that can be ticked. These differ from
@@ -20,54 +22,54 @@
 
 		#region ITweenable
 
-		public abstract bool Tick();
+		public abstract bool tick();
 
 
-		public virtual void RecycleSelf()
-		{
-		}
+		public virtual void recycleSelf()
+		{}
 
 
-		public bool IsRunning()
+		public bool isRunning()
 		{
 			return _isCurrentlyManagedByTweenManager && !_isPaused;
 		}
 
 
-		public virtual void Start()
+		public virtual void start()
 		{
 			// dont add ourself twice!
-			if (_isCurrentlyManagedByTweenManager)
+			if( _isCurrentlyManagedByTweenManager )
 			{
 				_isPaused = false;
 				return;
 			}
-
-			TweenManager.AddTween(this);
+			
+			TweenManager.addTween( this );
 			_isCurrentlyManagedByTweenManager = true;
 			_isPaused = false;
 		}
 
 
-		public void Pause()
+		public void pause()
 		{
 			_isPaused = true;
 		}
 
 
-		public void Resume()
+		public void resume()
 		{
 			_isPaused = false;
 		}
 
 
-		public virtual void Stop(bool bringToCompletion = false)
+		public virtual void stop( bool bringToCompletion = false )
 		{
-			TweenManager.RemoveTween(this);
+			TweenManager.removeTween( this );
 			_isCurrentlyManagedByTweenManager = false;
 			_isPaused = true;
 		}
 
 		#endregion
+
 	}
 }

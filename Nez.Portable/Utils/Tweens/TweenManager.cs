@@ -3,14 +3,14 @@
 
 namespace Nez.Tweens
 {
-	public class TweenManager : GlobalManager
+	public class TweenManager : IUpdatableManager
 	{
-		public static EaseType DefaultEaseType = EaseType.QuartIn;
+		public static EaseType defaultEaseType = EaseType.QuartIn;
 
 		/// <summary>
 		/// if true, the active tween list will be cleared when a new level loads
 		/// </summary>
-		public static bool RemoveAllTweensOnLevelLoad = false;
+		public static bool removeAllTweensOnLevelLoad = false;
 
 
 		#region Caching rules
@@ -20,15 +20,14 @@ namespace Nez.Tweens
 		/// the tweens or if you fetch a tween from the cache when doing custom tweens. See the extension method implementations for
 		/// how to fetch a cached tween.
 		/// </summary>
-		public static bool CacheIntTweens = true;
-
-		public static bool CacheFloatTweens = true;
-		public static bool CacheVector2Tweens = true;
-		public static bool CacheVector3Tweens;
-		public static bool CacheVector4Tweens;
-		public static bool CacheQuaternionTweens;
-		public static bool CacheColorTweens = true;
-		public static bool CacheRectTweens;
+		public static bool cacheIntTweens = true;
+		public static bool cacheFloatTweens = true;
+		public static bool cacheVector2Tweens = true;
+		public static bool cacheVector3Tweens;
+		public static bool cacheVector4Tweens;
+		public static bool cacheQuaternionTweens;
+		public static bool cacheColorTweens = true;
+		public static bool cacheRectTweens;
 
 		#endregion
 
@@ -37,7 +36,7 @@ namespace Nez.Tweens
 		/// internal list of all the currently active tweens
 		/// </summary>
 		FastList<ITweenable> _activeTweens = new FastList<ITweenable>();
-
+		
 		/// <summary>
 		/// stores tweens marked for removal
 		/// </summary>
@@ -48,9 +47,6 @@ namespace Nez.Tweens
 		/// </summary>
 		bool _isUpdating;
 
-		/// <summary>
-		/// facilitates exposing a static API for easy access
-		/// </summary>
 		static TweenManager _instance;
 
 
@@ -60,28 +56,27 @@ namespace Nez.Tweens
 		}
 
 
-		public override void Update()
+		void IUpdatableManager.update()
 		{
 			_isUpdating = true;
 
 			// loop backwards so we can remove completed tweens
-			for (var i = _activeTweens.Length - 1; i >= 0; --i)
+			for( var i = _activeTweens.length - 1; i >= 0; --i )
 			{
-				var tween = _activeTweens.Buffer[i];
-				if (tween.Tick())
-					_tempTweens.Add(tween);
+				var tween = _activeTweens.buffer[i];
+				if( tween.tick() )
+					_tempTweens.add( tween );
 			}
 
 			_isUpdating = false;
 
 			// kill the dead Tweens
-			for (var i = 0; i < _tempTweens.Length; i++)
+			for( var i = 0; i < _tempTweens.length; i++ )
 			{
-				_tempTweens.Buffer[i].RecycleSelf();
-				_activeTweens.Remove(_tempTweens[i]);
+				_tempTweens.buffer[i].recycleSelf();
+				_activeTweens.remove( _tempTweens[i] );
 			}
-
-			_tempTweens.Clear();
+			_tempTweens.clear();
 		}
 
 
@@ -91,9 +86,9 @@ namespace Nez.Tweens
 		/// adds a tween to the active tweens list
 		/// </summary>
 		/// <param name="tween">Tween.</param>
-		public static void AddTween(ITweenable tween)
+		public static void addTween( ITweenable tween )
 		{
-			_instance._activeTweens.Add(tween);
+			_instance._activeTweens.add( tween );
 		}
 
 
@@ -101,16 +96,16 @@ namespace Nez.Tweens
 		/// removes a tween from the active tweens list
 		/// </summary>
 		/// <param name="tween">Tween.</param>
-		public static void RemoveTween(ITweenable tween)
+		public static void removeTween( ITweenable tween )
 		{
-			if (_instance._isUpdating)
+			if( _instance._isUpdating )
 			{
-				_instance._tempTweens.Add(tween);
+				_instance._tempTweens.add( tween );
 			}
 			else
 			{
-				tween.RecycleSelf();
-				_instance._activeTweens.Remove(tween);
+				tween.recycleSelf();
+				_instance._activeTweens.remove( tween );
 			}
 		}
 
@@ -119,10 +114,10 @@ namespace Nez.Tweens
 		/// stops all tweens optionlly bringing them all to completion
 		/// </summary>
 		/// <param name="bringToCompletion">If set to <c>true</c> bring to completion.</param>
-		public static void StopAllTweens(bool bringToCompletion = false)
+		public static void stopAllTweens( bool bringToCompletion = false )
 		{
-			for (var i = _instance._activeTweens.Length - 1; i >= 0; --i)
-				_instance._activeTweens.Buffer[i].Stop(bringToCompletion);
+			for( var i = _instance._activeTweens.length - 1; i >= 0; --i )
+				_instance._activeTweens.buffer[i].stop( bringToCompletion );
 		}
 
 
@@ -132,15 +127,14 @@ namespace Nez.Tweens
 		/// </summary>
 		/// <returns>The tweens with context.</returns>
 		/// <param name="context">Context.</param>
-		public static List<ITweenable> AllTweensWithContext(object context)
+		public static List<ITweenable> allTweensWithContext( object context )
 		{
 			var foundTweens = new List<ITweenable>();
 
-			for (var i = 0; i < _instance._activeTweens.Length; i++)
+			for( var i = 0; i < _instance._activeTweens.length; i++ )
 			{
-				if (_instance._activeTweens.Buffer[i] is ITweenable &&
-				    (_instance._activeTweens.Buffer[i] as ITweenControl).Context == context)
-					foundTweens.Add(_instance._activeTweens.Buffer[i]);
+				if( _instance._activeTweens.buffer[i] is ITweenable && ( _instance._activeTweens.buffer[i] as ITweenControl ).context == context )
+					foundTweens.Add( _instance._activeTweens.buffer[i] );
 			}
 
 			return foundTweens;
@@ -152,13 +146,12 @@ namespace Nez.Tweens
 		/// </summary>
 		/// <returns>The tweens with context.</returns>
 		/// <param name="context">Context.</param>
-		public static void StopAllTweensWithContext(object context, bool bringToCompletion = false)
+		public static void stopAllTweensWithContext( object context, bool bringToCompletion = false )
 		{
-			for (var i = _instance._activeTweens.Length - 1; i >= 0; --i)
+			for( var i = _instance._activeTweens.length - 1; i >= 0; --i )
 			{
-				if (_instance._activeTweens.Buffer[i] is ITweenable &&
-				    (_instance._activeTweens.Buffer[i] as ITweenControl).Context == context)
-					_instance._activeTweens.Buffer[i].Stop(bringToCompletion);
+				if( _instance._activeTweens.buffer[i] is ITweenable && ( _instance._activeTweens.buffer[i] as ITweenControl ).context == context )
+					_instance._activeTweens.buffer[i].stop( bringToCompletion );
 			}
 		}
 
@@ -169,17 +162,17 @@ namespace Nez.Tweens
 		/// </summary>
 		/// <returns>The tweens with target.</returns>
 		/// <param name="target">target.</param>
-		public static List<ITweenable> AllTweensWithTarget(object target)
+		public static List<ITweenable> allTweensWithTarget( object target )
 		{
 			var foundTweens = new List<ITweenable>();
 
-			for (var i = 0; i < _instance._activeTweens.Length; i++)
+			for( var i = 0; i < _instance._activeTweens.length; i++ )
 			{
-				if (_instance._activeTweens[i] is ITweenControl)
+				if( _instance._activeTweens[i] is ITweenControl )
 				{
-					var tweenControl = _instance._activeTweens.Buffer[i] as ITweenControl;
-					if (tweenControl.GetTargetObject() == target)
-						foundTweens.Add(_instance._activeTweens[i] as ITweenable);
+					var tweenControl = _instance._activeTweens.buffer[i] as ITweenControl;
+					if( tweenControl.getTargetObject() == target )
+						foundTweens.Add( _instance._activeTweens[i] as ITweenable );
 				}
 			}
 
@@ -192,19 +185,20 @@ namespace Nez.Tweens
 		/// that TweenManager knows about.
 		/// </summary>
 		/// <param name="target">target.</param>
-		public static void StopAllTweensWithTarget(object target, bool bringToCompletion = false)
+		public static void stopAllTweensWithTarget( object target, bool bringToCompletion = false )
 		{
-			for (var i = _instance._activeTweens.Length - 1; i >= 0; --i)
+			for( var i = _instance._activeTweens.length - 1; i >= 0; --i )
 			{
-				if (_instance._activeTweens[i] is ITweenControl)
+				if( _instance._activeTweens[i] is ITweenControl )
 				{
-					var tweenControl = _instance._activeTweens.Buffer[i] as ITweenControl;
-					if (tweenControl.GetTargetObject() == target)
-						tweenControl.Stop(bringToCompletion);
+					var tweenControl = _instance._activeTweens.buffer[i] as ITweenControl;
+					if( tweenControl.getTargetObject() == target )
+						tweenControl.stop( bringToCompletion );
 				}
 			}
 		}
 
 		#endregion
+
 	}
 }

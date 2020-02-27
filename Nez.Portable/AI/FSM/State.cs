@@ -6,50 +6,47 @@
 		protected T _context;
 
 
-		public void SetMachineAndContext(StateMachine<T> machine, T context)
+		public void setMachineAndContext( StateMachine<T> machine, T context )
 		{
 			_machine = machine;
 			_context = context;
-			OnInitialized();
+			onInitialized();
 		}
 
 
 		/// <summary>
 		/// called directly after the machine and context are set allowing the state to do any required setup
 		/// </summary>
-		public virtual void OnInitialized()
-		{
-		}
+		public virtual void onInitialized()
+		{}
 
 
 		/// <summary>
 		/// called when the state becomes the active state
 		/// </summary>
-		public virtual void Begin()
-		{
-		}
+		public virtual void begin()
+		{}
 
 
 		/// <summary>
 		/// called before update allowing the state to have one last chance to change state
 		/// </summary>
-		public virtual void Reason()
-		{
-		}
+		public virtual void reason()
+		{}
 
 
 		/// <summary>
 		/// called every frame this state is the active state
 		/// </summary>
 		/// <param name="deltaTime">Delta time.</param>
-		public abstract void Update(float deltaTime);
+		public abstract void update( float deltaTime );
 
 
 		/// <summary>
 		/// called when this state is no longer the active state
 		/// </summary>
-		public virtual void End()
-		{
-		}
+		public virtual void end()
+		{}
 	}
 }
+

@@ -16,111 +16,110 @@ namespace Nez
 		/// color of the squares
 		/// </summary>
 		/// <value>The color of the square.</value>
-		public Color SquareColor
+		public Color squareColor
 		{
-			set => _squaresEffect.Parameters["_color"].SetValue(value.ToVector4());
+			set { _squaresEffect.Parameters["_color"].SetValue( value.ToVector4() ); }
 		}
 
-		public float Smoothness
+		public float smoothness
 		{
-			set => _squaresEffect.Parameters["_smoothness"].SetValue(value);
+			set { _squaresEffect.Parameters["_smoothness"].SetValue( value ); }
 		}
 
 		/// <summary>
 		/// size of the squares. If you want perfect squares use size, size / aspectRatio_of_screen
 		/// </summary>
 		/// <value>The size.</value>
-		public Vector2 Size
+		public Vector2 size
 		{
-			set => _squaresEffect.Parameters["_size"].SetValue(value);
+			set { _squaresEffect.Parameters["_size"].SetValue( value ); }
 		}
 
 		/// <summary>
 		/// duration for squares to populate the screen
 		/// </summary>
-		public float SquaresInDuration = 0.6f;
+		public float squaresInDuration = 0.6f;
 
 		/// <summary>
 		/// delay before removing squares
 		/// </summary>
-		public float DelayBeforeSquaresInDuration = 0;
+		public float delayBeforeSquaresInDuration = 0;
 
 		/// <summary>
 		/// duration for squares to unpopulate screen
 		/// </summary>
-		public float SquaresOutDuration = 0.6f;
+		public float squaresOutDuration = 0.6f;
 
 		/// <summary>
 		/// ease equation to use for the animation
 		/// </summary>
-		public EaseType EaseType = EaseType.QuartOut;
+		public EaseType easeType = EaseType.QuartOut;
 
 		Effect _squaresEffect;
 		Rectangle _destinationRect;
 		Texture2D _overlayTexture;
 
 
-		public SquaresTransition(Func<Scene> sceneLoadAction) : base(sceneLoadAction, true)
+		public SquaresTransition( Func<Scene> sceneLoadAction ) : base( sceneLoadAction, true )
 		{
-			_destinationRect = PreviousSceneRender.Bounds;
+			_destinationRect = previousSceneRender.Bounds;
 
 			// load Effect and set defaults
-			_squaresEffect = Core.Content.LoadEffect("Content/nez/effects/transitions/Squares.mgfxo");
-			SquareColor = Color.Black;
-			Smoothness = 0.5f;
+			_squaresEffect = Core.content.loadEffect( "Content/nez/effects/transitions/Squares.mgfxo" );
+			squareColor = Color.Black;
+			smoothness = 0.5f;
 
-			var aspectRatio = (float) Screen.Width / (float) Screen.Height;
-			Size = new Vector2(30, 30 / aspectRatio);
+			var aspectRatio = (float)Screen.width / (float)Screen.height;
+			size = new Vector2( 30, 30 / aspectRatio );
 		}
 
 
-		public SquaresTransition() : this(null)
-		{
-		}
+		public SquaresTransition() : this( null )
+		{}
 
 
-		public override IEnumerator OnBeginTransition()
+		public override IEnumerator onBeginTransition()
 		{
 			// create a single pixel transparent texture so we can do our squares out to the next scene
-			_overlayTexture = Graphics.CreateSingleColorTexture(1, 1, Color.Transparent);
+			_overlayTexture = Graphics.createSingleColorTexture( 1, 1, Color.Transparent );
 
 			// populate squares
-			yield return Core.StartCoroutine(TickEffectProgressProperty(_squaresEffect, SquaresInDuration, EaseType));
+			yield return Core.startCoroutine( tickEffectProgressProperty( _squaresEffect, squaresInDuration, easeType ) );
 
 			// load up the new Scene
-			yield return Core.StartCoroutine(LoadNextScene());
+			yield return Core.startCoroutine( loadNextScene() );
 
 			// dispose of our previousSceneRender. We dont need it anymore.
-			PreviousSceneRender.Dispose();
-			PreviousSceneRender = null;
+			previousSceneRender.Dispose();
+			previousSceneRender = null;
 
 			// delay
-			yield return Coroutine.WaitForSeconds(DelayBeforeSquaresInDuration);
+			yield return Coroutine.waitForSeconds( delayBeforeSquaresInDuration );
 
 			// unpopulate squares
-			yield return Core.StartCoroutine(TickEffectProgressProperty(_squaresEffect, SquaresInDuration,
-				EaseHelper.OppositeEaseType(EaseType), true));
+			yield return Core.startCoroutine( tickEffectProgressProperty( _squaresEffect, squaresInDuration, EaseHelper.oppositeEaseType( easeType ), true ) );
 
-			TransitionComplete();
+			transitionComplete();
 
 			// cleanup
 			_overlayTexture.Dispose();
-			Core.Content.UnloadEffect(_squaresEffect.Name);
+			Core.content.unloadEffect( _squaresEffect.Name );
 		}
 
 
-		public override void Render(Batcher batcher)
+		public override void render( Graphics graphics )
 		{
-			Core.GraphicsDevice.SetRenderTarget(null);
-			batcher.Begin(BlendState.NonPremultiplied, Core.DefaultSamplerState, DepthStencilState.None, null, _squaresEffect);
+			Core.graphicsDevice.setRenderTarget( null );
+			graphics.batcher.begin( BlendState.NonPremultiplied, Core.defaultSamplerState, DepthStencilState.None, null, _squaresEffect );
 
 			// we only render the previousSceneRender while populating the squares
-			if (!_isNewSceneLoaded)
-				batcher.Draw(PreviousSceneRender, _destinationRect, Color.White);
+			if( !_isNewSceneLoaded )
+				graphics.batcher.draw( previousSceneRender, _destinationRect, Color.White );
 			else
-				batcher.Draw(_overlayTexture, new Rectangle(0, 0, Screen.Width, Screen.Height), Color.Transparent);
-
-			batcher.End();
+				graphics.batcher.draw( _overlayTexture, new Rectangle( 0, 0, Screen.width, Screen.height ), Color.Transparent );
+			
+			graphics.batcher.end();
 		}
 	}
 }
+

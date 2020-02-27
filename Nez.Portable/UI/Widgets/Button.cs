@@ -6,55 +6,61 @@ namespace Nez.UI
 {
 	public class Button : Table, IInputListener, IGamepadFocusable
 	{
-		public event Action<bool> OnChanged;
-		public event Action<Button> OnClicked;
+		public event Action<bool> onChanged;
+		public event Action<Button> onClicked;
 
-		public override float PreferredWidth
+		public override float preferredWidth
 		{
 			get
 			{
-				var prefWidth = base.PreferredWidth;
-				if (style.Up != null)
-					prefWidth = Math.Max(prefWidth, style.Up.MinWidth);
-				if (style.Down != null)
-					prefWidth = Math.Max(prefWidth, style.Down.MinWidth);
-				if (style.Checked != null)
-					prefWidth = Math.Max(prefWidth, style.Checked.MinWidth);
-				return prefWidth;
+				var width = base.preferredWidth;
+				if( style.up != null )
+					width = Math.Max( width, style.up.minWidth );
+				if( style.down != null )
+					width = Math.Max( width, style.down.minWidth );
+				if( style.checkked != null )
+					width = Math.Max( width, style.checkked.minWidth );
+				return width;
 			}
 		}
 
-		public override float PreferredHeight
+		public override float preferredHeight
 		{
 			get
 			{
-				var prefHeight = base.PreferredHeight;
-				if (style.Up != null)
-					prefHeight = Math.Max(prefHeight, style.Up.MinHeight);
-				if (style.Down != null)
-					prefHeight = Math.Max(prefHeight, style.Down.MinHeight);
-				if (style.Checked != null)
-					prefHeight = Math.Max(prefHeight, style.Checked.MinHeight);
-				return prefHeight;
+				var height = base.preferredHeight;
+				if( style.up != null )
+					height = Math.Max( height, style.up.minHeight );
+				if( style.down != null )
+					height = Math.Max( height, style.down.minHeight );
+				if( style.checkked != null )
+					height = Math.Max( height, style.checkked.minHeight );
+				return height;
 			}
 		}
 
-		public override float MinWidth => PreferredWidth;
-
-		public override float MinHeight => PreferredHeight;
-
-		public bool IsChecked
+		public override float minWidth
 		{
-			get => _isChecked;
-			set => SetChecked(value, ProgrammaticChangeEvents);
+			get { return preferredWidth; }
 		}
 
-		public bool ProgrammaticChangeEvents;
+		public override float minHeight
+		{
+			get { return preferredHeight; }
+		}
+
+		public bool isChecked
+		{
+			get { return _isChecked; }
+			set { setChecked( value, programmaticChangeEvents ); }
+		}
+
+		public bool programmaticChangeEvents;
 
 		/// <summary>
 		/// the maximum distance outside the button the mouse can move when pressing it to cause it to be unfocused
 		/// </summary>
-		public float ButtonBoundaryThreshold = 50f;
+		public float buttonBoundaryThreshold = 50f;
 
 		internal ButtonGroup _buttonGroup;
 		protected bool _mouseOver, _mouseDown;
@@ -65,49 +71,52 @@ namespace Nez.UI
 
 		#region Constructors
 
-		public Button(ButtonStyle style)
+		public Button( ButtonStyle style )
 		{
-			SetTouchable(Touchable.Enabled);
-			SetStyle(style);
-			SetSize(PreferredWidth, PreferredHeight);
+			setTouchable( Touchable.Enabled );
+			setStyle( style );
+			setSize( preferredWidth, preferredHeight );
 		}
 
 
-		public Button(Skin skin, string styleName = null) : this(skin.Get<ButtonStyle>(styleName))
-		{ }
+		public Button( Skin skin, string styleName = null ) : this( skin.get<ButtonStyle>( styleName ) )
+		{}
 
 
-		public Button(IDrawable up) : this(new ButtonStyle(up, null, null))
-		{ }
+		public Button( IDrawable up ) : this( new ButtonStyle( up, null, null ) )
+		{
+		}
 
 
-		public Button(IDrawable up, IDrawable down) : this(new ButtonStyle(up, down, null))
-		{ }
+		public Button( IDrawable up, IDrawable down ) : this( new ButtonStyle( up, down, null ) )
+		{
+		}
 
 
-		public Button(IDrawable up, IDrawable down, IDrawable checked_) : this(new ButtonStyle(up, down, checked_))
-		{ }
+		public Button( IDrawable up, IDrawable down, IDrawable checked_ ) : this( new ButtonStyle( up, down, checked_ ) )
+		{
+		}
 
 		#endregion
 
 
 		#region IInputListener
 
-		void IInputListener.OnMouseEnter()
+		void IInputListener.onMouseEnter()
 		{
 			_mouseOver = true;
 		}
 
 
-		void IInputListener.OnMouseExit()
+		void IInputListener.onMouseExit()
 		{
 			_mouseOver = _mouseDown = false;
 		}
 
 
-		bool IInputListener.OnMousePressed(Vector2 mousePos)
+		bool IInputListener.onMousePressed( Vector2 mousePos )
 		{
-			if (_isDisabled)
+			if( _isDisabled )
 				return false;
 
 			_mouseDown = true;
@@ -115,29 +124,29 @@ namespace Nez.UI
 		}
 
 
-		void IInputListener.OnMouseMoved(Vector2 mousePos)
+		void IInputListener.onMouseMoved( Vector2 mousePos )
 		{
 			// if we get too far outside the button cancel future events
-			if (DistanceOutsideBoundsToPoint(mousePos) > ButtonBoundaryThreshold)
+			if( distanceOutsideBoundsToPoint( mousePos ) > buttonBoundaryThreshold )
 			{
 				_mouseDown = _mouseOver = false;
-				GetStage().RemoveInputFocusListener(this);
+				getStage().removeInputFocusListener( this );
 			}
 		}
 
 
-		void IInputListener.OnMouseUp(Vector2 mousePos)
+		void IInputListener.onMouseUp( Vector2 mousePos )
 		{
 			_mouseDown = false;
 
-			SetChecked(!_isChecked, true);
+			setChecked( !_isChecked, true );
 
-			if (OnClicked != null)
-				OnClicked(this);
+			if( onClicked != null )
+				onClicked( this );
 		}
 
 
-		bool IInputListener.OnMouseScrolled(int mouseWheelDelta)
+		bool IInputListener.onMouseScrolled( int mouseWheelDelta )
 		{
 			return false;
 		}
@@ -147,49 +156,48 @@ namespace Nez.UI
 
 		#region IGamepadFocusable
 
-		public bool ShouldUseExplicitFocusableControl { get; set; }
-		public IGamepadFocusable GamepadUpElement { get; set; }
-		public IGamepadFocusable GamepadDownElement { get; set; }
-		public IGamepadFocusable GamepadLeftElement { get; set; }
-		public IGamepadFocusable GamepadRightElement { get; set; }
+		public bool shouldUseExplicitFocusableControl { get; set; }
+		public IGamepadFocusable gamepadUpElement { get; set; }
+		public IGamepadFocusable gamepadDownElement { get; set; }
+		public IGamepadFocusable gamepadLeftElement { get; set; }
+		public IGamepadFocusable gamepadRightElement { get; set; }
 
 
-		public void EnableExplicitFocusableControl(IGamepadFocusable upEle, IGamepadFocusable downEle,
-		                                           IGamepadFocusable leftEle, IGamepadFocusable rightEle)
+		public void enableExplicitFocusableControl( IGamepadFocusable upEle, IGamepadFocusable downEle, IGamepadFocusable leftEle, IGamepadFocusable rightEle )
 		{
-			ShouldUseExplicitFocusableControl = true;
-			GamepadUpElement = upEle;
-			GamepadDownElement = downEle;
-			GamepadLeftElement = leftEle;
-			GamepadRightElement = rightEle;
+			shouldUseExplicitFocusableControl = true;
+			gamepadUpElement = upEle;
+			gamepadDownElement = downEle;
+			gamepadLeftElement = leftEle;
+			gamepadRightElement = rightEle;
 		}
 
 
-		void IGamepadFocusable.OnUnhandledDirectionPressed(Direction direction)
-		{ }
+		void IGamepadFocusable.onUnhandledDirectionPressed( Direction direction )
+		{}
 
 
-		void IGamepadFocusable.OnFocused()
+		void IGamepadFocusable.onFocused()
 		{
-			OnFocused();
+			onFocused();
 		}
 
 
-		void IGamepadFocusable.OnUnfocused()
+		void IGamepadFocusable.onUnfocused()
 		{
-			OnUnfocused();
+			onUnfocused();
 		}
 
 
-		void IGamepadFocusable.OnActionButtonPressed()
+		void IGamepadFocusable.onActionButtonPressed()
 		{
-			OnActionButtonPressed();
+			onActionButtonPressed();
 		}
 
 
-		void IGamepadFocusable.OnActionButtonReleased()
+		void IGamepadFocusable.onActionButtonReleased()
 		{
-			OnActionButtonReleased();
+			onActionButtonReleased();
 		}
 
 		#endregion
@@ -197,74 +205,73 @@ namespace Nez.UI
 
 		#region overrideable focus handlers
 
-		protected virtual void OnFocused()
+		protected virtual void onFocused()
 		{
 			_mouseOver = true;
 		}
 
 
-		protected virtual void OnUnfocused()
+		protected virtual void onUnfocused()
 		{
 			_mouseOver = _mouseDown = false;
 		}
 
 
-		protected virtual void OnActionButtonPressed()
+		protected virtual void onActionButtonPressed()
 		{
 			_mouseDown = true;
 		}
 
 
-		protected virtual void OnActionButtonReleased()
+		protected virtual void onActionButtonReleased()
 		{
 			_mouseDown = false;
 
-			SetChecked(!_isChecked, true);
+			setChecked( !_isChecked, true );
 
-			if (OnClicked != null)
-				OnClicked(this);
+			if( onClicked != null )
+				onClicked( this );
 		}
 
 		#endregion
 
 
-		public virtual void SetStyle(ButtonStyle style)
+		public virtual void setStyle( ButtonStyle style )
 		{
 			this.style = style;
 
-			if (_mouseDown && !_isDisabled)
+			if( _mouseDown && !_isDisabled )
 			{
-				_background = style.Down == null ? style.Up : style.Down;
+				_background = style.down == null ? style.up : style.down;
 			}
 			else
 			{
-				if (_isDisabled && style.Disabled != null)
-					_background = style.Disabled;
-				else if (_isChecked && style.Checked != null)
-					_background = (_mouseOver && style.CheckedOver != null) ? style.CheckedOver : style.Checked;
-				else if (_mouseOver && style.Over != null)
-					_background = style.Over;
+				if( _isDisabled && style.disabled != null )
+					_background = style.disabled;
+				else if( _isChecked && style.checkked != null )
+					_background = ( _mouseOver && style.checkedOver != null ) ? style.checkedOver : style.checkked;
+				else if( _mouseOver && style.over != null )
+					_background = style.over;
 				else
-					_background = style.Up;
+					_background = style.up;
 			}
 
-			SetBackground(_background);
+			setBackground( _background );
 		}
 
 
-		void SetChecked(bool isCheckked, bool fireEvent)
+		void setChecked( bool isChecked, bool fireEvent )
 		{
-			if (_isChecked == isCheckked)
+			if( _isChecked == isChecked )
 				return;
 
-			if (_buttonGroup != null && !_buttonGroup.CanCheck(this, isCheckked))
+			if( _buttonGroup != null && !_buttonGroup.canCheck( this, isChecked ) )
 				return;
+			_isChecked = isChecked;
 
-			_isChecked = isCheckked;
-
-			if (fireEvent && OnChanged != null)
+			if( fireEvent && onChanged != null )
 			{
-				OnChanged(_isChecked);
+				onChanged( _isChecked );
 			}
 		}
 
@@ -273,9 +280,9 @@ namespace Nez.UI
 		/// Toggles the checked state. This method changes the checked state, which fires a {@link onChangedEvent} (if programmatic change
 		/// events are enabled), so can be used to simulate a button click.
 		/// </summary>
-		public void Toggle()
+		public void toggle()
 		{
-			IsChecked = !_isChecked;
+			isChecked = !_isChecked;
 		}
 
 
@@ -283,7 +290,7 @@ namespace Nez.UI
 		/// Returns the button's style. Modifying the returned style may not have an effect until {@link #setStyle(ButtonStyle)} is called.
 		/// </summary>
 		/// <returns>The style.</returns>
-		public virtual ButtonStyle GetStyle()
+		public virtual ButtonStyle getStyle()
 		{
 			return style;
 		}
@@ -293,65 +300,72 @@ namespace Nez.UI
 		/// May be null
 		/// </summary>
 		/// <returns>The button group.</returns>
-		public ButtonGroup GetButtonGroup()
+		public ButtonGroup getButtonGroup()
 		{
 			return _buttonGroup;
 		}
 
 
-		public void SetDisabled(bool disabled) => _isDisabled = disabled;
-
-
-		public bool GetDisabled() => _isDisabled;
-
-
-		public override void Draw(Batcher batcher, float parentAlpha)
+		public void setDisabled( bool disabled )
 		{
-			Validate();
+			_isDisabled = disabled;
+		}
 
-			if (_isDisabled && style.Disabled != null)
-				_background = style.Disabled;
-			else if (_mouseDown && style.Down != null)
-				_background = style.Down;
-			else if (_isChecked && style.Checked != null)
-				_background = (style.CheckedOver != null && _mouseOver) ? style.CheckedOver : style.Checked;
-			else if (_mouseOver && style.Over != null)
-				_background = style.Over;
-			else if (style.Up != null) //
-				_background = style.Up;
-			SetBackground(_background);
+
+		public bool getDisabled()
+		{
+			return _isDisabled;
+		}
+
+
+		public override void draw( Graphics graphics, float parentAlpha )
+		{
+			validate();
+
+			if( _isDisabled && style.disabled != null )
+				_background = style.disabled;
+			else if( _mouseDown && style.down != null )
+				_background = style.down;
+			else if( _isChecked && style.checkked != null )
+				_background = ( style.checkedOver != null && _mouseOver ) ? style.checkedOver : style.checkked;
+			else if( _mouseOver && style.over != null )
+				_background = style.over;
+			else if( style.up != null ) //
+				_background = style.up;
+			setBackground( _background );
 
 			float offsetX = 0, offsetY = 0;
-			if (_mouseDown && !_isDisabled)
+			if( _mouseDown && !_isDisabled )
 			{
-				offsetX = style.PressedOffsetX;
-				offsetY = style.PressedOffsetY;
+				offsetX = style.pressedOffsetX;
+				offsetY = style.pressedOffsetY;
 			}
-			else if (_isChecked && !_isDisabled)
+			else if( _isChecked && !_isDisabled )
 			{
-				offsetX = style.CheckedOffsetX;
-				offsetY = style.CheckedOffsetY;
+				offsetX = style.checkedOffsetX;
+				offsetY = style.checkedOffsetY;
 			}
 			else
 			{
-				offsetX = style.UnpressedOffsetX;
-				offsetY = style.UnpressedOffsetY;
+				offsetX = style.unpressedOffsetX;
+				offsetY = style.unpressedOffsetY;
 			}
+				
+			for( var i = 0; i < children.Count; i++ )
+				children[i].moveBy( offsetX, offsetY );
 
-			for (var i = 0; i < children.Count; i++)
-				children[i].MoveBy(offsetX, offsetY);
+			base.draw( graphics, parentAlpha );
 
-			base.Draw(batcher, parentAlpha);
-
-			for (int i = 0; i < children.Count; i++)
-				children[i].MoveBy(-offsetX, -offsetY);
+			for( int i = 0; i < children.Count; i++ )
+				children[i].moveBy( -offsetX, -offsetY );
 		}
 
 
 		public override string ToString()
 		{
-			return string.Format("[Button]");
+			return string.Format( "[Button]" );
 		}
+
 	}
 
 
@@ -361,46 +375,46 @@ namespace Nez.UI
 	public class ButtonStyle
 	{
 		/** Optional. */
-		public IDrawable Up, Down, Over, Checked, CheckedOver, Disabled;
+		public IDrawable up, down, over, checkked, checkedOver, disabled;
 
 		/** Optional. offsets children (labels for example). */
-		public float PressedOffsetX, PressedOffsetY, UnpressedOffsetX, UnpressedOffsetY, CheckedOffsetX, CheckedOffsetY;
+		public float pressedOffsetX, pressedOffsetY, unpressedOffsetX, unpressedOffsetY, checkedOffsetX, checkedOffsetY;
 
 
 		public ButtonStyle()
-		{ }
+		{}
 
 
-		public ButtonStyle(IDrawable up, IDrawable down, IDrawable over)
+		public ButtonStyle( IDrawable up, IDrawable down, IDrawable over )
 		{
-			Up = up;
-			Down = down;
-			Over = over;
+			this.up = up;
+			this.down = down;
+			this.over = over;
 		}
 
 
-		public static ButtonStyle Create(Color upColor, Color downColor, Color overColor)
+		public static ButtonStyle create( Color upColor, Color downColor, Color overColor )
 		{
-			return new ButtonStyle
-			{
-				Up = new PrimitiveDrawable(upColor),
-				Down = new PrimitiveDrawable(downColor),
-				Over = new PrimitiveDrawable(overColor)
+			return new ButtonStyle {
+				up = new PrimitiveDrawable( upColor ),
+				down = new PrimitiveDrawable( downColor ),
+				over = new PrimitiveDrawable( overColor )
 			};
 		}
 
 
-		public ButtonStyle Clone()
+		public ButtonStyle clone()
 		{
-			return new ButtonStyle
-			{
-				Up = Up,
-				Down = Down,
-				Over = Over,
-				Checked = Checked,
-				CheckedOver = CheckedOver,
-				Disabled = Disabled
+			return new ButtonStyle {
+				up = up,
+				down = down,
+				over = over,
+				checkked = checkked,
+				checkedOver = checkedOver,
+				disabled = disabled
 			};
 		}
+	
 	}
 }
+

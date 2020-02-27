@@ -1,97 +1,93 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 
 namespace Nez.UI
 {
 	public class ProgressBar : Element
-	{
-		#region properties and fields
+    {
+        #region properties and fields
+        
+        public event Action<float> onChanged;
 
-		public event Action<float> OnChanged;
+		public bool disabled;
 
-		public bool Disabled;
-
-		public override float PreferredWidth
+		public override float preferredWidth
 		{
 			get
 			{
-				if (_vertical)
-					return Math.Max(style.Knob == null ? 0 : style.Knob.MinWidth,
-						style.Background != null ? style.Background.MinWidth : 0);
+				if( _vertical )
+					return Math.Max( style.knob == null ? 0 : style.knob.minWidth, style.background != null ? style.background.minWidth : 0 );
 				else
 					return 140;
 			}
 		}
 
-		public override float PreferredHeight
+		public override float preferredHeight
 		{
 			get
 			{
-				if (_vertical)
+				if( _vertical )
 					return 140;
 				else
-					return Math.Max(style.Knob == null ? 0 : style.Knob.MinHeight,
-						style.Background != null ? style.Background.MinHeight : 0);
+					return Math.Max( style.knob == null ? 0 : style.knob.minHeight, style.background != null ? style.background.minHeight : 0 );
 			}
-		}
+        }
 
-		public float Min { get; protected set; }
-		public float Max { get; protected set; }
+        public float min { get; protected set; }
+        public float max { get; protected set; }
 
-		public float StepSize
-		{
-			get => _stepSize;
-			set => SetStepSize(value);
-		}
+        public float stepSize
+        {
+            get { return _stepSize; }
+            set { setStepSize(value); }
+        }
 
-		public float Value
-		{
-			get => _value;
-			set => SetValue(value);
-		}
+        public float value
+        {
+            get { return _value; }
+            set { setValue(value); }
+        }
 
-		public float[] SnapValues;
-		public float SnapThreshold;
-		public bool ShiftIgnoresSnap;
+        public float[] snapValues;
+		public float snapThreshold;
+		public bool shiftIgnoresSnap;
 
 		protected float _stepSize, _value;
 		protected bool _vertical;
 		protected float position;
 		ProgressBarStyle style;
 
-		#endregion
+        #endregion
 
 
-		public ProgressBar(float min, float max, float stepSize, bool vertical, ProgressBarStyle style)
+        public ProgressBar( float min, float max, float stepSize, bool vertical, ProgressBarStyle style )
 		{
-			Insist.IsTrue(min < max, "min must be less than max");
-			Insist.IsTrue(stepSize > 0, "stepSize must be greater than 0");
+			Assert.isTrue( min < max, "min must be less than max" );
+			Assert.isTrue( stepSize > 0, "stepSize must be greater than 0" );
 
-			SetStyle(style);
-			Min = min;
-			Max = max;
-			StepSize = stepSize;
+			setStyle( style );
+			this.min = min;
+			this.max = max;
+			this.stepSize = stepSize;
 			_vertical = vertical;
-			_value = Min;
+            _value = this.min;
 
-			SetSize(PreferredWidth, PreferredHeight);
+			setSize( preferredWidth, preferredHeight );
 		}
 
-		public ProgressBar(float min, float max, float stepSize, bool vertical, Skin skin, string styleName = null) :
-			this(min, max, stepSize, vertical, skin.Get<ProgressBarStyle>(styleName))
-		{
-		}
+		public ProgressBar( float min, float max, float stepSize, bool vertical,  Skin skin, string styleName = null ) : this( min, max, stepSize, vertical, skin.get<ProgressBarStyle>( styleName ) )
+		{}
 
-		public ProgressBar(Skin skin, string styleName = null) : this(0, 1, 0.01f, false, skin)
-		{
-		}
+		public ProgressBar( Skin skin, string styleName = null ) : this( 0, 1, 0.01f, false, skin )
+		{}
 
 
-		public virtual void SetStyle(ProgressBarStyle style)
+		public virtual void setStyle( ProgressBarStyle style )
 		{
 			this.style = style;
-			InvalidateHierarchy();
+			invalidateHierarchy();
 		}
 
 
@@ -100,212 +96,204 @@ namespace Nez.UI
 		/// {@link #setStyle(ProgressBarStyle)} is called.
 		/// </summary>
 		/// <returns>The style.</returns>
-		public ProgressBarStyle GetStyle()
+		public ProgressBarStyle getStyle()
 		{
 			return style;
 		}
 
 
-		/// <summary>
-		/// Sets the progress bar position, rounded to the nearest step size and clamped to the minimum and maximum values.
-		/// </summary>
-		/// <param name="value">Value.</param>
-		/// <param name="ignoreSnap">If set to <c>true</c> we ignore value snapping.</param>
-		public ProgressBar SetValue(float value, bool ignoreSnap = false)
+        /// <summary>
+        /// Sets the progress bar position, rounded to the nearest step size and clamped to the minimum and maximum values.
+        /// </summary>
+        /// <param name="value">Value.</param>
+        /// <param name="ignoreSnap">If set to <c>true</c> we ignore value snapping.</param>
+        public ProgressBar setValue( float value, bool ignoreSnap = false )
 		{
-			if ((ShiftIgnoresSnap && InputUtils.IsShiftDown()) || ignoreSnap)
-			{
-				value = Mathf.Clamp(value, Min, Max);
+			if( ( shiftIgnoresSnap && InputUtils.isShiftDown() ) || ignoreSnap )
+            {
+                value = Mathf.clamp(value, min, max);
 			}
 			else
-			{
-				// if value is lower/higher than min/max then we're not rounding to avoid situation where we can't achieve those values
-				if (value >= Max)
-					value = Max;
-				else if (value <= Min)
-					value = Min;
-				else
-					value = Mathf.Clamp(Mathf.Round(value / StepSize) * StepSize, Min, Max);
+            {
+                // if value is lower/higher than min/max then we're not rounding to avoid situation where we can't achieve those values
+                if (value >= max)
+                    value = max;
+                else if (value <= min)
+                    value = min;
+                else
+                    value = Mathf.clamp(Mathf.round(value / stepSize) * stepSize, min, max);
 
-				value = Snap(value);
-			}
+                value = snap(value);
+            }
 
-			if (value == _value)
+			if( value == _value )
 				return this;
 
 			_value = value;
 
 			// fire changed event
-			if (OnChanged != null)
-				OnChanged(_value);
+			if( onChanged != null )
+				onChanged( _value );
 
 			return this;
 		}
 
 
-		public ProgressBar SetStepSize(float stepSize)
+		public ProgressBar setStepSize( float stepSize )
 		{
 			_stepSize = stepSize;
 			return this;
 		}
 
 
-		public ProgressBar SetMinMax(float min, float max)
-		{
-			Insist.IsTrue(min < max, "min must be less than max");
-			Min = min;
-			Max = max;
-			_value = Mathf.Clamp(_value, Min, Max);
+        public ProgressBar setMinMax( float min, float max )
+        {
+            Assert.isTrue(min < max, "min must be less than max");
+            this.min = min;
+            this.max = max;
+            _value = Mathf.clamp(_value, this.min, this.max);
 
-			return this;
+            return this;
+        }
+
+
+        /// <summary>
+        /// Sets stepSize to a value that will evenly divide this progress bar into specified amount of steps.
+        /// </summary>
+        /// <param name="totalSteps">Total amount of steps.</param>
+        public ProgressBar setTotalSteps( int totalSteps )
+        {
+            Assert.isTrue(totalSteps != 0, "totalSteps cannot be equal to 0");
+            _stepSize = Math.Abs((min - max) / totalSteps);
+            return this;
+        }
+
+
+		protected virtual IDrawable getKnobDrawable()
+		{
+			return ( disabled && style.disabledKnob != null ) ? style.disabledKnob : style.knob;
 		}
 
 
-		/// <summary>
-		/// Sets stepSize to a value that will evenly divide this progress bar into specified amount of steps.
-		/// </summary>
-		/// <param name="totalSteps">Total amount of steps.</param>
-		public ProgressBar SetTotalSteps(int totalSteps)
+		public override void draw( Graphics graphics, float parentAlpha )
 		{
-			Insist.IsTrue(totalSteps != 0, "totalSteps cannot be equal to 0");
-			_stepSize = Math.Abs((Min - Max) / totalSteps);
-			return this;
-		}
-
-
-		protected virtual IDrawable GetKnobDrawable()
-		{
-			return (Disabled && style.DisabledKnob != null) ? style.DisabledKnob : style.Knob;
-		}
-
-
-		public override void Draw(Batcher batcher, float parentAlpha)
-		{
-			var knob = GetKnobDrawable();
-			var bg = (Disabled && style.DisabledBackground != null) ? style.DisabledBackground : style.Background;
-			var knobBefore = (Disabled && style.DisabledKnobBefore != null)
-				? style.DisabledKnobBefore
-				: style.KnobBefore;
-			var knobAfter = (Disabled && style.DisabledKnobAfter != null) ? style.DisabledKnobAfter : style.KnobAfter;
+			var knob = getKnobDrawable();
+			var bg = ( disabled && style.disabledBackground != null ) ? style.disabledBackground : style.background;
+			var knobBefore = ( disabled && style.disabledKnobBefore != null ) ? style.disabledKnobBefore : style.knobBefore;
+			var knobAfter = ( disabled && style.disabledKnobAfter != null ) ? style.disabledKnobAfter : style.knobAfter;
 
 			var x = this.x;
 			var y = this.y;
 			var width = this.width;
 			var height = this.height;
-			var knobHeight = knob == null ? 0 : knob.MinHeight;
-			var knobWidth = knob == null ? 0 : knob.MinWidth;
-			var percent = GetVisualPercent();
-			var color = ColorExt.Create(this.color, (int) (this.color.A * parentAlpha));
+			var knobHeight = knob == null ? 0 : knob.minHeight;
+			var knobWidth = knob == null ? 0 : knob.minWidth;
+			var percent = getVisualPercent();
+			var color = new Color( this.color, (int)(this.color.A * parentAlpha) );
 
-			if (_vertical)
+			if( _vertical )
 			{
 				var positionHeight = height;
 
 				float bgTopHeight = 0;
-				if (bg != null)
+				if( bg != null )
 				{
-					bg.Draw(batcher, x + (int) ((width - bg.MinWidth) * 0.5f), y, bg.MinWidth, height, color);
-					bgTopHeight = bg.TopHeight;
-					positionHeight -= bgTopHeight + bg.BottomHeight;
+					bg.draw( graphics, x + (int)( ( width - bg.minWidth ) * 0.5f ), y, bg.minWidth, height, color );
+					bgTopHeight = bg.topHeight;
+					positionHeight -= bgTopHeight + bg.bottomHeight;
 				}
 
 				float knobHeightHalf = 0;
-				if (Min != Max)
+				if( min != max )
 				{
-					if (knob == null)
+					if( knob == null )
 					{
-						knobHeightHalf = knobBefore == null ? 0 : knobBefore.MinHeight * 0.5f;
-						position = (positionHeight - knobHeightHalf) * percent;
-						position = Math.Min(positionHeight - knobHeightHalf, position);
+						knobHeightHalf = knobBefore == null ? 0 : knobBefore.minHeight * 0.5f;
+						position = ( positionHeight - knobHeightHalf ) * percent;
+						position = Math.Min( positionHeight - knobHeightHalf, position );
 					}
 					else
 					{
-						var bgBottomHeight = bg != null ? bg.BottomHeight : 0;
+						var bgBottomHeight = bg != null ? bg.bottomHeight : 0;
 						knobHeightHalf = knobHeight * 0.5f;
-						position = (positionHeight - knobHeight) * percent;
-						position = Math.Min(positionHeight - knobHeight, position) + bgBottomHeight;
+						position = ( positionHeight - knobHeight ) * percent;
+						position = Math.Min( positionHeight - knobHeight, position ) + bgBottomHeight;
 					}
-
-					position = Math.Max(0, position);
+					position = Math.Max( 0, position );
 				}
 
-				if (knobBefore != null)
+				if( knobBefore != null )
 				{
 					float offset = 0;
-					if (bg != null)
+					if( bg != null )
 						offset = bgTopHeight;
-					knobBefore.Draw(batcher, x + ((width - knobBefore.MinWidth) * 0.5f), y + offset,
-						knobBefore.MinWidth,
-						(int) (position + knobHeightHalf), color);
+					knobBefore.draw( graphics, x + ( ( width - knobBefore.minWidth ) * 0.5f ), y + offset, knobBefore.minWidth,
+						(int)( position + knobHeightHalf ), color );
 				}
 
-				if (knobAfter != null)
+				if( knobAfter != null )
 				{
-					knobAfter.Draw(batcher, x + ((width - knobAfter.MinWidth) * 0.5f), y + position + knobHeightHalf,
-						knobAfter.MinWidth, height - position - knobHeightHalf, color);
+					knobAfter.draw( graphics, x + ( ( width - knobAfter.minWidth ) * 0.5f ), y + position + knobHeightHalf,
+						knobAfter.minWidth, height - position - knobHeightHalf, color );
 				}
 
-				if (knob != null)
-					knob.Draw(batcher, x + (int) ((width - knobWidth) * 0.5f), (int) (y + position), knobWidth,
-						knobHeight, color);
+				if( knob != null )
+					knob.draw( graphics, x + (int)( ( width - knobWidth ) * 0.5f ), (int)( y + position ), knobWidth, knobHeight, color );
 			}
 			else
 			{
 				float positionWidth = width;
 
 				float bgLeftWidth = 0;
-				if (bg != null)
+				if( bg != null )
 				{
-					bg.Draw(batcher, x, y + (int) ((height - bg.MinHeight) * 0.5f), width, bg.MinHeight, color);
-					bgLeftWidth = bg.LeftWidth;
-					positionWidth -= bgLeftWidth + bg.RightWidth;
+					bg.draw( graphics, x, y + (int)( ( height - bg.minHeight ) * 0.5f ), width, bg.minHeight, color );
+					bgLeftWidth = bg.leftWidth;
+					positionWidth -= bgLeftWidth + bg.rightWidth;
 				}
 
 				float knobWidthHalf = 0;
-				if (Min != Max)
+				if( min != max )
 				{
-					if (knob == null)
+					if( knob == null )
 					{
-						knobWidthHalf = knobBefore == null ? 0 : knobBefore.MinWidth * 0.5f;
-						position = (positionWidth - knobWidthHalf) * percent;
-						position = Math.Min(positionWidth - knobWidthHalf, position);
+						knobWidthHalf = knobBefore == null ? 0 : knobBefore.minWidth * 0.5f;
+						position = ( positionWidth - knobWidthHalf ) * percent;
+						position = Math.Min( positionWidth - knobWidthHalf, position );
 					}
 					else
 					{
 						knobWidthHalf = knobWidth * 0.5f;
-						position = (positionWidth - knobWidth) * percent;
-						position = Math.Min(positionWidth - knobWidth, position) + bgLeftWidth;
+						position = ( positionWidth - knobWidth ) * percent;
+						position = Math.Min( positionWidth - knobWidth, position ) + bgLeftWidth;
 					}
-
-					position = Math.Max(0, position);
+					position = Math.Max( 0, position );
 				}
 
-				if (knobBefore != null)
+				if( knobBefore != null )
 				{
 					float offset = 0;
-					if (bg != null)
+					if( bg != null )
 						offset = bgLeftWidth;
-					knobBefore.Draw(batcher, x + offset, y + (int) ((height - knobBefore.MinHeight) * 0.5f),
-						(int) (position + knobWidthHalf), knobBefore.MinHeight, color);
+					knobBefore.draw( graphics, x + offset, y + (int)( ( height - knobBefore.minHeight ) * 0.5f ),
+						(int)( position + knobWidthHalf ), knobBefore.minHeight, color );
 				}
 
-				if (knobAfter != null)
+				if( knobAfter != null )
 				{
-					knobAfter.Draw(batcher, x + (int) (position + knobWidthHalf),
-						y + (int) ((height - knobAfter.MinHeight) * 0.5f),
-						width - (int) (position + knobWidthHalf), knobAfter.MinHeight, color);
+					knobAfter.draw( graphics, x + (int)( position + knobWidthHalf ), y + (int)( ( height - knobAfter.minHeight ) * 0.5f ),
+						width - (int)( position + knobWidthHalf ), knobAfter.minHeight, color );
 				}
 
-				if (knob != null)
-					knob.Draw(batcher, (int) (x + position), (int) (y + (height - knobHeight) * 0.5f), knobWidth,
-						knobHeight, color);
+				if( knob != null )
+					knob.draw( graphics, (int)( x + position ), (int)( y + ( height - knobHeight ) * 0.5f ), knobWidth, knobHeight, color );
 			}
 		}
 
 
-		public float GetVisualPercent()
+		public float getVisualPercent()
 		{
-			return (_value - Min) / (Max - Min);
+			return ( _value - min ) / ( max - min );
 		}
 
 
@@ -313,19 +301,19 @@ namespace Nez.UI
 		/// Returns a snapped value
 		/// </summary>
 		/// <param name="value">Value.</param>
-		float Snap(float value)
+		float snap( float value )
 		{
-			if (SnapValues == null)
+			if( snapValues == null )
 				return value;
-
-			for (var i = 0; i < SnapValues.Length; i++)
+			
+			for( var i = 0; i < snapValues.Length; i++ )
 			{
-				if (Math.Abs(value - SnapValues[i]) <= SnapThreshold)
-					return SnapValues[i];
+				if( Math.Abs( value - snapValues[i] ) <= snapThreshold )
+					return snapValues[i];
 			}
-
 			return value;
 		}
+
 	}
 
 
@@ -337,22 +325,22 @@ namespace Nez.UI
 		/// <summary>
 		/// The progress bar background, stretched only in one direction. Optional.
 		/// </summary>
-		public IDrawable Background;
+		public IDrawable background;
 
 		/// <summary>
 		/// Optional
 		/// </summary>
-		public IDrawable DisabledBackground;
+		public IDrawable disabledBackground;
 
 		/// <summary>
 		/// Optional, centered on the background.
 		/// </summary>
-		public IDrawable Knob, DisabledKnob;
+		public IDrawable knob, disabledKnob;
 
 		/// <summary>
 		/// Optional
 		/// </summary>
-		public IDrawable KnobBefore, KnobAfter, DisabledKnobBefore, DisabledKnobAfter;
+		public IDrawable knobBefore, knobAfter, disabledKnobBefore, disabledKnobAfter;
 
 
 		public ProgressBarStyle()
@@ -360,58 +348,56 @@ namespace Nez.UI
 		}
 
 
-		public ProgressBarStyle(IDrawable background, IDrawable knob)
+		public ProgressBarStyle( IDrawable background, IDrawable knob )
 		{
-			Background = background;
-			Knob = knob;
+			this.background = background;
+			this.knob = knob;
 		}
 
 
-		public static ProgressBarStyle Create(Color knobBeforeColor, Color knobAfterColor)
+		public static ProgressBarStyle create( Color knobBeforeColor, Color knobAfterColor )
 		{
-			var knobBefore = new PrimitiveDrawable(knobBeforeColor);
-			knobBefore.MinHeight = 10;
+			var knobBefore = new PrimitiveDrawable( knobBeforeColor );
+			knobBefore.minHeight = 10;
 
-			var knobAfter = new PrimitiveDrawable(knobAfterColor);
-			knobAfter.MinWidth = knobAfter.MinHeight = 10;
+			var knobAfter = new PrimitiveDrawable( knobAfterColor );
+			knobAfter.minWidth = knobAfter.minHeight = 10;
 
-			return new ProgressBarStyle
-			{
-				KnobBefore = knobBefore,
-				KnobAfter = knobAfter
+			return new ProgressBarStyle {
+				knobBefore = knobBefore,
+				knobAfter = knobAfter
 			};
 		}
 
 
-		public static ProgressBarStyle CreateWithKnob(Color backgroundColor, Color knobColor)
+		public static ProgressBarStyle createWithKnob( Color backgroundColor, Color knobColor )
 		{
-			var background = new PrimitiveDrawable(backgroundColor);
-			background.MinWidth = background.MinHeight = 10;
+			var background = new PrimitiveDrawable( backgroundColor );
+			background.minWidth = background.minHeight = 10;
 
-			var knob = new PrimitiveDrawable(knobColor);
-			knob.MinWidth = knob.MinHeight = 20;
+			var knob = new PrimitiveDrawable( knobColor );
+			knob.minWidth = knob.minHeight = 20;
 
-			return new ProgressBarStyle
-			{
-				Background = background,
-				Knob = knob
+			return new ProgressBarStyle {
+				background = background,
+				knob = knob
 			};
 		}
 
 
-		public ProgressBarStyle Clone()
+		public ProgressBarStyle clone()
 		{
-			return new ProgressBarStyle
-			{
-				Background = Background,
-				DisabledBackground = DisabledBackground,
-				Knob = Knob,
-				DisabledKnob = DisabledKnob,
-				KnobBefore = KnobBefore,
-				KnobAfter = KnobAfter,
-				DisabledKnobBefore = DisabledKnobBefore,
-				DisabledKnobAfter = DisabledKnobAfter
+			return new ProgressBarStyle {
+				background = background,
+				disabledBackground = disabledBackground,
+				knob = knob,
+				disabledKnob = disabledKnob,
+				knobBefore = knobBefore,
+				knobAfter = knobAfter,
+				disabledKnobBefore = disabledKnobBefore,
+				disabledKnobAfter = disabledKnobAfter
 			};
 		}
 	}
 }
+

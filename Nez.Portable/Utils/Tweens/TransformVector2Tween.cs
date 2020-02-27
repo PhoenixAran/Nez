@@ -26,27 +26,27 @@ namespace Nez.Tweens
 		TransformTargetType _targetType;
 
 
-		public void SetTweenedValue(Vector2 value)
+		public void setTweenedValue( Vector2 value )
 		{
-			switch (_targetType)
+			switch( _targetType )
 			{
 				case TransformTargetType.Position:
-					_transform.Position = value;
+					_transform.position = value;
 					break;
 				case TransformTargetType.LocalPosition:
-					_transform.LocalPosition = value;
+					_transform.localPosition = value;
 					break;
 				case TransformTargetType.Scale:
-					_transform.Scale = value;
+					_transform.scale = value;
 					break;
 				case TransformTargetType.LocalScale:
-					_transform.LocalScale = value;
+					_transform.localScale = value;
 					break;
 				case TransformTargetType.RotationDegrees:
-					_transform.RotationDegrees = value.X;
+					_transform.rotationDegrees = value.X;
 					break;
 				case TransformTargetType.LocalRotationDegrees:
-					_transform.LocalRotationDegrees = value.X;
+					_transform.localRotationDegrees = value.X;
 					break;
 				default:
 					throw new System.ArgumentOutOfRangeException();
@@ -54,61 +54,61 @@ namespace Nez.Tweens
 		}
 
 
-		public Vector2 GetTweenedValue()
+		public Vector2 getTweenedValue()
 		{
-			switch (_targetType)
+			switch( _targetType )
 			{
 				case TransformTargetType.Position:
-					return _transform.Position;
+					return _transform.position;
 				case TransformTargetType.LocalPosition:
-					return _transform.LocalPosition;
+					return _transform.localPosition;
 				case TransformTargetType.Scale:
-					return _transform.Scale;
+					return _transform.scale;
 				case TransformTargetType.LocalScale:
-					return _transform.LocalScale;
+					return _transform.localScale;
 				case TransformTargetType.RotationDegrees:
-					return new Vector2(_transform.RotationDegrees);
+					return new Vector2( _transform.rotationDegrees );
 				case TransformTargetType.LocalRotationDegrees:
-					return new Vector2(_transform.LocalRotationDegrees, 0);
+					return new Vector2( _transform.localRotationDegrees, 0 );
 				default:
 					throw new System.ArgumentOutOfRangeException();
 			}
 		}
 
 
-		public new object GetTargetObject()
+		public new object getTargetObject()
 		{
 			return _transform;
 		}
 
 
-		public void SetTargetAndType(Transform transform, TransformTargetType targetType)
+		public void setTargetAndType( Transform transform, TransformTargetType targetType )
 		{
 			_transform = transform;
 			_targetType = targetType;
 		}
 
 
-		protected override void UpdateValue()
+		protected override void updateValue()
 		{
 			// special case for non-relative angle lerps so that they take the shortest possible rotation
-			if ((_targetType == TransformTargetType.RotationDegrees ||
-			     _targetType == TransformTargetType.LocalRotationDegrees) && !_isRelative)
-				SetTweenedValue(Lerps.EaseAngle(_easeType, _fromValue, _toValue, _elapsedTime, _duration));
+			if( ( _targetType == TransformTargetType.RotationDegrees || _targetType == TransformTargetType.LocalRotationDegrees ) && !_isRelative )
+				setTweenedValue( Lerps.easeAngle( _easeType, _fromValue, _toValue, _elapsedTime, _duration ) );
 			else
-				SetTweenedValue(Lerps.Ease(_easeType, _fromValue, _toValue, _elapsedTime, _duration));
+				setTweenedValue( Lerps.ease( _easeType, _fromValue, _toValue, _elapsedTime, _duration ) );
 		}
 
 
-		public override void RecycleSelf()
+		public override void recycleSelf()
 		{
-			if (_shouldRecycleTween)
+			if( _shouldRecycleTween )
 			{
 				_target = null;
 				_nextTween = null;
 				_transform = null;
-				Pool<TransformVector2Tween>.Free(this);
+				Pool<TransformVector2Tween>.free( this );
 			}
 		}
+
 	}
 }

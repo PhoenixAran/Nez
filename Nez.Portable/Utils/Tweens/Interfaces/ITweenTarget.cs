@@ -1,4 +1,7 @@
-﻿namespace Nez.Tweens
+﻿using System;
+
+
+namespace Nez.Tweens
 {
 	/// <summary>
 	/// any object that wants to be tweened needs to implement this. TweenManager internally likes to make a simple object
@@ -11,16 +14,17 @@
 		/// sets the final, tweened value on the object of your choosing.
 		/// </summary>
 		/// <param name="value">Value.</param>
-		void SetTweenedValue(T value);
+		void setTweenedValue( T value );
 
 
-		T GetTweenedValue();
+		T getTweenedValue();
 
 		/// <summary>
 		/// gets the target of the tween or null for TweenTargets that arent necessarily all about a single object.
 		/// its only real use is for TweenManager to find a list of tweens by target.
 		/// </summary>
 		/// <returns>The target object.</returns>
-		object GetTargetObject();
+		object getTargetObject();
 	}
 }
+

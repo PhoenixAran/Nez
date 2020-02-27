@@ -8,15 +8,15 @@ namespace Nez.PhysicsShapes
 	/// </summary>
 	public class Box : Polygon
 	{
-		public float Width;
-		public float Height;
+		public float width;
+		public float height;
 
 
-		public Box(float width, float height) : base(BuildBox(width, height), true)
+		public Box( float width, float height ) : base( buildBox( width, height ), true )
 		{
 			isBox = true;
-			Width = width;
-			Height = height;
+			this.width = width;
+			this.height = height;
 		}
 
 
@@ -26,17 +26,17 @@ namespace Nez.PhysicsShapes
 		/// <returns>The box.</returns>
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
-		static Vector2[] BuildBox(float width, float height)
+		static Vector2[] buildBox( float width, float height )
 		{
 			// we create our points around a center of 0,0
 			var halfWidth = width / 2;
 			var halfHeight = height / 2;
 			var verts = new Vector2[4];
 
-			verts[0] = new Vector2(-halfWidth, -halfHeight);
-			verts[1] = new Vector2(halfWidth, -halfHeight);
-			verts[2] = new Vector2(halfWidth, halfHeight);
-			verts[3] = new Vector2(-halfWidth, halfHeight);
+			verts[0] = new Vector2( -halfWidth, -halfHeight );
+			verts[1] = new Vector2( halfWidth, -halfHeight );
+			verts[2] = new Vector2( halfWidth, halfHeight );
+			verts[3] = new Vector2( -halfWidth, halfHeight );
 
 			return verts;
 		}
@@ -47,75 +47,77 @@ namespace Nez.PhysicsShapes
 		/// </summary>
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
-		public void UpdateBox(float width, float height)
+		public void updateBox( float width, float height )
 		{
-			Width = width;
-			Height = height;
+			this.width = width;
+			this.height = height;
 
 			// we create our points around a center of 0,0
 			var halfWidth = width / 2;
 			var halfHeight = height / 2;
 
-			Points[0] = new Vector2(-halfWidth, -halfHeight);
-			Points[1] = new Vector2(halfWidth, -halfHeight);
-			Points[2] = new Vector2(halfWidth, halfHeight);
-			Points[3] = new Vector2(-halfWidth, halfHeight);
+			points[0] = new Vector2( -halfWidth, -halfHeight );
+			points[1] = new Vector2( halfWidth, -halfHeight );
+			points[2] = new Vector2( halfWidth, halfHeight );
+			points[3] = new Vector2( -halfWidth, halfHeight );
 
-			for (var i = 0; i < Points.Length; i++)
-				_originalPoints[i] = Points[i];
+			for( var i = 0; i < points.Length; i++ )
+				_originalPoints[i] = points[i];
 		}
 
 
 		#region Shape abstract methods
 
-		public override bool Overlaps(Shape other)
+		public override bool overlaps( Shape other )
 		{
 			// special, high-performance cases. otherwise we fall back to Polygon.
-			if (IsUnrotated)
+			if( isUnrotated )
 			{
-				if (other is Box && (other as Box).IsUnrotated)
-					return bounds.Intersects(ref (other as Box).bounds);
+				if( other is Box && ( other as Box ).isUnrotated )
+					return bounds.intersects( ref ( other as Box ).bounds );
 
-				if (other is Circle)
-					return Collisions.RectToCircle(ref bounds, other.position, (other as Circle).Radius);
+				if( other is Circle )
+					return Collisions.rectToCircle( ref bounds, other.position, ( other as Circle ).radius );
 			}
 
 			// fallthrough to standard cases
-			return base.Overlaps(other);
+			return base.overlaps( other );
 		}
 
 
-		public override bool CollidesWithShape(Shape other, out CollisionResult result)
+		public override bool collidesWithShape( Shape other, out CollisionResult result )
 		{
 			// special, high-performance cases. otherwise we fall back to Polygon.
-			if (IsUnrotated && other is Box && (other as Box).IsUnrotated)
-				return ShapeCollisions.BoxToBox(this, other as Box, out result);
+			if( isUnrotated && other is Box && ( other as Box ).isUnrotated )
+				return ShapeCollisions.boxToBox( this, other as Box, out result );
 
 			// TODO: get Minkowski working for circle to box
 			//if( other is Circle )
 
 			// fallthrough to standard cases
-			return base.CollidesWithShape(other, out result);
+			return base.collidesWithShape( other, out result );
 		}
 
 
-		public override bool ContainsPoint(Vector2 point)
+		public override bool containsPoint( Vector2 point )
 		{
-			if (IsUnrotated)
-				return bounds.Contains(point);
-
-			return base.ContainsPoint(point);
+			if( isUnrotated )
+				return bounds.contains( point );
+			
+			return base.containsPoint( point );
 		}
 
 
-		public override bool PointCollidesWithShape(Vector2 point, out CollisionResult result)
+		public override bool pointCollidesWithShape( Vector2 point, out CollisionResult result )
 		{
-			if (IsUnrotated)
-				return ShapeCollisions.PointToBox(point, this, out result);
+			if( isUnrotated )
+				return ShapeCollisions.pointToBox( point, this, out result );
 
-			return base.PointCollidesWithShape(point, out result);
+			return base.pointCollidesWithShape( point, out result );
 		}
 
 		#endregion
+
 	}
 }
+

@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 
 namespace Nez
@@ -14,35 +15,35 @@ namespace Nez
 			LockOn,
 			CameraWindow
 		}
-
-		public Camera Camera;
+			
+		public Camera camera;
 
 		/// <summary>
 		/// how fast the camera closes the distance to the target position
 		/// </summary>
-		public float FollowLerp = 0.1f;
+		public float followLerp = 0.2f;
 
 		/// <summary>
 		/// when in CameraWindow mode the width/height is used as a bounding box to allow movement within it without moving the camera.
 		/// when in LockOn mode only the deadzone x/y values are used. This is set to sensible defaults when you call follow but you are
 		/// free to override it to get a custom deadzone directly or via the helper setCenteredDeadzone.
 		/// </summary>
-		public RectangleF Deadzone;
+		public RectangleF deadzone;
 
 		/// <summary>
 		/// offset from the screen center that the camera will focus on
 		/// </summary>
-		public Vector2 FocusOffset;
+		public Vector2 focusOffset;
 
 		/// <summary>
 		/// If true, the camera position will not got out of the map rectangle (0,0, mapwidth, mapheight)
 		/// </summary>
-		public bool MapLockEnabled;
+		public bool mapLockEnabled;
 
 		/// <summary>
 		/// Contains the width and height of the current map.
 		/// </summary>
-		public Vector2 MapSize;
+		public Vector2 mapSize;
 
 		Entity _targetEntity;
 		Collider _targetCollider;
@@ -50,173 +51,176 @@ namespace Nez
 		CameraStyle _cameraStyle;
 		RectangleF _worldSpaceDeadzone;
 
-
-		public FollowCamera(Entity targetEntity, Camera camera, CameraStyle cameraStyle = CameraStyle.LockOn)
+		
+		public FollowCamera( Entity targetEntity, Camera camera, CameraStyle cameraStyle = CameraStyle.LockOn  )
 		{
 			_targetEntity = targetEntity;
 			_cameraStyle = cameraStyle;
-			Camera = camera;
+			this.camera = camera;
 		}
 
-		public FollowCamera(Entity targetEntity, CameraStyle cameraStyle = CameraStyle.LockOn) : this(targetEntity,
-			null, cameraStyle)
-		{
-		}
 
-		public FollowCamera() : this(null, null)
-		{
-		}
+		public FollowCamera( Entity targetEntity, CameraStyle cameraStyle = CameraStyle.LockOn ) : this( targetEntity, null, cameraStyle )
+		{}
 
-		public override void OnAddedToEntity()
-		{
-			if (Camera == null)
-				Camera = Entity.Scene.Camera;
 
-			Follow(_targetEntity, _cameraStyle);
+		public override void onAddedToEntity()
+		{
+			if( camera == null )
+				camera = entity.scene.camera;
+
+			follow( _targetEntity, _cameraStyle );
 
 			// listen for changes in screen size so we can keep our deadzone properly positioned
-			Core.Emitter.AddObserver(CoreEvents.GraphicsDeviceReset, OnGraphicsDeviceReset);
+			Core.emitter.addObserver( CoreEvents.GraphicsDeviceReset, onGraphicsDeviceReset );
 		}
 
-		public override void OnRemovedFromEntity()
+
+		public override void onRemovedFromEntity()
 		{
-			Core.Emitter.RemoveObserver(CoreEvents.GraphicsDeviceReset, OnGraphicsDeviceReset);
+			Core.emitter.removeObserver( CoreEvents.GraphicsDeviceReset, onGraphicsDeviceReset );
 		}
 
-		void IUpdatable.Update()
+
+		void IUpdatable.update()
 		{
 			// translate the deadzone to be in world space
-			var halfScreen = Camera.Bounds.Size * 0.5f;
-			_worldSpaceDeadzone.X = Camera.Position.X - halfScreen.X + Deadzone.X + FocusOffset.X;
-			_worldSpaceDeadzone.Y = Camera.Position.Y - halfScreen.Y + Deadzone.Y + FocusOffset.Y;
-			_worldSpaceDeadzone.Width = Deadzone.Width;
-			_worldSpaceDeadzone.Height = Deadzone.Height;
+			var halfScreen = camera.bounds.size * 0.5f;
+			_worldSpaceDeadzone.x = camera.position.X - halfScreen.X + deadzone.x + focusOffset.X;
+			_worldSpaceDeadzone.y = camera.position.Y - halfScreen.Y + deadzone.y + focusOffset.Y;
+			_worldSpaceDeadzone.width = deadzone.width;
+			_worldSpaceDeadzone.height = deadzone.height;
 
-			if (_targetEntity != null)
-				UpdateFollow();
+			if( _targetEntity != null )
+				updateFollow();
 
-			Camera.Position = Vector2.Lerp(Camera.Position, Camera.Position + _desiredPositionDelta, FollowLerp);
-			Camera.Entity.Transform.RoundPosition();
+			camera.position = Vector2.Lerp( camera.position, camera.position + _desiredPositionDelta, followLerp );
+			camera.entity.transform.roundPosition();
 
-			if (MapLockEnabled)
+			if( mapLockEnabled )
 			{
-				Camera.Position = ClampToMapSize(Camera.Position);
-				Camera.Entity.Transform.RoundPosition();
+				camera.position = clampToMapSize( camera.position );
+				camera.entity.transform.roundPosition();   
 			}
 		}
+
 
 		/// <summary>
 		/// Clamps the camera so it never leaves the visible area of the map.
 		/// </summary>
 		/// <returns>The to map size.</returns>
 		/// <param name="position">Position.</param>
-		Vector2 ClampToMapSize(Vector2 position)
+		Vector2 clampToMapSize( Vector2 position )
 		{
-			var halfScreen = new Vector2(Camera.Bounds.Width, Camera.Bounds.Height) * 0.5f;
-			var cameraMax = new Vector2(MapSize.X - halfScreen.X, MapSize.Y - halfScreen.Y);
+			var halfScreen = new Vector2( camera.bounds.width, camera.bounds.height ) * 0.5f;
+			var cameraMax = new Vector2( mapSize.X - halfScreen.X, mapSize.Y - halfScreen.Y );
 
-			return Vector2.Clamp(position, halfScreen, cameraMax);
+			return Vector2.Clamp( position, halfScreen, cameraMax );
 		}
 
-		public override void DebugRender(Batcher batcher)
+
+        public override void debugRender( Graphics graphics )
 		{
-			if (_cameraStyle == CameraStyle.LockOn)
-				batcher.DrawHollowRect(_worldSpaceDeadzone.X - 5, _worldSpaceDeadzone.Y - 5,
-					_worldSpaceDeadzone.Width, _worldSpaceDeadzone.Height, Color.DarkRed);
+			if( _cameraStyle == CameraStyle.LockOn )
+				graphics.batcher.drawHollowRect( _worldSpaceDeadzone.x - 5, _worldSpaceDeadzone.y - 5, _worldSpaceDeadzone.width, _worldSpaceDeadzone.height, Color.DarkRed );
 			else
-				batcher.DrawHollowRect(_worldSpaceDeadzone, Color.DarkRed);
+				graphics.batcher.drawHollowRect( _worldSpaceDeadzone, Color.DarkRed );
 		}
 
-		void OnGraphicsDeviceReset()
+
+		void onGraphicsDeviceReset()
 		{
 			// we need this to occur on the next frame so the camera bounds are updated
-			Core.Schedule(0f, this, t =>
+			Core.schedule( 0f, this, t =>
 			{
-				var self = t.Context as FollowCamera;
-				self.Follow(self._targetEntity, self._cameraStyle);
-			});
+				var self = t.context as FollowCamera;
+				self.follow( self._targetEntity, self._cameraStyle );
+			} );
 		}
 
-		void UpdateFollow()
+
+		void updateFollow()
 		{
 			_desiredPositionDelta.X = _desiredPositionDelta.Y = 0;
 
-			if (_cameraStyle == CameraStyle.LockOn)
+			if( _cameraStyle == CameraStyle.LockOn )
 			{
-				var targetX = _targetEntity.Transform.Position.X;
-				var targetY = _targetEntity.Transform.Position.Y;
+				var targetX = _targetEntity.transform.position.X;
+				var targetY = _targetEntity.transform.position.Y;
 
 				// x-axis
-				if (_worldSpaceDeadzone.X > targetX)
-					_desiredPositionDelta.X = targetX - _worldSpaceDeadzone.X;
-				else if (_worldSpaceDeadzone.X < targetX)
-					_desiredPositionDelta.X = targetX - _worldSpaceDeadzone.X;
+				if( _worldSpaceDeadzone.x > targetX )
+					_desiredPositionDelta.X = targetX - _worldSpaceDeadzone.x;
+				else if( _worldSpaceDeadzone.x < targetX )
+					_desiredPositionDelta.X = targetX - _worldSpaceDeadzone.x;
 
 				// y-axis
-				if (_worldSpaceDeadzone.Y < targetY)
-					_desiredPositionDelta.Y = targetY - _worldSpaceDeadzone.Y;
-				else if (_worldSpaceDeadzone.Y > targetY)
-					_desiredPositionDelta.Y = targetY - _worldSpaceDeadzone.Y;
+				if( _worldSpaceDeadzone.y < targetY )
+					_desiredPositionDelta.Y = targetY - _worldSpaceDeadzone.y;
+				else if( _worldSpaceDeadzone.y > targetY )
+					_desiredPositionDelta.Y = targetY - _worldSpaceDeadzone.y;
 			}
 			else
 			{
 				// make sure we have a targetCollider for CameraWindow. If we dont bail out.
-				if (_targetCollider == null)
+				if( _targetCollider == null )
 				{
-					_targetCollider = _targetEntity.GetComponent<Collider>();
-					if (_targetCollider == null)
+					_targetCollider = _targetEntity.getComponent<Collider>();
+					if( _targetCollider == null )
 						return;
 				}
-
-				var targetBounds = _targetEntity.GetComponent<Collider>().Bounds;
-				if (!_worldSpaceDeadzone.Contains(targetBounds))
+				
+				var targetBounds = _targetEntity.getComponent<Collider>().bounds;
+				if( !_worldSpaceDeadzone.contains( targetBounds ) )
 				{
 					// x-axis
-					if (_worldSpaceDeadzone.Left > targetBounds.Left)
-						_desiredPositionDelta.X = targetBounds.Left - _worldSpaceDeadzone.Left;
-					else if (_worldSpaceDeadzone.Right < targetBounds.Right)
-						_desiredPositionDelta.X = targetBounds.Right - _worldSpaceDeadzone.Right;
+					if( _worldSpaceDeadzone.left > targetBounds.left )
+						_desiredPositionDelta.X = targetBounds.left - _worldSpaceDeadzone.left;
+					else if( _worldSpaceDeadzone.right < targetBounds.right )
+						_desiredPositionDelta.X = targetBounds.right - _worldSpaceDeadzone.right;
 
 					// y-axis
-					if (_worldSpaceDeadzone.Bottom < targetBounds.Bottom)
-						_desiredPositionDelta.Y = targetBounds.Bottom - _worldSpaceDeadzone.Bottom;
-					else if (_worldSpaceDeadzone.Top > targetBounds.Top)
-						_desiredPositionDelta.Y = targetBounds.Top - _worldSpaceDeadzone.Top;
+					if( _worldSpaceDeadzone.bottom < targetBounds.bottom )
+						_desiredPositionDelta.Y = targetBounds.bottom - _worldSpaceDeadzone.bottom;
+					else if( _worldSpaceDeadzone.top > targetBounds.top )
+						_desiredPositionDelta.Y = targetBounds.top - _worldSpaceDeadzone.top;
 				}
 			}
 		}
 
-		public void Follow(Entity targetEntity, CameraStyle cameraStyle = CameraStyle.CameraWindow)
+
+		public void follow( Entity targetEntity, CameraStyle cameraStyle = CameraStyle.CameraWindow )
 		{
 			_targetEntity = targetEntity;
 			_cameraStyle = cameraStyle;
-			var cameraBounds = Camera.Bounds;
+			var cameraBounds = camera.bounds;
 
-			switch (_cameraStyle)
+			switch( _cameraStyle )
 			{
 				case CameraStyle.CameraWindow:
-					var w = (cameraBounds.Width / 6);
-					var h = (cameraBounds.Height / 3);
-					Deadzone = new RectangleF((cameraBounds.Width - w) / 2, (cameraBounds.Height - h) / 2, w, h);
+					var w = ( cameraBounds.width / 6 );
+					var h = ( cameraBounds.height / 3 );
+					deadzone = new RectangleF( ( cameraBounds.width - w ) / 2, ( cameraBounds.height - h ) / 2, w, h );
 					break;
 				case CameraStyle.LockOn:
-					Deadzone = new RectangleF(cameraBounds.Width / 2, cameraBounds.Height / 2, 10, 10);
+					deadzone = new RectangleF( cameraBounds.width / 2, cameraBounds.height / 2, 10, 10 );
 					break;
 			}
 		}
+
 
 		/// <summary>
 		/// sets up the deadzone centered in the current cameras bounds with the given size
 		/// </summary>
 		/// <param name="width">Width.</param>
 		/// <param name="height">Height.</param>
-		public void SetCenteredDeadzone(int width, int height)
+		public void setCenteredDeadzone( int width, int height )
 		{
-			Insist.IsFalse(Camera == null,
-				"camera is null. We cant get its bounds if its null. Either set it or wait until after this Component is added to the Entity.");
-			var cameraBounds = Camera.Bounds;
-			Deadzone = new RectangleF((cameraBounds.Width - width) / 2, (cameraBounds.Height - height) / 2, width,
-				height);
+			Assert.isFalse( camera == null, "camera is null. We cant get its bounds if its null. Either set it or wait until after this Component is added to the Entity." );
+			var cameraBounds = camera.bounds;
+			deadzone = new RectangleF( ( cameraBounds.width - width ) / 2, ( cameraBounds.height - height ) / 2, width, height );
 		}
+
 	}
 }
+

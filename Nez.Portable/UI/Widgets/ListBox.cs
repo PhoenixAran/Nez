@@ -1,5 +1,7 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Nez.BitmapFonts;
 
@@ -11,7 +13,7 @@ namespace Nez.UI
 	/// </summary>
 	public class ListBox<T> : Element, IInputListener where T : class
 	{
-		public event Action<T> OnChanged;
+		public event Action<T> onChanged;
 
 		ListBoxStyle _style;
 		List<T> _items = new List<T>();
@@ -24,38 +26,37 @@ namespace Nez.UI
 		bool _isMouseOverList;
 
 
-		public ListBox(Skin skin, string styleName = null) : this(skin.Get<ListBoxStyle>(styleName))
+		public ListBox( Skin skin, string styleName = null ) : this( skin.get<ListBoxStyle>( styleName ) )
+		{ }
+
+
+		public ListBox( ListBoxStyle style )
 		{
-		}
+			_selection = new ArraySelection<T>( _items );
+			_selection.setElement( this );
+			_selection.setRequired( true );
 
-
-		public ListBox(ListBoxStyle style)
-		{
-			_selection = new ArraySelection<T>(_items);
-			_selection.SetElement(this);
-			_selection.SetRequired(true);
-
-			SetStyle(style);
-			SetSize(PreferredWidth, PreferredHeight);
+			setStyle( style );
+			setSize( preferredWidth, preferredHeight );
 		}
 
 
 		#region ILayout
 
-		public override float PreferredWidth
+		public override float preferredWidth
 		{
 			get
 			{
-				Validate();
+				validate();
 				return _prefWidth;
 			}
 		}
 
-		public override float PreferredHeight
+		public override float preferredHeight
 		{
 			get
 			{
-				Validate();
+				validate();
 				return _prefHeight;
 			}
 		}
@@ -65,67 +66,65 @@ namespace Nez.UI
 
 		#region IInputListener
 
-		void IInputListener.OnMouseEnter()
+		void IInputListener.onMouseEnter()
 		{
 			_isMouseOverList = true;
 		}
 
 
-		void IInputListener.OnMouseExit()
+		void IInputListener.onMouseExit()
 		{
 			_isMouseOverList = false;
 			_hoveredItemIndex = -1;
 		}
 
 
-		bool IInputListener.OnMousePressed(Vector2 mousePos)
+		bool IInputListener.onMousePressed( Vector2 mousePos )
 		{
-			if (_selection.IsDisabled() || _items.Count == 0)
+			if( _selection.isDisabled() || _items.Count == 0 )
 				return false;
 
-			var lastSelectedItem = _selection.GetLastSelected();
-			var index = GetItemIndexUnderMousePosition(mousePos);
-			index = Math.Max(0, index);
-			index = Math.Min(_items.Count - 1, index);
-			_selection.Choose(_items[index]);
+			var lastSelectedItem = _selection.getLastSelected();
+			var index = getItemIndexUnderMousePosition( mousePos );
+			index = Math.Max( 0, index );
+			index = Math.Min( _items.Count - 1, index );
+			_selection.choose( _items[index] );
 
-			if (lastSelectedItem != _items[index] && OnChanged != null)
-				OnChanged(_items[index]);
+			if( lastSelectedItem != _items[index] && onChanged != null )
+				onChanged( _items[index] );
 
 			return true;
 		}
 
 
-		void IInputListener.OnMouseMoved(Vector2 mousePos)
-		{
-		}
+		void IInputListener.onMouseMoved( Vector2 mousePos )
+		{}
 
 
-		void IInputListener.OnMouseUp(Vector2 mousePos)
-		{
-		}
+		void IInputListener.onMouseUp( Vector2 mousePos )
+		{}
 
 
-		bool IInputListener.OnMouseScrolled(int mouseWheelDelta)
+		bool IInputListener.onMouseScrolled( int mouseWheelDelta )
 		{
 			return false;
 		}
 
 
-		int GetItemIndexUnderMousePosition(Vector2 mousePos)
+		int getItemIndexUnderMousePosition( Vector2 mousePos )
 		{
-			if (_selection.IsDisabled() || _items.Count == 0)
+			if( _selection.isDisabled() || _items.Count == 0 )
 				return -1;
 
 			var top = 0f;
-			if (_style.Background != null)
+			if( _style.background != null )
 			{
-				top += _style.Background.TopHeight + _style.Background.BottomHeight;
-				mousePos.Y += _style.Background.BottomHeight;
+				top += _style.background.topHeight + _style.background.bottomHeight;
+				mousePos.Y += _style.background.bottomHeight;
 			}
 
-			var index = (int)((top + mousePos.Y) / _itemHeight);
-			if (index < 0 || index > _items.Count - 1)
+			var index = (int)( ( top + mousePos.Y ) / _itemHeight );
+			if( index < 0 || index > _items.Count - 1 )
 				return -1;
 
 			return index;
@@ -134,85 +133,81 @@ namespace Nez.UI
 		#endregion
 
 
-		public override void Layout()
+		public override void layout()
 		{
-			var font = _style.Font;
-			IDrawable selectedDrawable = _style.Selection;
+			var font = _style.font;
+			IDrawable selectedDrawable = _style.selection;
 
-			_itemHeight = /*font.getCapHeight()*/ font.LineHeight - font.Padding.Bottom * 2;
-			_itemHeight += selectedDrawable.TopHeight + selectedDrawable.BottomHeight;
+			_itemHeight = /*font.getCapHeight()*/ font.lineHeight - font.descent * 2;
+			_itemHeight += selectedDrawable.topHeight + selectedDrawable.bottomHeight;
 
-			_textOffsetX = selectedDrawable.LeftWidth;
-			_textOffsetY = selectedDrawable.TopHeight - font.Padding.Bottom;
+			_textOffsetX = selectedDrawable.leftWidth;
+			_textOffsetY = selectedDrawable.topHeight - font.descent;
 
 			_prefWidth = 0;
-			for (var i = 0; i < _items.Count; i++)
-				_prefWidth = Math.Max(font.MeasureString(_items[i].ToString()).X, _prefWidth);
+			for( var i = 0; i < _items.Count; i++ )
+				_prefWidth = Math.Max( font.measureString( _items[i].ToString() ).X, _prefWidth );
 
-			_prefWidth += selectedDrawable.LeftWidth + selectedDrawable.RightWidth;
+			_prefWidth += selectedDrawable.leftWidth + selectedDrawable.rightWidth;
 			_prefHeight = _items.Count * _itemHeight;
 
-			var background = _style.Background;
-			if (background != null)
+			var background = _style.background;
+			if( background != null )
 			{
-				_prefWidth += background.LeftWidth + background.RightWidth;
-				_prefHeight += background.TopHeight + background.BottomHeight;
+				_prefWidth += background.leftWidth + background.rightWidth;
+				_prefHeight += background.topHeight + background.bottomHeight;
 			}
 		}
 
 
-		public override void Draw(Batcher batcher, float parentAlpha)
+		public override void draw( Graphics graphics, float parentAlpha )
 		{
 			// update our hoved item if the mouse is over the list
-			if (_isMouseOverList)
+			if( _isMouseOverList )
 			{
-				var mousePos = ScreenToLocalCoordinates(_stage.GetMousePosition());
-				_hoveredItemIndex = GetItemIndexUnderMousePosition(mousePos);
+				var mousePos = screenToLocalCoordinates( stage.getMousePosition() );
+				_hoveredItemIndex = getItemIndexUnderMousePosition( mousePos );
 			}
 
-			Validate();
+			validate();
 
-			var font = _style.Font;
-			var selectedDrawable = _style.Selection;
+			var font = _style.font;
+			var selectedDrawable = _style.selection;
 
-			var color = GetColor();
-			color = ColorExt.Create(color, (int)(color.A * parentAlpha));
+			var color = getColor();
+			color = new Color( color, (int)(color.A * parentAlpha) );
 
-			float x = GetX(), y = GetY(), width = GetWidth(), height = GetHeight();
+			float x = getX(), y = getY(), width = getWidth(), height = getHeight();
 			var itemY = 0f;
 
-			var background = _style.Background;
-			if (background != null)
+			var background = _style.background;
+			if( background != null )
 			{
-				background.Draw(batcher, x, y, width, height, color);
-				var leftWidth = background.LeftWidth;
+				background.draw( graphics, x, y, width, height, color );
+				var leftWidth = background.leftWidth;
 				x += leftWidth;
-				itemY += background.TopHeight;
-				width -= leftWidth + background.RightWidth;
+				itemY += background.topHeight;
+				width -= leftWidth + background.rightWidth;
 			}
 
-			var unselectedFontColor =
-				ColorExt.Create(_style.FontColorUnselected, (int)(_style.FontColorUnselected.A * parentAlpha));
-			var selectedFontColor =
-				ColorExt.Create(_style.FontColorSelected, (int)(_style.FontColorSelected.A * parentAlpha));
-			var hoveredFontColor = ColorExt.Create(_style.FontColorHovered, (int)(_style.FontColorHovered.A * parentAlpha));
+			var unselectedFontColor = new Color( _style.fontColorUnselected, (int)(_style.fontColorUnselected.A * parentAlpha) );
+			var selectedFontColor = new Color( _style.fontColorSelected, (int)(_style.fontColorSelected.A * parentAlpha) );
+			var hoveredFontColor = new Color( _style.fontColorHovered, (int)(_style.fontColorHovered.A * parentAlpha) );
 			Color fontColor;
-			for (var i = 0; i < _items.Count; i++)
+			for( var i = 0; i < _items.Count; i++ )
 			{
-				if (!_cullingArea.HasValue ||
-					(itemY - _itemHeight <= _cullingArea.Value.Y + _cullingArea.Value.Height &&
-					 itemY >= _cullingArea.Value.Y))
+				if( !_cullingArea.HasValue || ( itemY - _itemHeight <= _cullingArea.Value.Y + _cullingArea.Value.Height && itemY >= _cullingArea.Value.Y ) )
 				{
 					var item = _items[i];
-					var selected = _selection.Contains(item);
-					if (selected)
+					var selected = _selection.contains( item );
+					if( selected )
 					{
-						selectedDrawable.Draw(batcher, x, y + itemY, width, _itemHeight, color);
+						selectedDrawable.draw( graphics, x, y + itemY, width, _itemHeight, color );
 						fontColor = selectedFontColor;
 					}
-					else if (i == _hoveredItemIndex && _style.HoverSelection != null)
+					else if( i == _hoveredItemIndex && _style.hoverSelection != null )
 					{
-						_style.HoverSelection.Draw(batcher, x, y + itemY, width, _itemHeight, color);
+						_style.hoverSelection.draw( graphics, x, y + itemY, width, _itemHeight, color );
 						fontColor = hoveredFontColor;
 					}
 					else
@@ -220,10 +215,10 @@ namespace Nez.UI
 						fontColor = unselectedFontColor;
 					}
 
-					var textPos = new Vector2(x + _textOffsetX, y + itemY + _textOffsetY);
-					batcher.DrawString(font, item.ToString(), textPos, fontColor);
+					var textPos = new Vector2( x + _textOffsetX, y + itemY + _textOffsetY );
+					graphics.batcher.drawString( font, item.ToString(), textPos, fontColor );
 				}
-				else if (itemY < _cullingArea.Value.Y)
+				else if( itemY < _cullingArea.Value.Y )
 				{
 					break;
 				}
@@ -235,11 +230,11 @@ namespace Nez.UI
 
 		#region config
 
-		public ListBox<T> SetStyle(ListBoxStyle style)
+		public ListBox<T> setStyle( ListBoxStyle style )
 		{
-			Insist.IsNotNull(style, "style cannot be null");
+			Assert.isNotNull( style, "style cannot be null" );
 			_style = style;
-			InvalidateHierarchy();
+			invalidateHierarchy();
 			return this;
 		}
 
@@ -248,13 +243,13 @@ namespace Nez.UI
 		/// Returns the list's style. Modifying the returned style may not have an effect until setStyle(ListStyle) is called
 		/// </summary>
 		/// <returns>The style.</returns>
-		public ListBoxStyle GetStyle()
+		public ListBoxStyle getStyle()
 		{
 			return _style;
 		}
 
 
-		public ArraySelection<T> GetSelection()
+		public ArraySelection<T> getSelection()
 		{
 			return _selection;
 		}
@@ -264,9 +259,9 @@ namespace Nez.UI
 		/// Returns the first selected item, or null
 		/// </summary>
 		/// <returns>The selected.</returns>
-		public T GetSelected()
+		public T getSelected()
 		{
-			return _selection.First();
+			return _selection.first();
 		}
 
 
@@ -274,14 +269,14 @@ namespace Nez.UI
 		/// Sets the selection to only the passed item, if it is a possible choice.
 		/// </summary>
 		/// <param name="item">Item.</param>
-		public ListBox<T> SetSelected(T item)
+		public ListBox<T> setSelected( T item )
 		{
-			if (_items.Contains(item))
-				_selection.Set(item);
-			else if (_selection.GetRequired() && _items.Count > 0)
-				_selection.Set(_items[0]);
+			if( _items.Contains( item ) )
+				_selection.set( item );
+			else if( _selection.getRequired() && _items.Count > 0 )
+				_selection.set( _items[0] );
 			else
-				_selection.Clear();
+				_selection.clear();
 
 			return this;
 		}
@@ -291,10 +286,10 @@ namespace Nez.UI
 		/// gets the index of the first selected item. The top item has an index of 0. Nothing selected has an index of -1.
 		/// </summary>
 		/// <returns>The selected index.</returns>
-		public int GetSelectedIndex()
+		public int getSelectedIndex()
 		{
-			var selected = _selection.Items();
-			return selected.Count == 0 ? -1 : _items.IndexOf(selected[0]);
+			var selected = _selection.items();
+			return selected.Count == 0 ? -1 : _items.IndexOf( selected[0] );
 		}
 
 
@@ -302,23 +297,22 @@ namespace Nez.UI
 		/// Sets the selection to only the selected index
 		/// </summary>
 		/// <param name="index">Index.</param>
-		public ListBox<T> SetSelectedIndex(int index)
+		public ListBox<T> setSelectedIndex( int index )
 		{
-			Insist.IsFalse(index < -1 || index >= _items.Count,
-				"index must be >= -1 and < " + _items.Count + ": " + index);
+			Assert.isFalse( index < -1 || index >= _items.Count, "index must be >= -1 and < " + _items.Count + ": " + index );
 
-			if (index == -1)
-				_selection.Clear();
+			if( index == -1 )
+				_selection.clear();
 			else
-				_selection.Set(_items[index]);
+				_selection.set( _items[index] );
 
 			return this;
 		}
 
 
-		public ListBox<T> SetItems(params T[] newItems)
+		public ListBox<T> setItems( params T[] newItems )
 		{
-			SetItems(new List<T>(newItems));
+			setItems( new List<T>( newItems ) );
 			return this;
 		}
 
@@ -328,35 +322,34 @@ namespace Nez.UI
 		/// ArraySelection#getRequired(), the first item is selected.
 		/// </summary>
 		/// <param name="newItems">New items.</param>
-		public ListBox<T> SetItems(IList<T> newItems)
+		public ListBox<T> setItems( IList<T> newItems )
 		{
-			Insist.IsNotNull(newItems, "newItems cannot be null");
+			Assert.isNotNull( newItems, "newItems cannot be null" );
 			float oldPrefWidth = _prefWidth, oldPrefHeight = _prefHeight;
 
 			_items.Clear();
-			_items.AddRange(newItems);
-			_selection.Validate();
+			_items.AddRange( newItems );
+			_selection.validate();
 
-			Invalidate();
-			Validate();
-			if (oldPrefWidth != _prefWidth || oldPrefHeight != _prefHeight)
+			invalidate();
+			validate();
+			if( oldPrefWidth != _prefWidth || oldPrefHeight != _prefHeight )
 			{
-				InvalidateHierarchy();
-				SetSize(_prefWidth, _prefHeight);
+				invalidateHierarchy();
+				setSize( _prefWidth, _prefHeight );
 			}
-
 			return this;
 		}
 
 
-		public void ClearItems()
+		public void clearItems()
 		{
-			if (_items.Count == 0)
+			if( _items.Count == 0 )
 				return;
-
+			
 			_items.Clear();
-			_selection.Clear();
-			InvalidateHierarchy();
+			_selection.clear();
+			invalidateHierarchy();
 		}
 
 
@@ -364,70 +357,71 @@ namespace Nez.UI
 		/// Returns the internal items array. If modified, {@link #setItems(Array)} must be called to reflect the changes.
 		/// </summary>
 		/// <returns>The items.</returns>
-		public List<T> GetItems()
+		public List<T> getItems()
 		{
 			return _items;
 		}
 
 
-		public float GetItemHeight()
+		public float getItemHeight()
 		{
 			return _itemHeight;
 		}
 
 
-		public ListBox<T> SetCullingArea(Rectangle cullingArea)
+		public ListBox<T> setCullingArea( Rectangle cullingArea )
 		{
 			_cullingArea = cullingArea;
 			return this;
 		}
 
 		#endregion
+
 	}
 
 
 	public class ListBoxStyle
 	{
-		public BitmapFont Font;
-		public Color FontColorSelected = Color.Black;
-		public Color FontColorUnselected = Color.White;
-		public Color FontColorHovered = Color.Black;
-
-		public IDrawable Selection;
-
+		public BitmapFont font;
+		public Color fontColorSelected = Color.Black;
+		public Color fontColorUnselected = Color.White;
+		public Color fontColorHovered = Color.Black;
+		public IDrawable selection;
 		/** Optional */
-		public IDrawable HoverSelection;
-
+		public IDrawable hoverSelection;
 		/** Optional */
-		public IDrawable Background;
+		public IDrawable background;
 
 
 		public ListBoxStyle()
 		{
-			Font = Graphics.Instance.BitmapFont;
+			font = Graphics.instance.bitmapFont;
 		}
 
 
-		public ListBoxStyle(BitmapFont font, Color fontColorSelected, Color fontColorUnselected, IDrawable selection)
+		public ListBoxStyle( BitmapFont font, Color fontColorSelected, Color fontColorUnselected, IDrawable selection )
 		{
-			Font = font;
-			FontColorSelected = fontColorSelected;
-			FontColorUnselected = fontColorUnselected;
-			Selection = selection;
+			this.font = font;
+			this.fontColorSelected = fontColorSelected;
+			this.fontColorUnselected = fontColorUnselected;
+			this.selection = selection;
 		}
 
 
-		public ListBoxStyle Clone()
+		public ListBoxStyle clone()
 		{
 			return new ListBoxStyle
 			{
-				Font = Font,
-				FontColorSelected = FontColorSelected,
-				FontColorUnselected = FontColorUnselected,
-				Selection = Selection,
-				HoverSelection = HoverSelection,
-				Background = Background
+				font = font,
+				fontColorSelected = fontColorSelected,
+				fontColorUnselected = fontColorUnselected,
+				selection = selection,
+				hoverSelection = hoverSelection,
+				background = background
 			};
 		}
+
 	}
+
 }
+

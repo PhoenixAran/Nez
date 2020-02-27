@@ -11,15 +11,16 @@ namespace Nez.AI.UtilityAI
 		Action<T> _action;
 
 
-		public ActionExecutor(Action<T> action)
+		public ActionExecutor( Action<T> action )
 		{
 			_action = action;
 		}
 
 
-		void IAction<T>.Execute(T context)
+		void IAction<T>.execute( T context )
 		{
-			_action(context);
+			_action( context );
 		}
 	}
 }
+

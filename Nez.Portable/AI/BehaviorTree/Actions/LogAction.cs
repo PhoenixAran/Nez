@@ -1,4 +1,7 @@
-﻿namespace Nez.AI.BehaviorTrees
+﻿using System;
+
+
+namespace Nez.AI.BehaviorTrees
 {
 	/// <summary>
 	/// simple task which will output the specified text and return success. It can be used for debugging.
@@ -8,28 +11,29 @@
 		/// <summary>
 		/// text to log
 		/// </summary>
-		public string Text;
+		public string text;
 
 		/// <summary>
 		/// is this text an error
 		/// </summary>
-		public bool IsError;
+		public bool isError;
 
 
-		public LogAction(string text)
+		public LogAction( string text )
 		{
-			Text = text;
+			this.text = text;
 		}
 
 
-		public override TaskStatus Update(T context)
+		public override TaskStatus update( T context )
 		{
-			if (IsError)
-				Debug.Error(Text);
+			if( isError )
+				Debug.error( text );
 			else
-				Debug.Log(Text);
+				Debug.log( text );
 
 			return TaskStatus.Success;
 		}
 	}
 }
+

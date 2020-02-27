@@ -1,4 +1,7 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using System;
+using Nez;
+using Microsoft.Xna.Framework.Graphics;
+using Nez.Textures;
 
 
 namespace Nez
@@ -19,23 +22,24 @@ namespace Nez
 		RenderTargetBinding[] _renderTargetBinding = new RenderTargetBinding[1];
 
 
-		public WaterReflectionMaterial() : base(new WaterReflectionEffect())
-		{
-		}
+		public WaterReflectionMaterial() : base( new WaterReflectionEffect() )
+		{}
 
-		public override void OnPreRender(Camera camera)
+
+		public override void onPreRender( Camera camera )
 		{
-			Core.GraphicsDevice.GetRenderTargets(_renderTargetBinding);
+			Core.graphicsDevice.GetRenderTargets( _renderTargetBinding );
 			var boundRenderTarget = _renderTargetBinding[0].RenderTarget as RenderTarget2D;
 
 			// only update the Shader when the renderTarget changes. it will be swapped out whenever the GraphicsDevice resets.
-			if (_renderTarget == null || _renderTarget != boundRenderTarget)
+			if( _renderTarget == null || _renderTarget != boundRenderTarget )
 			{
 				_renderTarget = boundRenderTarget;
-				Effect.RenderTexture = boundRenderTarget;
+				effect.renderTexture = boundRenderTarget;
 			}
 
-			Effect.MatrixTransform = camera.ViewProjectionMatrix;
+			effect.matrixTransform = camera.viewProjectionMatrix;
 		}
 	}
 }
+

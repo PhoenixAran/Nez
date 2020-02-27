@@ -1,6 +1,9 @@
-﻿using Nez.Textures;
+﻿using System;
+using Nez.Systems;
+using Nez.Textures;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Nez;
 
 
 namespace Nez
@@ -14,42 +17,46 @@ namespace Nez
 		RenderTexture _tempRT;
 
 
-		public PixelBloomPostProcessor(RenderTexture layerRenderTexture, int executionOrder) : base(executionOrder)
+		public PixelBloomPostProcessor( RenderTexture layerRenderTexture, int executionOrder ) : base( executionOrder )
 		{
 			_layerRT = layerRenderTexture;
-			_tempRT = new RenderTexture(_layerRT.RenderTarget.Width, _layerRT.RenderTarget.Height, DepthFormat.None);
+			_tempRT = new RenderTexture( _layerRT.renderTarget.Width, _layerRT.renderTarget.Height, DepthFormat.None );
 		}
 
-		public override void OnSceneBackBufferSizeChanged(int newWidth, int newHeight)
+
+		public override void onSceneBackBufferSizeChanged( int newWidth, int newHeight )
 		{
-			base.OnSceneBackBufferSizeChanged(newWidth, newHeight);
+			base.onSceneBackBufferSizeChanged( newWidth, newHeight );
 
-			_tempRT.Resize(newWidth, newHeight);
+			_tempRT.resize( newWidth, newHeight );
 		}
 
-		public override void Process(RenderTarget2D source, RenderTarget2D destination)
+
+		public override void process( RenderTarget2D source, RenderTarget2D destination )
 		{
 			// first we process the rendered layer with the bloom effect
-			base.Process(_layerRT, _tempRT);
+			base.process( _layerRT, _tempRT );
 
 			// we need to be careful here and ensure we use AlphaBlending since the layer we rendered is mostly transparent
-			Core.GraphicsDevice.SetRenderTarget(destination);
-			Graphics.Instance.Batcher.Begin(BlendState.AlphaBlend, SamplerState, DepthStencilState.None,
-				RasterizerState.CullNone);
+			Core.graphicsDevice.setRenderTarget( destination );
+			Graphics.instance.batcher.begin( BlendState.AlphaBlend, samplerState, DepthStencilState.None, RasterizerState.CullNone );
 
 			// now we first draw the full scene (source), then draw our bloomed layer (tempRT) then draw the un-bloomed layer (layerRT)
-			Graphics.Instance.Batcher.Draw(source, new Rectangle(0, 0, destination.Width, destination.Height), Color.White);
-			Graphics.Instance.Batcher.Draw(_tempRT, new Rectangle(0, 0, destination.Width, destination.Height), Color.White);
-			Graphics.Instance.Batcher.Draw(_layerRT, new Rectangle(0, 0, destination.Width, destination.Height), Color.White);
+			Graphics.instance.batcher.draw( source, new Rectangle( 0, 0, destination.Width, destination.Height ), Color.White );
+			Graphics.instance.batcher.draw( _tempRT, new Rectangle( 0, 0, destination.Width, destination.Height ), Color.White );
+			Graphics.instance.batcher.draw( _layerRT, new Rectangle( 0, 0, destination.Width, destination.Height ), Color.White );
 
-			Graphics.Instance.Batcher.End();
+			Graphics.instance.batcher.end();
 		}
 
-		public override void Unload()
+
+		public override void unload()
 		{
-			base.Unload();
+			base.unload();
 
 			_tempRT.Dispose();
 		}
+
 	}
 }
+
